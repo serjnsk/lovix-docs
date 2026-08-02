@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — токеномика и прототипы</title>
+<style>
+  :root{--bg:#0d0b14;--card:#171226;--line:#2a2340;--text:#f2eefa;--muted:#9a8fb0;
+    --grad:linear-gradient(135deg,#ff4d8d,#a855f7)}
+  *{box-sizing:border-box}
+  body{margin:0;background:
+    radial-gradient(800px 400px at 70% -10%, rgba(168,85,247,.15), transparent 60%),var(--bg);
+    color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .box{max-width:720px;padding:40px 24px;text-align:center}
+  .logo{font-size:40px;font-weight:800}
+  .logo em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  p{color:var(--muted);margin:10px 0 36px}
+  .links{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:640px){.links{grid-template-columns:1fr}}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:28px 24px;text-decoration:none;color:var(--text);transition:.18s;text-align:left}
+  a.card:hover{border-color:#a855f7;transform:translateY(-3px)}
+  a.card b{font-size:18px;display:block;margin-bottom:6px}
+  a.card span{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo"><em>Lovix</em></div>
+  <p>Токеномика сервиса — документация и визуальные прототипы</p>
+  <div class="links">
+    <a class="card" href="tokenomics.html"><b>📄 Токеномика</b><span>Документ для разработки: тарифы, токены, начисление, расходование, правила лестницы</span></a>
+    <a class="card" href="pricing.html"><b>🎨 Прототип тарифов</b><span>Секции «Тарифы» и «Пакеты токенов», как они будут выглядеть на сайте</span></a>
+  </div>
+</div>
+</body>
+</html>
