@@ -266,7 +266,7 @@
   document.getElementById("out").innerHTML = marked.parse(raw, {gfm:true});
 
 
-  document.querySelectorAll("#out table td").forEach(td => {
+  document.querySelectorAll("#out table td, #out p, #out li").forEach(td => {
     if (/[\u{1F514}\u2709\u{1F4AC}]/u.test(td.textContent)) {
       td.innerHTML = td.innerHTML
         .replace(/🔔/g, '<span class="ch ch-bell"><i>🔔</i>колокольчик</span>')
