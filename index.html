@@ -29,7 +29,7 @@
   .md strong{color:#000}
   .md table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px;display:block;overflow-x:auto}
   .md th,.md td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
-  .md th{background:var(--bg-band);white-space:nowrap}
+  .md th{background:var(--bg-band)}
   .md tr:nth-child(even) td{background:#fafbfc}
   .md code{background:var(--bg-band);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
     font:13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8a3ffc}
@@ -135,6 +135,7 @@
   aside.toc .toc-sub.open{display:block}
 
   main{flex:1;min-width:0}
+  @media(min-width:1081px){.md table{display:table;width:100%}.layout{max-width:1500px}}
   @media(max-width:1080px){aside.toc{display:none}}
 </style>
 </head>
@@ -144,7 +145,7 @@
   <span><a href="index.html" style="color:var(--accent);font-weight:700;text-decoration:none;margin-right:16px">Токеномика</a><a href="metrics.html" style="color:var(--muted);text-decoration:none;margin-right:16px">Метрики</a><a href="events.html" style="color:var(--muted);text-decoration:none;margin-right:16px">События</a><a href="scenarios.html" style="color:var(--muted);text-decoration:none">Сценарии</a></span>
 </div></div>
 <div class="layout"><aside class="toc" id="toc"></aside>
-<main style="padding:12px 28px 90px;max-width:1010px">
+<main style="padding:12px 28px 90px;max-width:1180px">
 
 <div class="md" id="out0"></div>
 
