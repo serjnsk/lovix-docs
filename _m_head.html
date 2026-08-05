@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Система метрик</title>
+<style>
+  :root{
+    --text:#1c2330; --muted:#5b6474; --dim:#8b93a5;
+    --line:#e3e6ec; --line2:#c9cedb;
+    --bg-band:#f6f7fa; --card:#ffffff;
+    --accent:#2f54c9; --accent-bg:#eef2fd;
+    --ok:#1a7f4e; --ok-bg:#e8f5ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--text);
+    font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Inter,sans-serif}
+  .top{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:20}
+  .top-in{max-width:1080px;margin:0 auto;padding:14px 28px;display:flex;justify-content:space-between;align-items:baseline}
+  .top b{font-size:17px}
+  .top nav a{color:var(--muted);text-decoration:none;font-size:13.5px;margin-left:18px}
+  .top nav a:hover{color:#000}
+  .top nav a.cur{color:var(--accent);font-weight:700}
+  main{max-width:1080px;margin:0 auto;padding:12px 28px 90px}
+  .md h1{font-size:32px;letter-spacing:-.4px;margin:34px 0 6px}
+  .md h2{font-size:22px;margin:46px 0 12px;padding-top:22px;border-top:1px solid var(--line);letter-spacing:-.2px}
+  .md h3{font-size:16.5px;margin:28px 0 8px}
+  .md p{margin:10px 0}
+  .md strong{color:#000}
+  .md table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--bg-band);white-space:nowrap}
+  .md tr:nth-child(even) td{background:#fafbfc}
+  .md code{background:var(--bg-band);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8a3ffc}
+  .md pre{background:var(--bg-band);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto}
+  .md pre code{background:none;border:0;padding:0;color:#333}
+  .md blockquote{margin:14px 0;padding:12px 18px;border-left:3px solid var(--accent);
+    background:var(--accent-bg);border-radius:0 8px 8px 0;color:#37415a}
+  .md ul,.md ol{padding-left:24px}
+  .md a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <b>Lovix · внутренняя документация</b>
+  <nav><a href="index.html">Токеномика</a><a class="cur" href="metrics.html">Метрики</a></nav>
+</div></div>
+<main><div class="md" id="out"></div></main>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script type="text/markdown" id="src">
