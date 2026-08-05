@@ -3,6 +3,17 @@
   const raw = document.getElementById("src").textContent;
   document.getElementById("out").innerHTML = marked.parse(raw, {gfm:true});
 
+
+  document.querySelectorAll("#out table td").forEach(td => {
+    if (/[\u{1F514}\u2709\u{1F4AC}]/u.test(td.textContent)) {
+      td.innerHTML = td.innerHTML
+        .replace(/🔔/g, '<span class="ch ch-bell"><i>🔔</i>колокольчик</span>')
+        .replace(/✉/g, '<span class="ch ch-mail"><i>✉️</i>email</span>')
+        .replace(/💬/g, '<span class="ch ch-chat"><i>💬</i>чат компаньона</span>')
+        .replace(/<\/span> \+ <span/g, '</span> <span');
+    }
+  });
+
   document.querySelectorAll("#out table").forEach(tb => {
     const heads = [...tb.querySelectorAll("th")].map(th => th.textContent.trim());
     const cutIdx = heads.indexOf("Разрезы");

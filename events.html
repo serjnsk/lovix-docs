@@ -43,6 +43,12 @@
     border-radius:6px;padding:2px 7px;font-size:11.5px;white-space:nowrap;display:inline-block;margin:1px 2px}
   .chip-cut{display:inline-block;font-size:11.5px;background:var(--bg-band);color:var(--muted);
     border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:1px 3px 1px 0;white-space:nowrap}
+  .ch{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+    padding:3px 10px;border-radius:999px;white-space:nowrap;margin:1px 2px;line-height:1.4}
+  .ch i{font-style:normal;font-size:14px;line-height:1}
+  .ch-bell{background:#fef3e2;color:#b45309;border:1px solid #f3ddba}
+  .ch-mail{background:var(--accent-bg);color:var(--accent);border:1px solid #d6def8}
+  .ch-chat{background:var(--ok-bg);color:var(--ok);border:1px solid #cdeeda}
   .chip-ext{display:inline-block;font-size:11.5px;background:#fef3e2;color:#b45309;
     border:1px solid #f3ddba;border-radius:6px;padding:2px 7px;margin:1px 2px;white-space:nowrap}
 
@@ -222,6 +228,17 @@
 <script>
   const raw = document.getElementById("src").textContent;
   document.getElementById("out").innerHTML = marked.parse(raw, {gfm:true});
+
+
+  document.querySelectorAll("#out table td").forEach(td => {
+    if (/[\u{1F514}\u2709\u{1F4AC}]/u.test(td.textContent)) {
+      td.innerHTML = td.innerHTML
+        .replace(/🔔/g, '<span class="ch ch-bell"><i>🔔</i>колокольчик</span>')
+        .replace(/✉/g, '<span class="ch ch-mail"><i>✉️</i>email</span>')
+        .replace(/💬/g, '<span class="ch ch-chat"><i>💬</i>чат компаньона</span>')
+        .replace(/<\/span> \+ <span/g, '</span> <span');
+    }
+  });
 
   document.querySelectorAll("#out table").forEach(tb => {
     const heads = [...tb.querySelectorAll("th")].map(th => th.textContent.trim());
