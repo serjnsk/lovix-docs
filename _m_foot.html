@@ -2,6 +2,36 @@
 <script>
   const raw = document.getElementById("src").textContent;
   document.getElementById("out").innerHTML = marked.parse(raw, {gfm:true});
+
+(function(){
+  const main = document.querySelector("main");
+  const toc = document.getElementById("toc");
+  const items = [];
+  const heads = main.querySelectorAll(".md h2, .md h3, .proto-label b");
+  let n = 0;
+  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "Оглавление"; toc.appendChild(t);
+  heads.forEach(h => {
+    const proto = h.closest(".proto");
+    const target = proto || h;
+    if (!target.id) target.id = "sec-" + (n++);
+    target.style.scrollMarginTop = "70px";
+    const a = document.createElement("a");
+    a.href = "#" + target.id;
+    a.textContent = proto ? "Прототип: " + h.textContent : h.textContent;
+    if (h.tagName === "H3" && !proto) a.className = "h3";
+    toc.appendChild(a);
+    items.push({target, a});
+  });
+  function onScroll(){
+    let cur = items[0];
+    for (const it of items) {
+      if (it.target.getBoundingClientRect().top <= 90) cur = it; else break;
+    }
+    items.forEach(it => it.a.classList.toggle("active", it === cur));
+  }
+  addEventListener("scroll", onScroll, {passive:true}); onScroll();
+})();
+
 </script>
 </body>
 </html>
