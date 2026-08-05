@@ -50,6 +50,16 @@
   aside.toc a:hover{color:#000;background:var(--bg-band)}
   aside.toc a.h3{padding-left:26px;font-size:12.5px;color:var(--dim)}
   aside.toc a.active{color:var(--accent);background:var(--accent-bg);font-weight:600}
+  aside.toc .toc-row{display:flex;align-items:center;gap:2px}
+  aside.toc .toc-row a{flex:1}
+  aside.toc .toc-tgl{border:0;background:none;color:var(--dim);cursor:pointer;width:22px;height:22px;
+    border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s;flex:0 0 auto}
+  aside.toc .toc-tgl:hover{background:var(--bg-band);color:#000}
+  aside.toc .toc-tgl.open{transform:rotate(90deg)}
+  aside.toc .toc-sub{display:none}
+  aside.toc .toc-sub.open{display:block}
+
   main{flex:1;min-width:0}
   @media(max-width:1080px){aside.toc{display:none}}
 </style>
