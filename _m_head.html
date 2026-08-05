@@ -39,6 +39,13 @@
     background:var(--accent-bg);border-radius:0 8px 8px 0;color:#37415a}
   .md ul,.md ol{padding-left:24px}
   .md a{color:var(--accent)}
+  .md table code{background:var(--accent-bg);color:var(--accent);border:1px solid #d6def8;
+    border-radius:6px;padding:2px 7px;font-size:11.5px;white-space:nowrap;display:inline-block;margin:1px 2px}
+  .chip-cut{display:inline-block;font-size:11.5px;background:var(--bg-band);color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:2px 9px;margin:1px 3px 1px 0;white-space:nowrap}
+  .chip-ext{display:inline-block;font-size:11.5px;background:#fef3e2;color:#b45309;
+    border:1px solid #f3ddba;border-radius:6px;padding:2px 7px;margin:1px 2px;white-space:nowrap}
+
 
   html{scroll-behavior:smooth}
   .layout{max-width:1340px;margin:0 auto;display:flex;align-items:flex-start}
@@ -59,6 +66,21 @@
   aside.toc .toc-tgl.open{transform:rotate(90deg)}
   aside.toc .toc-sub{display:none}
   aside.toc .toc-sub.open{display:block}
+  .fun{max-width:680px;margin:20px auto 26px}
+  .fstep{position:relative;margin:0 auto 4px;border-radius:10px;background:var(--accent);color:#fff;
+    padding:11px 16px;font-weight:700;font-size:13.5px;display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:6px}
+  .fstep code{background:rgba(255,255,255,.16);border:0;color:#fff;font-size:11px;padding:2px 7px;border-radius:5px}
+  .fs1{width:100%}.fs2{width:84%;opacity:.93}.fs3{width:70%;opacity:.86}.fs4{width:56%;opacity:.8}
+  .fconv{display:flex;justify-content:center;align-items:center;gap:8px;color:var(--muted);font-size:12px;padding:3px 0}
+  .fconv b{color:var(--ok);background:var(--ok-bg);border-radius:999px;padding:2px 10px;font-size:11.5px;white-space:nowrap}
+  .fbranch{position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%);white-space:nowrap;
+    font-size:11.5px;color:#b91c1c;background:#fdecec;border:1px solid #f5caca;border-radius:8px;padding:4px 10px;font-weight:600}
+  .fbranch.wrm{color:#b45309;background:#fef3e2;border-color:#f3ddba}
+  .fbranch small{display:block;color:var(--muted);font-weight:400;font-size:10.5px}
+  .fnote{margin-top:12px;text-align:center;color:var(--dim);font-size:12px}
+  @media(max-width:980px){.fbranch{position:static;transform:none;display:inline-block}}
+
 
   main{flex:1;min-width:0}
   @media(max-width:1080px){aside.toc{display:none}}

@@ -3,6 +3,27 @@
   const raw = document.getElementById("src").textContent;
   document.getElementById("out").innerHTML = marked.parse(raw, {gfm:true});
 
+  document.querySelectorAll("#out table").forEach(tb => {
+    const heads = [...tb.querySelectorAll("th")].map(th => th.textContent.trim());
+    const cutIdx = heads.indexOf("Разрезы");
+    let evIdx = heads.indexOf("События-источники");
+    if (evIdx < 0) evIdx = heads.indexOf("Источник");
+    tb.querySelectorAll("tr").forEach(tr => {
+      const tds = tr.children;
+      if (cutIdx >= 0 && tds[cutIdx] && tds[cutIdx].tagName === "TD") {
+        const txt = tds[cutIdx].textContent.trim();
+        if (txt && txt !== "—")
+          tds[cutIdx].innerHTML = txt.split(",").map(p => '<span class="chip-cut">' + p.trim() + "</span>").join("");
+      }
+      if (evIdx >= 0 && tds[evIdx] && tds[evIdx].tagName === "TD") {
+        tds[evIdx].innerHTML = tds[evIdx].innerHTML
+          .replace(/Keitaro/g, '<span class="chip-ext">Keitaro</span>')
+          .replace(/Я\.Метрика/g, '<span class="chip-ext">Я.Метрика</span>');
+      }
+    });
+  });
+
+
 (function(){
   const main = document.querySelector("main");
   const toc = document.getElementById("toc");
