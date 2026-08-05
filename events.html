@@ -89,7 +89,7 @@
 <body>
 <div class="top"><div class="top-in">
   <b>Lovix · внутренняя документация</b>
-  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a class="cur" href="events.html">События</a></nav>
+  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a class="cur" href="events.html">События</a><a href="notifications.html">Уведомления</a></nav>
 </div></div>
 <div class="layout"><aside class="toc" id="toc"></aside>
 <main style="padding:12px 28px 90px"><div class="md" id="out"></div></main></div>
@@ -133,6 +133,7 @@
 | `companion.created` | Создан свой компаньон (Premium / VIP) | компаньон | Г7 | — |
 | `chat.message_sent` | Сообщение отправлено компаньону | компаньон, тип: каталожный / свой | Г5, Г6, Г7 | — |
 | `quota.message_blocked` | **Стена Free**: сообщение не отправлено, квота 5/мес исчерпана | номер попытки | Г3 | предложение подписки — главный конверсионный триггер |
+| `quota.reset` ⏱ | Месячная квота Free обновлена | — | — | «снова доступны 5 сообщений» — возврат неактивных Free |
 | `message_limit.reached` | Достигнут дневной лимит: Premium 500/день или скрытый предел VIP | tier: premium / vip | Г5 | premium — предложение VIP; vip — «подождите до завтра», без апсейла |
 
 ---
