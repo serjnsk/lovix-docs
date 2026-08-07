@@ -228,6 +228,7 @@
     <div class="pv-frame" id="pvframe"><iframe id="pv" title="Превью письма"></iframe></div>
     <div class="actions">
       <button class="btn-copy" id="copy">Копировать HTML письма</button>
+      <button class="btn-ghost" id="clear" title="Пустое письмо с чистой метой">Очистить</button>
       <button class="btn-ghost" id="reset" title="Вернуть письмо-пример">Сбросить</button>
     </div>
   </div>
@@ -857,6 +858,16 @@ $('copy').addEventListener('click', async () => {
     ta.value = currentHtml; document.body.appendChild(ta); ta.select()
     document.execCommand('copy'); ta.remove(); toast('HTML письма скопирован ✓')
   }
+})
+$('clear').addEventListener('click', () => {
+  if (!confirm('Очистить письмо? Текст и мета будут удалены.')) return
+  Object.assign(meta, {subject:'', preheader:'', slug:'', date:''})
+  ;[['m-subject','subject'],['m-preheader','preheader'],['m-slug','slug'],['m-date','date']]
+    .forEach(([id,k]) => { $(id).value = meta[k] })
+  $('cnt-subject').textContent = '0/50'; $('cnt-subject').classList.remove('over')
+  $('cnt-preheader').textContent = '0/90'; $('cnt-preheader').classList.remove('over')
+  editor.commands.setContent({type:'doc', content:[{type:'paragraph'}]})
+  update(); toast('Письмо очищено — можно собирать новое')
 })
 $('reset').addEventListener('click', () => {
   if (!confirm('Сбросить черновик и вернуть письмо-пример?')) return
