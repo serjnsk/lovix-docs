@@ -104,6 +104,33 @@ table.spec th{color:var(--lx-dim);font-weight:700;background:var(--lx-card)}
 table.spec td{color:var(--lx-mut)}
 table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-link);white-space:nowrap}
 
+/* phone frame */
+.phone{width:350px;max-width:100%;height:660px;border-radius:44px;background:#050507;
+  border:1px solid #2a2233;box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 8px #131018;
+  padding:8px;flex:none}
+.phone-screen{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;
+  background:var(--lx-bg);transform:translateZ(0)}  /* transform = containing block для fixed внутри */
+.ph-status{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 22px 6px;font:700 12px/1 'Nunito',sans-serif;color:#fff}
+.ph-notch{position:absolute;left:50%;top:8px;transform:translateX(-50%);
+  width:110px;height:24px;border-radius:12px;background:#050507;z-index:40}
+.ph-head{display:flex;align-items:center;gap:10px;padding:8px 14px 10px;border-bottom:1px solid var(--lx-line)}
+.ph-head .logo{font-size:15px}
+.ph-body{position:absolute;inset:96px 0 0;overflow:auto;padding:12px 14px 20px}
+.ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ph-card{border:1px solid var(--lx-line);border-radius:14px;overflow:hidden;background:var(--lx-card)}
+.ph-card .ph-ph{height:110px;display:grid;place-items:center;font-weight:800;font-size:26px;color:rgba(255,255,255,.85)}
+.ph-card b{display:block;padding:7px 10px 2px;font-size:12px}
+.ph-card span{display:block;padding:0 10px 8px;font-size:10.5px;color:var(--lx-dim)}
+.demo-phone{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.demo-phone .ctrls{display:flex;flex-direction:column;gap:10px;min-width:200px;flex:1}
+@media(max-width:700px){
+  .hero h1{font-size:29px}
+  .demo{padding:20px 16px}
+  .phone{height:600px}
+  .top-in{padding:11px 16px}
+  .layout{padding:0 16px 90px}
+}
 /* ═══════════ .nt-* — сам UI-кит (этот CSS уходит в код-табы) ═══════════ */
 </style>
 <style id="nt-styles">
@@ -194,9 +221,46 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-
 /* @flash — подсветка строки, к которой пришли из другого места */
 .nt-flash{animation:nt-flash 2.2s ease-out}
 @keyframes nt-flash{0%{background:rgba(217,70,239,.22)}100%{background:transparent}}
+/* @mobile — верхний баннер и bottom sheet (≤640px включаются сами) */
+.nt-banner-host{position:fixed;left:0;right:0;top:0;z-index:var(--nt-z-toast);
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 10px 0;
+  display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.nt-banner{pointer-events:auto;display:flex;gap:11px;align-items:flex-start;position:relative;
+  overflow:hidden;background:rgba(34,26,42,.97);border:1px solid var(--nt-line);
+  border-radius:16px;padding:12px 13px 14px;box-shadow:0 12px 34px rgba(0,0,0,.6);
+  touch-action:none;cursor:grab;
+  animation:nt-banner-in var(--nt-dur-in) var(--nt-ease-spring)}
+@keyframes nt-banner-in{from{opacity:0;transform:translateY(-90%)}to{opacity:1;transform:none}}
+.nt-banner.nt-leave{transition:transform .18s ease-in,opacity .18s;
+  transform:translateY(-130%) !important;opacity:0}
+.nt-sheet-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:var(--nt-z-drop);
+  animation:nt-fade .25s ease}
+@keyframes nt-fade{from{opacity:0}}
+.nt-sheet{position:fixed;left:0;right:0;bottom:0;max-height:76%;display:flex;flex-direction:column;
+  background:var(--nt-card);border:1px solid var(--nt-line);border-bottom:none;
+  border-radius:20px 20px 0 0;z-index:calc(var(--nt-z-drop) + 1);
+  box-shadow:0 -18px 44px rgba(0,0,0,.55);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  animation:nt-sheet-in .34s var(--nt-ease-spring)}
+@keyframes nt-sheet-in{from{transform:translateY(100%)}to{transform:none}}
+.nt-sheet.nt-leave{transition:transform .22s ease-in;transform:translateY(105%) !important}
+.nt-sheet-grip{width:38px;height:4px;border-radius:2px;background:var(--nt-s3);
+  margin:10px auto 2px;flex:none}
+.nt-sheet .nt-wall-head{cursor:grab;touch-action:none}
+.nt-sheet .nt-wall-list{overflow:auto;touch-action:pan-y}
+@media (max-width:640px){
+  /* та же разметка: хост тостов встаёт баннером сверху, стена — шитом снизу */
+  .nt-toast-host{left:10px;right:10px;bottom:auto;width:auto;
+    top:calc(env(safe-area-inset-top,0px) + 10px)}
+  .nt-toast{border-radius:16px;touch-action:none;cursor:grab}
+  .nt-wall{position:fixed;left:0;right:0;top:auto;bottom:0;width:auto;max-height:76vh;
+    border-radius:20px 20px 0 0;transform-origin:bottom center;
+    animation:nt-sheet-in .34s var(--nt-ease-spring)}
+}
 /* @reduced-motion */
 @media (prefers-reduced-motion:reduce){
-  .nt-toast,.nt-toast.nt-leave,.nt-wall,.nt-badge.on,.nt-bell.nt-ring>i,.nt-flash{animation:none}
+  .nt-toast,.nt-toast.nt-leave,.nt-wall,.nt-badge.on,.nt-bell.nt-ring>i,.nt-flash,
+  .nt-banner,.nt-banner.nt-leave,.nt-sheet,.nt-sheet.nt-leave,.nt-sheet-back{animation:none}
   .nt-badge.on{transform:scale(1)}
   .nt-toast-life{animation-duration:var(--nt-toast-life)}
 }
@@ -215,6 +279,7 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-
   <a href="#toast">Тост компаньона</a>
   <a href="#bell">Колокольчик и бейдж</a>
   <a href="#wall">Стена уведомлений</a>
+  <a href="#mobile">Мобильные паттерны</a>
   <a href="#item">Строка уведомления</a>
   <a href="#core">Ядро LovixNotify</a>
   <a href="#blade">Blade</a>
@@ -233,6 +298,7 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-
   <div class="meta" style="margin-top:18px">
     <span>Nunito · прод-палитра lovix.ai</span><span>prefers-reduced-motion</span>
     <span>тост — только сообщения компаньонов</span><span>агрегация непрочитанных</span>
+    <span>mobile: свайпы · bottom sheet · safe-area</span>
   </div>
 </div>
 
@@ -300,6 +366,42 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-
   </div>
 </section>
 
+<!-- ══ mobile ══ -->
+<section id="mobile">
+  <h2>Мобильные паттерны</h2>
+  <p class="sub">Та же разметка и то же ядро — на ≤640px CSS сам превращает тост в <b>верхний push-баннер со свайп-дизмиссом</b>, а стену — в <b>bottom sheet со свайп-закрытием</b>. Жесты на pointer events, так что в демо работают и мышью: баннер потяни вверх, шит — вниз за ручку.</p>
+  <div class="pen">
+    <div class="demo">
+      <div class="demo-phone">
+        <div class="ctrls">
+          <button class="btn grad" onclick="phoneMsg('alena')">Сообщение от Алёны</button>
+          <button class="btn" onclick="phoneMsg('eva')">от Евы</button>
+          <button class="btn" onclick="phoneAggregate()">Агрегат: 3 непрочитанных</button>
+          <button class="btn" onclick="phoneSystem()">Системное — тихо в бейдж</button>
+          <button class="btn ghost" onclick="phoneSheet()">Открыть стену (sheet)</button>
+          <p style="color:var(--lx-dim);font-size:12px;margin:6px 0 0">
+            Баннер: свайп вверх — закрыть, тап — в чат.<br>
+            Sheet: тяни вниз за ручку или шапку, тап по фону — закрыть.</p>
+        </div>
+        <div class="phone"><div class="phone-screen" id="phScreen">
+          <div class="ph-notch"></div>
+          <div class="ph-status"><span>21:37</span><span>🜂 ⌁ ▮▮▮</span></div>
+          <div class="ph-head">
+            <div class="logo">lov<em style="font-style:normal;background:var(--lx-grad);-webkit-background-clip:text;background-clip:text;color:transparent">ix</em></div>
+            <div style="margin-left:auto;position:relative">
+              <button class="nt-bell" id="phBell" style="width:36px;height:36px"><i>🔔</i>
+                <span class="nt-badge" id="phBadge"></span></button>
+            </div>
+          </div>
+          <div class="ph-body"><div class="ph-grid" id="phGrid"></div></div>
+          <div class="nt-banner-host" id="phBanners"></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="codepane" data-snip="mobile"></div>
+  </div>
+</section>
+
 <!-- ══ item ══ -->
 <section id="item">
   <h2>Строка уведомления</h2>
@@ -355,6 +457,8 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-
     <tr><td>hover-пауза</td><td>полоска жизни и таймер замирают, пока курсор на тосте</td></tr>
     <tr><td>reduced-motion</td><td>все анимации отключаются медиазапросом, тост появляется без движения</td></tr>
     <tr><td>сброс счётчика</td><td>открытие стены = markAllRead(): бейдж гаснет, unread-кайма снимается</td></tr>
+    <tr><td>≤640px: тост → баннер</td><td>хост встаёт сверху под safe-area, свайп вверх дизмиссит, тап ведёт в чат</td></tr>
+    <tr><td>≤640px: стена → sheet</td><td>bottom sheet на 76% высоты, drag-handle, свайп вниз или тап по фону закрывает</td></tr>
   </table>
 </section>
 
@@ -397,6 +501,66 @@ window.LovixNotify = (function () {
     MAX_TOASTS: MAX_TOASTS
   };
 })();
+</script>
+
+<!-- жесты мобильных паттернов (этот код уходит в таб JS секции Mobile) -->
+<script id="nt-gestures">
+/* Свайп-дизмисс баннера: тяни вверх, ниже порога — вернётся, выше — улетит.
+   Pointer events => работает пальцем и мышью. */
+function ntSwipeDismiss(el, onGone) {
+  var y0 = null, dy = 0, moved = false;
+  el.addEventListener('pointerdown', function (e) {
+    y0 = e.clientY; dy = 0; moved = false;
+    el.setPointerCapture(e.pointerId);
+    el.style.transition = 'none';
+  });
+  el.addEventListener('pointermove', function (e) {
+    if (y0 === null) return;
+    dy = e.clientY - y0;
+    if (Math.abs(dy) > 6) moved = true;
+    var up = Math.min(dy, 0), down = Math.max(dy, 0);
+    el.style.transform = 'translateY(' + (up + down * 0.12) + 'px)'; /* вниз — резинка */
+  });
+  function release() {
+    if (y0 === null) return;
+    el.style.transition = '';
+    if (dy < -40) onGone(); else el.style.transform = '';
+    y0 = null;
+  }
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', release);
+  /* драг не должен считаться кликом по баннеру */
+  el.addEventListener('click', function (e) {
+    if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+  }, true);
+}
+
+/* Закрытие bottom sheet: тяни вниз за ручку или шапку.
+   Порог 90px ИЛИ быстрый флик (velocity > 0.6 px/ms). */
+function ntSheetDrag(sheet, grabs, onClose) {
+  grabs.forEach(function (g) {
+    var y0 = null, dy = 0, t0 = 0;
+    g.addEventListener('pointerdown', function (e) {
+      y0 = e.clientY; dy = 0; t0 = performance.now();
+      g.setPointerCapture(e.pointerId);
+      sheet.style.transition = 'none';
+    });
+    g.addEventListener('pointermove', function (e) {
+      if (y0 === null) return;
+      dy = Math.max(0, e.clientY - y0);
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+    });
+    function release() {
+      if (y0 === null) return;
+      sheet.style.transition = '';
+      var v = dy / Math.max(1, performance.now() - t0);
+      if (dy > 90 || v > 0.6) onClose(); else sheet.style.transform = '';
+      y0 = null;
+    }
+    g.addEventListener('pointerup', release);
+    g.addEventListener('pointercancel', release);
+  });
+}
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
@@ -556,6 +720,100 @@ function demoEvening() {
   var gallery = document.getElementById('itemGallery');
   gallery.innerHTML = '<div class="nt-wall" style="position:static;animation:none">' +
     '<div class="nt-wall-list">' + demoItems.map(row).join('') + '</div></div>';
+})();
+
+/* ═══ phone demo: мобильные паттерны в рамке ═══ */
+(function () {
+  var grid = document.getElementById('phGrid');
+  if (!grid) return;
+  var cards = [['Алёна', '#e35d8f'], ['Мария', '#8b5cf6'], ['Ева', '#5c8bf6'], ['Ника', '#5cb586']];
+  cards.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'ph-card';
+    d.innerHTML = '<div class="ph-ph" style="background:linear-gradient(150deg,' + c[1] + '55,' + c[1] + '22)">' +
+      c[0][0] + '</div><b>' + c[0] + '</b><span>онлайн</span>';
+    grid.appendChild(d);
+  });
+
+  var screen = document.getElementById('phScreen');
+  var banners = document.getElementById('phBanners');
+  var badge = document.getElementById('phBadge');
+  var bellBtn = document.getElementById('phBell');
+  var unread = 0, items = [];
+
+  function bump(n) {
+    unread++; items.unshift(n);
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.classList.remove('on'); void badge.offsetWidth; badge.classList.add('on');
+    bellBtn.classList.remove('nt-ring'); void bellBtn.offsetWidth; bellBtn.classList.add('nt-ring');
+  }
+  function banner(n) {
+    while (banners.children.length >= 2) banners.firstChild.remove();
+    var b = document.createElement('div');
+    b.className = 'nt-banner';
+    b.innerHTML = avatarHtml(n.companion) +
+      '<div class="nt-toast-body"><div class="nt-toast-name">' + n.title + '</div>' +
+      '<div class="nt-toast-text">' + n.body + '</div></div><i class="nt-toast-life"></i>';
+    banners.appendChild(b);
+    function gone() {
+      if (!b.isConnected) return;
+      b.classList.add('nt-leave');
+      setTimeout(function () { b.remove(); }, 220);
+    }
+    ntSwipeDismiss(b, gone);
+    b.querySelector('.nt-toast-life').addEventListener('animationend', gone);
+    b.addEventListener('click', gone); /* тап = переход в чат; в демо закрываем */
+  }
+  window.phoneMsg = function (key) {
+    var g = GIRLS[key];
+    var n = { kind: 'message', title: g.name + ' написала тебе', body: g.text, companion: g };
+    bump(n); banner(n);
+  };
+  window.phoneAggregate = function () {
+    var n = { kind: 'message', title: 'Алёна и ещё 2 написали тебе',
+      body: 'У тебя 3 непрочитанных сообщения: Алёна, Мария, Ева.', companion: GIRLS.alena };
+    bump(n); banner(n);
+  };
+  window.phoneSystem = function () {
+    bump({ kind: 'system', ico: '🪙', title: 'Токены на исходе: осталось 12',
+      body: 'Хватит ещё на пару фото. Докупи пакет заранее.' });
+  };
+
+  var sheet = null, back = null;
+  function closeSheet() {
+    if (!sheet) return;
+    sheet.classList.add('nt-leave');
+    back.style.opacity = 0;
+    setTimeout(function () {
+      if (sheet) sheet.remove();
+      if (back) back.remove();
+      sheet = back = null;
+    }, 240);
+  }
+  window.phoneSheet = function () {
+    if (sheet) return;
+    unread = 0; badge.classList.remove('on');
+    back = document.createElement('div');
+    back.className = 'nt-sheet-back';
+    back.style.transition = 'opacity .2s';
+    sheet = document.createElement('div');
+    sheet.className = 'nt-sheet';
+    var rows = items.length ? items.map(function (n) {
+      var lead = n.kind === 'message' ? avatarHtml(n.companion)
+        : '<span class="nt-ico">' + (n.ico || '🔔') + '</span>';
+      return '<div class="nt-item">' + lead + '<div class="nt-item-b"><b>' + n.title +
+        '</b><p>' + n.body + '</p></div><span class="nt-time">сейчас</span></div>';
+    }).join('') : '<div class="nt-empty"><i>🔕</i>Пока тихо. Компаньоны напишут первыми.</div>';
+    sheet.innerHTML = '<div class="nt-sheet-grip"></div>' +
+      '<div class="nt-wall-head">Уведомления <button>Прочитать все</button></div>' +
+      '<div class="nt-wall-list">' + rows + '</div>';
+    screen.appendChild(back);
+    screen.appendChild(sheet);
+    back.addEventListener('click', closeSheet);
+    sheet.querySelector('.nt-wall-head button').onclick = closeSheet;
+    ntSheetDrag(sheet, [sheet.querySelector('.nt-sheet-grip'), sheet.querySelector('.nt-wall-head')], closeSheet);
+  };
+  bellBtn.addEventListener('click', function () { sheet ? closeSheet() : phoneSheet(); });
 })();
 
 /* ═══ токены ═══ */
@@ -970,6 +1228,73 @@ createApp(App).mount('#app')`,
   Blade: `{{-- если весь хедер на Vue, Blade отдаёт только корень --}}
 <div id="app" data-user="{{ auth()->id() }}"></div>
 @vite(['resources/js/main.js'])`
+};
+
+SNIPPETS.mobile = {
+  Blade: `{{-- Отдельных мобильных компонентов НЕТ: та же разметка и то же ядро.
+     Медиазапрос ≤640px сам превращает toast-host в верхний баннер,
+     а стену — в bottom sheet. --}}
+
+<x-notify.toast-host />   {{-- на телефоне встанет баннером под safe-area --}}
+
+<div class="nt-bell-wrap">
+  <x-notify.bell :count="$unreadCount" />
+  <x-notify.wall :notifications="$notifications" />  {{-- станет sheet --}}
+</div>
+
+{{-- единственное дополнение для sheet — ручка в начале стены: --}}
+<div class="nt-sheet-grip" aria-hidden="true"></div>
+
+{{-- инициализация жестов в notify-widgets.js: --}}
+{{-- ntSwipeDismiss(toastEl, close) · ntSheetDrag(wallEl, [grip, head], close) --}}`,
+  Vue: `<!-- NotifyBanner.vue — тост в мобильном режиме со свайпом вверх -->
+<script setup>
+import { ref } from 'vue'
+defineProps({ n: Object })
+const emit = defineEmits(['gone'])
+
+const dy = ref(0)
+const dragging = ref(false)
+let y0 = null
+
+function down (e) { y0 = e.clientY; dragging.value = true; e.currentTarget.setPointerCapture(e.pointerId) }
+function move (e) {
+  if (y0 === null) return
+  const d = e.clientY - y0
+  dy.value = Math.min(d, 0) + Math.max(d, 0) * 0.12   // вниз — резинка
+}
+function up () {
+  dragging.value = false
+  if (dy.value < -40) emit('gone')
+  else dy.value = 0
+  y0 = null
+}
+<\/script>
+
+<template>
+  <div class="nt-banner"
+       :style="{ transform: \`translateY(\${dy}px)\`, transition: dragging ? 'none' : '' }"
+       @pointerdown="down" @pointermove="move" @pointerup="up" @pointercancel="up">
+    <img v-if="n.companion?.avatar" class="nt-ava" :src="n.companion.avatar" alt="">
+    <div class="nt-toast-body">
+      <div class="nt-toast-name">{{ n.title }}</div>
+      <div class="nt-toast-text">{{ n.body }}</div>
+    </div>
+    <i class="nt-toast-life" @animationend="emit('gone')"></i>
+  </div>
+</template>
+
+<!-- NotifySheet.vue: те же три хендлера на .nt-sheet-grip и .nt-wall-head,
+     порог dy > 90 или флик — emit('close'); backdrop с @click="emit('close')" -->`,
+  CSS: function () { return cssSlice('mobile'); },
+  JS: function () {
+    return document.getElementById('nt-gestures').textContent.trim() + `
+
+/* инициализация в notify-widgets.js */
+ntSwipeDismiss(toastEl, () => LovixNotify.dismiss(n.id))
+ntSheetDrag(wallEl, [wallEl.querySelector('.nt-sheet-grip'),
+                     wallEl.querySelector('.nt-wall-head')], closeWall)`;
+  }
 };
 
 /* ═══ рендер код-панелей ═══ */
