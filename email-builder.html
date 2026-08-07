@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Шаблонизатор писем</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0E12; --card:#131013; --card2:#18141B; --surf:#221A2A; --surf2:#2A1A31;
+    --line:#342A3E; --line2:#241E2B; --txt:#FFFFFF; --body:#D9D6DE; --mut:#A3A3B4; --dim:#80808C;
+    --acc:#F19BF6; --grad:linear-gradient(96deg,#D946EF,#F43F5E); --pink:#D946EF; --ok:#34D399; --err:#F87171;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--body);
+    font:14px/1.55 Nunito,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--acc)}
+  ::selection{background:#D946EF55}
+
+  /* ── шапка ── */
+  .top{position:sticky;top:0;z-index:40;background:#0E0E12E6;backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line2)}
+  .top-in{max-width:1560px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .top .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--txt);font-size:15px}
+  .top .brand img{height:22px;display:block}
+  .top .brand span{color:var(--dim);font-weight:600}
+  .top nav{margin-left:auto;display:flex;gap:2px;flex-wrap:wrap}
+  .top nav a{color:var(--mut);text-decoration:none;font-size:12.5px;font-weight:600;
+    padding:6px 10px;border-radius:8px}
+  .top nav a:hover{color:var(--txt);background:var(--card2)}
+  .top nav a.cur{color:var(--txt);background:var(--surf2)}
+
+  /* ── рабочая область ── */
+  .work{max-width:1560px;margin:0 auto;padding:20px 24px 60px;display:grid;
+    grid-template-columns:minmax(0,1fr) 500px;gap:20px;align-items:start}
+  @media(max-width:1120px){.work{grid-template-columns:1fr}.pv-col{position:static!important}}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px}
+
+  /* мета */
+  .meta{padding:18px 20px 14px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-bottom:16px}
+  .meta .full{grid-column:1/-1}
+  .f label{display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.6px;
+    text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+  .f label .cnt{text-transform:none;letter-spacing:0;font-weight:600}
+  .f label .cnt.over{color:var(--err)}
+  .f input,.f select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    color:var(--txt);font:inherit;font-size:13.5px;padding:9px 12px;outline:none}
+  .f input:focus,.f select:focus{border-color:#D946EF88;box-shadow:0 0 0 3px #D946EF22}
+
+  /* тулбар */
+  .bar{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:10px 12px;
+    border-bottom:1px solid var(--line2);position:sticky;top:53px;z-index:30;
+    background:var(--card);border-radius:16px 16px 0 0}
+  .bar .b{border:0;background:none;color:var(--mut);font:inherit;font-size:13px;font-weight:700;
+    min-width:32px;height:32px;padding:0 9px;border-radius:8px;cursor:pointer;display:inline-flex;
+    align-items:center;justify-content:center;gap:5px}
+  .bar .b:hover{background:var(--surf);color:var(--txt)}
+  .bar .b.on{background:var(--surf2);color:var(--acc)}
+  .bar .sep{width:1px;height:20px;background:var(--line2);margin:0 6px}
+  .bar .b.ins{color:var(--acc);background:var(--surf2);border:1px solid #4A2A52}
+  .bar .b.ins:hover{filter:brightness(1.15)}
+  .insmenu{position:relative}
+  .insmenu .dd{position:absolute;top:38px;left:0;background:var(--card2);border:1px solid var(--line);
+    border-radius:12px;padding:6px;min-width:230px;display:none;box-shadow:0 14px 40px #000A;z-index:50}
+  .insmenu.open .dd{display:block}
+  .dd button{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;color:var(--body);
+    font:inherit;font-size:13px;font-weight:600;padding:9px 10px;border-radius:8px;cursor:pointer;text-align:left}
+  .dd button:hover{background:var(--surf)}
+  .dd button i{font-style:normal;font-size:16px;width:20px;text-align:center}
+  .dd button small{display:block;color:var(--dim);font-weight:400;font-size:11px}
+
+  /* редактор */
+  .ed-wrap{padding:6px 26px 26px;min-height:420px;cursor:text}
+  .ProseMirror{outline:none;min-height:400px;font-size:15px;line-height:1.65;color:var(--body)}
+  .ProseMirror>*+*{margin-top:.7em}
+  .ProseMirror h1,.ProseMirror h2{color:var(--txt);font-weight:800;font-size:19px;margin:1.2em 0 .4em}
+  .ProseMirror strong{color:var(--txt)}
+  .ProseMirror a{color:var(--acc);text-decoration:underline}
+  .ProseMirror blockquote{margin:.8em 0;background:var(--surf);border:1px solid var(--line);
+    border-radius:14px 14px 14px 4px;padding:10px 16px;font-style:italic;color:var(--txt)}
+  .ProseMirror ol{counter-reset:step;list-style:none;padding-left:0}
+  .ProseMirror ol>li{counter-increment:step;position:relative;padding:10px 0 10px 44px;
+    border-bottom:1px dashed var(--line2)}
+  .ProseMirror ol>li:last-child{border-bottom:0}
+  .ProseMirror ol>li::before{content:counter(step);position:absolute;left:0;top:9px;width:28px;height:28px;
+    border-radius:9px;background:var(--grad);color:#fff;font-weight:800;font-size:13px;
+    display:flex;align-items:center;justify-content:center}
+  .ProseMirror ul{padding-left:22px;color:var(--mut)}
+  .ProseMirror img{max-width:100%;border-radius:12px;display:block}
+  .ProseMirror p.is-editor-empty:first-child::before{content:attr(data-placeholder);color:var(--dim);
+    float:left;height:0;pointer-events:none}
+  /* atom-блоки в редакторе */
+  .blk{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px 14px;
+    display:flex;gap:12px;align-items:center;cursor:pointer;user-select:none;margin:.7em 0}
+  .blk:hover{border-color:#D946EF77}
+  .blk.ProseMirror-selectednode{border-color:var(--pink);box-shadow:0 0 0 3px #D946EF33}
+  .blk .ic{font-size:20px;flex:0 0 auto}
+  .blk .bt{min-width:0;flex:1}
+  .blk .bt b{display:block;color:var(--txt);font-size:13px}
+  .blk .bt span{display:block;color:var(--dim);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .blk .edit{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--acc);background:var(--surf2);
+    border:1px solid #4A2A52;border-radius:999px;padding:4px 11px}
+
+  /* ── превью ── */
+  .pv-col{position:sticky;top:69px;display:flex;flex-direction:column;gap:12px}
+  .pv-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pv-head .dev{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:9px;
+    padding:7px 13px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .pv-head .dev.on{background:var(--surf2);border-color:#4A2A52;color:var(--acc)}
+  .pv-head .kb{margin-left:auto;font-size:11.5px;color:var(--dim);font-weight:600}
+  .pv-head .kb.warn{color:var(--err)}
+  .pv-badges{display:flex;gap:6px;flex-wrap:wrap}
+  .pv-badges .bad{font-size:11px;font-weight:700;color:#FCA5A5;background:#7F1D1D33;
+    border:1px solid #7F1D1D;border-radius:999px;padding:3px 10px}
+  .pv-frame{background:#000;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    display:flex;justify-content:center}
+  .pv-frame iframe{border:0;width:100%;height:calc(100vh - 235px);min-height:480px;background:var(--bg);
+    transition:width .25s}
+  .pv-frame.mob iframe{width:375px}
+  .actions{display:flex;gap:10px}
+  .btn-copy{flex:1;border:0;background:var(--grad);color:#fff;font:inherit;font-size:15px;font-weight:800;
+    padding:14px 0;border-radius:999px;cursor:pointer;box-shadow:0 6px 24px #D946EF44}
+  .btn-copy:hover{filter:brightness(1.08)}
+  .btn-ghost{border:1px solid var(--line);background:none;color:var(--mut);font:inherit;font-size:12.5px;
+    font-weight:700;padding:0 16px;border-radius:999px;cursor:pointer}
+  .btn-ghost:hover{color:var(--txt);border-color:var(--dim)}
+
+  /* модалка */
+  .modal-bg{position:fixed;inset:0;background:#000A;z-index:90;display:none;align-items:flex-start;
+    justify-content:center;overflow:auto;padding:6vh 16px}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--card2);border:1px solid var(--line);border-radius:18px;width:560px;max-width:100%;
+    padding:22px 24px;box-shadow:0 30px 80px #000C}
+  .modal h3{margin:0 0 16px;color:var(--txt);font-size:16px;display:flex;gap:10px;align-items:center}
+  .modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+  .modal .grid .full{grid-column:1/-1}
+  .modal textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    color:var(--txt);font:inherit;font-size:13.5px;padding:9px 12px;outline:none;resize:vertical;min-height:60px}
+  .modal textarea:focus{border-color:#D946EF88;box-shadow:0 0 0 3px #D946EF22}
+  .modal .mrow{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .modal .sub{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--acc);
+    grid-column:1/-1;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line2)}
+  .btn-save{border:0;background:var(--grad);color:#fff;font:inherit;font-weight:800;font-size:13.5px;
+    padding:10px 22px;border-radius:999px;cursor:pointer}
+  .btn-del{border:1px solid #7F1D1D;background:none;color:#FCA5A5;font:inherit;font-weight:700;
+    font-size:12.5px;padding:0 16px;border-radius:999px;cursor:pointer;margin-right:auto}
+
+  .toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,20px);background:var(--card2);
+    border:1px solid #4A2A52;color:var(--txt);font-weight:700;font-size:13.5px;padding:12px 22px;
+    border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 10px 40px #000A}
+  .toast.show{transform:translate(-50%,0);opacity:1}
+  .hint{color:var(--dim);font-size:11.5px;padding:10px 26px 0}
+  .hint code{background:var(--surf);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font-size:10.5px;color:var(--acc)}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <div class="brand"><img src="https://lovix.ai/pics/logo.svg" alt="Lovix"><span>·&nbsp;Шаблонизатор писем</span></div>
+  <nav>
+    <a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a class="cur" href="email-builder.html">Шаблонизатор</a>
+  </nav>
+</div></div>
+
+<div class="work">
+  <!-- ЛЕВАЯ КОЛОНКА -->
+  <div>
+    <div class="panel meta">
+      <div class="f full"><label>Тема письма <span class="cnt" id="cnt-subject">0/50</span></label>
+        <input id="m-subject" placeholder="С чего начать в Lovix: короткий гид"></div>
+      <div class="f full"><label>Прехедер <span class="cnt" id="cnt-preheader">0/90</span></label>
+        <input id="m-preheader" placeholder="Продолжает тему, не дублирует её"></div>
+      <div class="f"><label>Слаг кампании (utm_campaign)</label>
+        <input id="m-slug" placeholder="2026-09-09-start-guide"></div>
+      <div class="f"><label>Сегмент</label>
+        <select id="m-segment">
+          <option>Зарегистрировались (без тарифа)</option>
+          <option>Отменили платный тариф (churn)</option>
+          <option>Партнёры</option>
+          <option>Все, кроме активных платных</option>
+        </select></div>
+      <div class="f"><label>Дата отправки</label>
+        <input id="m-date" type="datetime-local"></div>
+    </div>
+
+    <div class="panel">
+      <div class="bar" id="bar">
+        <button class="b" data-cmd="bold" title="Жирный (⌘B)"><b>B</b></button>
+        <button class="b" data-cmd="italic" title="Курсив (⌘I)"><i>I</i></button>
+        <button class="b" data-cmd="link" title="Ссылка">🔗</button>
+        <span class="sep"></span>
+        <button class="b" data-cmd="h2" title="Заголовок секции">H</button>
+        <button class="b" data-cmd="p" title="Абзац">¶</button>
+        <button class="b" data-cmd="ol" title="Гид-шаги (нумерованный список)">1.</button>
+        <button class="b" data-cmd="ul" title="Маркированный список">•</button>
+        <button class="b" data-cmd="bq" title="Чат-пузырь (цитата)">❝</button>
+        <button class="b" data-cmd="img" title="Картинка">🖼</button>
+        <span class="sep"></span>
+        <span class="insmenu" id="insmenu">
+          <button class="b ins" id="insbtn">+ Блок ▾</button>
+          <div class="dd">
+            <button data-ins="heroBlock"><i>🌆</i><span>Hero<small>kicker, заголовок, пузырь, портрет</small></span></button>
+            <button data-ins="ctaBlock"><i>🔘</i><span>CTA-кнопка<small>градиентная, с подписью</small></span></button>
+            <button data-ins="companionsBlock"><i>👯</i><span>Карточки компаньонов<small>2 карточки с фото и репликой</small></span></button>
+            <button data-ins="promoBlock"><i>⚡</i><span>Промо-плашка<small>мягкий апселл со ссылкой</small></span></button>
+          </div>
+        </span>
+        <span class="sep"></span>
+        <button class="b" data-cmd="undo" title="Отменить">↶</button>
+        <button class="b" data-cmd="redo" title="Повторить">↷</button>
+      </div>
+      <div class="hint">Markdown-шорткаты: <code>##&nbsp;заголовок</code> <code>**жирный**</code> <code>&gt;&nbsp;пузырь</code> <code>1.&nbsp;шаги</code> — в шагах <b>жирное начало пункта</b> становится заголовком шага. Спец-блоки перетаскиваются, клик — редактирование.</div>
+      <div class="ed-wrap"><div id="editor"></div></div>
+    </div>
+  </div>
+
+  <!-- ПРАВАЯ КОЛОНКА -->
+  <div class="pv-col">
+    <div class="pv-head">
+      <button class="dev on" id="dev-d">🖥 600</button>
+      <button class="dev" id="dev-m">📱 375</button>
+      <span class="pv-badges" id="badges"></span>
+      <span class="kb" id="kb">0 КБ / 100</span>
+    </div>
+    <div class="pv-frame" id="pvframe"><iframe id="pv" title="Превью письма"></iframe></div>
+    <div class="actions">
+      <button class="btn-copy" id="copy">Копировать HTML письма</button>
+      <button class="btn-ghost" id="reset" title="Вернуть письмо-пример">Сбросить</button>
+    </div>
+  </div>
+</div>
+
+<!-- модалка блока -->
+<div class="modal-bg" id="modalbg"><div class="modal">
+  <h3 id="mo-title"></h3>
+  <div class="grid" id="mo-grid"></div>
+  <div class="mrow">
+    <button class="btn-del" id="mo-del">Удалить блок</button>
+    <button class="btn-ghost" id="mo-cancel">Отмена</button>
+    <button class="btn-save" id="mo-save">Применить</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { Editor, Node } from 'https://esm.sh/@tiptap/core@2.27.2'
+import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2.27.2'
+import Link from 'https://esm.sh/@tiptap/extension-link@2.27.2'
+import Image from 'https://esm.sh/@tiptap/extension-image@2.27.2'
+import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder@2.27.2'
+
+/* ════════════════ 1. РЕНДЕРЕР ПИСЬМА (вёрстка = спека «Шаблон писем») ════════════════ */
+
+const FONT = `'Nunito',Arial,Helvetica,sans-serif`
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+
+let META = {}
+let timer = null, currentHtml = ''
+const utm = c => `utm_source=email&amp;utm_medium=crm&amp;utm_campaign=${esc(META.slug||'draft')}&amp;utm_content=${c}`
+const withUtm = (url, c) => {
+  const e = esc(url||'#')
+  if (!/^https:\/\/(www\.)?lovix\.ai/.test(url||'')) return e
+  return e + (e.includes('?') ? '&amp;' : '?') + utm(c)
+}
+
+const renderInline = (nodes, {linkContent='body'} = {}) => (nodes||[]).map(n => {
+  if (n.type === 'hardBreak') return '<br>'
+  if (n.type !== 'text') return ''
+  let t = esc(n.text)
+  for (const m of n.marks||[]) {
+    if (m.type === 'bold') t = `<strong style="color:#FFFFFF;font-weight:800;">${t}</strong>`
+    if (m.type === 'italic') t = `<em>${t}</em>`
+    if (m.type === 'link') t = `<a href="${withUtm(m.attrs.href, linkContent)}" target="_blank" style="color:#F19BF6;text-decoration:underline;">${t}</a>`
+  }
+  return t
+}).join('')
+
+const rowSectionHeading = t =>
+`    <tr><td class="px" style="padding:20px 2px 4px;">
+      <div style="font-family:${FONT};font-size:19px;font-weight:800;color:#FFFFFF;">${t}</div>
+    </td></tr>`
+
+const rowParagraph = html =>
+`    <tr><td class="px" style="padding:10px 28px 6px;">
+      <div style="font-family:${FONT};font-size:15px;line-height:24px;color:#D9D6DE;">${html}</div>
+    </td></tr>`
+
+const rowBullets = items =>
+`    <tr><td class="px" style="padding:8px 28px 4px;">
+      <ul style="margin:0;padding:0 0 0 20px;font-family:${FONT};font-size:14px;line-height:23px;color:#A3A3B4;">
+${items.map(i => `        <li style="padding:2px 0;">${i}</li>`).join('\n')}
+      </ul>
+    </td></tr>`
+
+const rowImage = (src, alt) =>
+`    <tr><td class="px" align="center" style="padding:12px 0 6px;">
+      <img class="himg" src="${esc(src)}" width="600" alt="${esc(alt||'')}" border="0" style="display:block;width:600px;max-width:100%;height:auto;border-radius:14px;background-color:#221A2A;font-family:Arial,sans-serif;font-size:13px;color:#A3A3B4;">
+    </td></tr>`
+
+const rowBubble = (html, caption) =>
+`    <tr><td class="px" style="padding:10px 28px 6px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+      <tr><td bgcolor="#221A2A" style="background-color:#221A2A;border:1px solid #342A3E;border-radius:16px 16px 16px 4px;padding:12px 16px;">
+        <div style="font-family:${FONT};font-size:14px;line-height:20px;font-style:italic;color:#FFFFFF;">${html}</div>
+      </td></tr>${caption ? `
+      <tr><td style="padding:7px 0 0 6px;">
+        <div style="font-family:${FONT};font-size:12px;color:#80808C;">${caption}</div>
+      </td></tr>` : ''}
+      </table>
+    </td></tr>`
+
+const STEP_COLORS = ['#D946EF','#E4438F','#F43F5E','#F19BF6']
+const rowSteps = items =>
+`    <tr><td class="px" style="padding:16px 0 6px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#131013" style="background-color:#131013;border:1px solid #342A3E;border-radius:20px;">
+      <tr><td style="padding:8px 28px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+${items.map((it, i) => `${i ? `        <tr><td colspan="2" style="border-top:1px solid #241E2B;font-size:0;line-height:0;">&nbsp;</td></tr>\n` : ''}        <tr>
+          <td width="40" valign="top" style="width:40px;padding:${i ? '14px' : '20px'} 0 20px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td width="32" height="32" align="center" valign="middle" bgcolor="${STEP_COLORS[i % STEP_COLORS.length]}" style="width:32px;height:32px;background-color:${STEP_COLORS[i % STEP_COLORS.length]};border-radius:10px;font-family:${FONT};font-size:15px;font-weight:800;color:#FFFFFF;">${i+1}</td>
+            </tr></table>
+          </td>
+          <td valign="top" style="padding:${i ? '14px' : '20px'} 0 20px 14px;">${it.title ? `
+            <div style="font-family:${FONT};font-size:16px;font-weight:800;color:#FFFFFF;padding-bottom:4px;">${it.title}</div>` : ''}
+            <div style="font-family:${FONT};font-size:14px;line-height:21px;color:#A3A3B4;">${it.desc}</div>
+          </td>
+        </tr>`).join('\n')}
+        </table>
+      </td></tr>
+      </table>
+    </td></tr>`
+
+const rowHero = a =>
+`    <!-- BLOCK: hero -->
+    <tr><td class="px" style="padding:0 0 14px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#131013" style="background-color:#131013;border:1px solid #342A3E;border-radius:20px;">
+      <tr><td style="padding:30px 28px 28px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="stack" width="288" valign="middle" style="width:288px;vertical-align:middle;">
+            <div style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#F19BF6;padding-bottom:12px;">${esc(a.kicker)}</div>
+            <div class="h1" style="font-family:${FONT};font-size:30px;line-height:37px;font-weight:800;color:#FFFFFF;padding-bottom:12px;">${esc(a.title)}</div>
+            <div style="font-family:${FONT};font-size:15px;line-height:23px;color:#A3A3B4;padding-bottom:20px;">${esc(a.lead)}</div>${a.bubble ? `
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr><td bgcolor="#221A2A" style="background-color:#221A2A;border:1px solid #342A3E;border-radius:16px 16px 16px 4px;padding:12px 16px;">
+              <div style="font-family:${FONT};font-size:14px;line-height:20px;font-style:italic;color:#FFFFFF;">${esc(a.bubble)}</div>
+            </td></tr>
+            <tr><td style="padding:7px 0 0 6px;">
+              <div style="font-family:${FONT};font-size:12px;color:#80808C;">— ${esc(a.bubbleName)}&nbsp;·&nbsp;<span style="color:#34D399;">${esc(a.bubbleStatus)}</span></div>
+            </td></tr>
+            </table>` : ''}
+          </td>
+          <td class="stack heropad" width="24" style="width:24px;font-size:0;line-height:0;">&nbsp;</td>
+          <td class="stack" width="232" valign="middle" align="center" style="width:232px;vertical-align:middle;">
+            <a href="${withUtm(a.imgHref, 'hero')}" target="_blank">
+              <img class="himg" src="${esc(a.img)}" width="232" height="290" alt="${esc(a.bubbleName || 'Компаньон Lovix')}" border="0" style="display:block;width:232px;height:290px;object-fit:cover;border-radius:14px;background-color:#221A2A;font-family:Arial,sans-serif;font-size:13px;color:#A3A3B4;">
+            </a>
+          </td>
+        </tr>
+        </table>
+      </td></tr>
+      </table>
+    </td></tr>`
+
+const companionCard = (c, n) =>
+`        <tr><td bgcolor="#131013" style="background-color:#131013;border:1px solid #342A3E;border-radius:18px;padding:10px 10px 16px;">
+          <a href="${withUtm(c.url, 'card_' + n)}" target="_blank">
+            <img class="himg" src="${esc(c.img)}" width="270" height="338" alt="${esc(c.name)} — компаньон Lovix" border="0" style="display:block;width:270px;height:338px;object-fit:cover;border-radius:12px;background-color:#221A2A;font-family:Arial,sans-serif;font-size:13px;color:#A3A3B4;">
+          </a>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding:13px 8px 0;">
+            <span style="font-family:${FONT};font-size:16px;font-weight:800;color:#FFFFFF;">${esc(c.name)}</span>
+            &nbsp;<span style="font-family:${FONT};font-size:11px;font-weight:700;color:#F19BF6;background-color:#2A1A31;border-radius:999px;padding:2px 9px;">${esc(c.style)}</span>
+          </td></tr>
+          <tr><td style="padding:6px 8px 12px;">
+            <div style="font-family:${FONT};font-size:13px;line-height:19px;font-style:italic;color:#A3A3B4;">«${esc(c.quote)}»</div>
+          </td></tr>
+          <tr><td style="padding:0 8px;">
+            <a href="${withUtm(c.url, 'card_' + n + '_btn')}" target="_blank" style="display:block;text-align:center;background-color:#2A1A31;border:1px solid #4A2A52;border-radius:999px;padding:9px 0;font-family:${FONT};font-size:14px;font-weight:700;color:#F19BF6;">${esc(c.btn)}</a>
+          </td></tr>
+          </table>
+        </td></tr>`
+
+const rowCompanions = a =>
+`    <!-- BLOCK: карточки компаньонов 2-up -->
+    <tr><td class="px" style="padding:20px 0 4px;">${a.title ? `
+      <div style="font-family:${FONT};font-size:19px;font-weight:800;color:#FFFFFF;padding:0 0 14px 2px;">${esc(a.title)}</div>` : ''}
+      <!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td width="292" valign="top"><![endif]-->
+      <table role="presentation" class="stack cardgap" align="left" width="292" cellpadding="0" cellspacing="0" border="0" style="width:292px;">
+${companionCard({name:a.name1,style:a.style1,quote:a.quote1,img:a.img1,url:a.url1,btn:a.btn1}, 1)}
+      </table>
+      <!--[if mso]></td><td width="16" style="font-size:0;">&nbsp;</td><td width="292" valign="top"><![endif]-->
+      <table role="presentation" class="stack" align="right" width="292" cellpadding="0" cellspacing="0" border="0" style="width:292px;">
+${companionCard({name:a.name2,style:a.style2,quote:a.quote2,img:a.img2,url:a.url2,btn:a.btn2}, 2)}
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+    </td></tr>`
+
+const rowCta = a => {
+  const href = withUtm(a.url, 'cta_main')
+  return `    <!-- BLOCK: главный CTA -->
+    <tr><td class="px" align="center" style="padding:26px 0 8px;">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${href.replace(/&amp;/g,'&')}" style="height:54px;v-text-anchor:middle;width:600px;" arcsize="50%" fillcolor="#D946EF" stroke="f">
+      <w:anchorlock/>
+      <center style="color:#FFFFFF;font-family:Arial,sans-serif;font-size:17px;font-weight:bold;">${esc(a.text)}</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <a href="${href}" target="_blank" style="display:block;background-color:#D946EF;background-image:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);border-radius:999px;padding:17px 0;text-align:center;font-family:${FONT};font-size:17px;font-weight:800;color:#FFFFFF;mso-hide:all;">${esc(a.text)}</a>
+      <!--<![endif]-->${a.caption ? `
+      <div style="font-family:${FONT};font-size:13px;color:#80808C;padding-top:11px;">${esc(a.caption)}</div>` : ''}
+    </td></tr>`
+}
+
+const rowPromo = a =>
+`    <!-- BLOCK: промо-плашка -->
+    <tr><td class="px" style="padding:20px 0 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#1E1424" style="background-color:#1E1424;border:1px solid #4A2A52;border-radius:14px;">
+      <tr>
+        <td width="52" valign="middle" align="center" style="width:52px;padding:16px 0 16px 18px;font-size:26px;line-height:1;">${esc(a.emoji)}</td>
+        <td valign="middle" style="padding:16px 18px 16px 12px;">
+          <div style="font-family:${FONT};font-size:14px;line-height:21px;color:#D9D6DE;">${esc(a.text)} <a href="${withUtm(a.url, 'promo')}" target="_blank" style="color:#F19BF6;text-decoration:underline;font-weight:700;white-space:nowrap;">${esc(a.linkText)}</a></div>
+        </td>
+      </tr>
+      </table>
+    </td></tr>`
+
+/* — маппинг Tiptap-документа в ряды письма — */
+const isBold = n => n.type === 'text' && (n.marks||[]).some(m => m.type === 'bold')
+
+function listItemParts(li){
+  const inl = (li.content||[]).flatMap(p => p.content||[])
+  let split = 0
+  while (split < inl.length && isBold(inl[split])) split++
+  const title = renderInline(inl.slice(0, split)).replace(/<\/?strong[^>]*>/g,'')
+  let desc = renderInline(inl.slice(split), {linkContent:'step'})
+  desc = desc.replace(/^(\s|&nbsp;|\.|—|-|:)+/,'')
+  return { title, desc: desc || title }
+}
+
+function docToRows(doc){
+  const rows = []
+  for (const node of doc.content||[]) {
+    switch (node.type) {
+      case 'heading': {
+        const t = renderInline(node.content); if (t) rows.push(rowSectionHeading(t)); break
+      }
+      case 'paragraph': {
+        const t = renderInline(node.content); if (t) rows.push(rowParagraph(t)); break
+      }
+      case 'blockquote': {
+        const ps = (node.content||[]).map(p => renderInline(p.content)).filter(Boolean)
+        let caption = ''
+        if (ps.length > 1 && /^(—|--|-)\s/.test(ps[ps.length-1].replace(/<[^>]+>/g,''))) caption = ps.pop()
+        if (ps.length) rows.push(rowBubble(ps.join('<br>'), caption)); break
+      }
+      case 'orderedList': {
+        const items = (node.content||[]).map(listItemParts).filter(i => i.desc || i.title)
+        if (items.length) rows.push(rowSteps(items)); break
+      }
+      case 'bulletList': {
+        const items = (node.content||[]).map(li => (li.content||[]).map(p => renderInline(p.content)).join('<br>')).filter(Boolean)
+        if (items.length) rows.push(rowBullets(items)); break
+      }
+      case 'image': rows.push(rowImage(node.attrs.src, node.attrs.alt)); break
+      case 'heroBlock': rows.push(rowHero(node.attrs)); break
+      case 'companionsBlock': rows.push(rowCompanions(node.attrs)); break
+      case 'ctaBlock': rows.push(rowCta(node.attrs)); break
+      case 'promoBlock': rows.push(rowPromo(node.attrs)); break
+    }
+  }
+  return rows
+}
+
+function renderEmail(meta, doc){
+  META = meta
+  const d = meta.date ? new Date(meta.date) : null
+  const dateStr = d && !isNaN(d) ? `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '—'
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<!--
+  Lovix · email-рассылка · собрано в шаблонизаторе
+  ─────────────────────────────────────────────────
+  Дата отправки : ${dateStr}
+  Сегмент       : ${meta.segment}
+  Тема          : ${meta.subject}
+  Прехедер      : ${meta.preheader}
+  UTM           : utm_source=email&utm_medium=crm&utm_campaign=${meta.slug||'draft'}
+  Спека шаблона : https://serjnsk.github.io/lovix-tokenomics/email-template.html
+  Шаблонизатор  : https://serjnsk.github.io/lovix-tokenomics/email-builder.html
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+<title>${esc(meta.subject)}</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
+<!--[if !mso]><!-->
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<!--<![endif]-->
+<style>
+  html,body{margin:0 !important;padding:0 !important;height:100% !important;width:100% !important;}
+  *{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;}
+  div[style*="margin: 16px 0"]{margin:0 !important;}
+  table,td{mso-table-lspace:0pt !important;mso-table-rspace:0pt !important;}
+  table{border-spacing:0 !important;border-collapse:collapse !important;table-layout:fixed !important;margin:0 auto !important;}
+  img{-ms-interpolation-mode:bicubic;}
+  a{text-decoration:none;}
+  u + #body a, #MessageViewBody a{color:inherit;text-decoration:none;font-size:inherit;font-family:inherit;font-weight:inherit;line-height:inherit;}
+  @media screen and (max-width:620px){
+    .w100{width:100% !important;max-width:100% !important;}
+    .stack{display:block !important;width:100% !important;max-width:100% !important;}
+    .px{padding-left:20px !important;padding-right:20px !important;}
+    .center{text-align:center !important;}
+    .h1{font-size:26px !important;line-height:33px !important;}
+    .himg{width:100% !important;height:auto !important;border-radius:14px !important;}
+    .cardgap{padding-bottom:16px !important;}
+    .heropad{padding-top:20px !important;}
+  }
+</style>
+</head>
+<body id="body" style="margin:0;padding:0;background-color:#0E0E12;" bgcolor="#0E0E12">
+
+<!-- Прехедер (скрытый) -->
+<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">
+  ${esc(meta.preheader)}${'&zwnj;&nbsp;'.repeat(18)}
+</div>
+
+<center role="article" aria-roledescription="email" lang="ru" style="width:100%;background-color:#0E0E12;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0E0E12" style="background-color:#0E0E12;">
+<tr><td align="center" style="padding:0 12px;">
+
+  <table role="presentation" class="w100" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;">
+
+    <!-- BLOCK: header / лого -->
+    <tr><td align="center" style="padding:28px 0 22px;">
+      <a href="${withUtm('https://lovix.ai/', 'logo')}" target="_blank">
+        <img src="https://serjnsk.github.io/lovix-tokenomics/emails/img/logo.png" width="124" height="33" alt="Lovix" border="0" style="display:block;width:124px;height:33px;font-family:${FONT};font-size:22px;font-weight:800;color:#D946EF;">
+      </a>
+    </td></tr>
+
+${docToRows(doc).join('\n\n')}
+
+    <!-- BLOCK: футер -->
+    <tr><td align="center" style="padding:30px 24px 8px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="border-top:1px solid #241E2B;font-size:0;line-height:0;">&nbsp;</td></tr>
+      </table>
+    </td></tr>
+    <tr><td align="center" class="px" style="padding:8px 24px 36px;">
+      <div style="font-family:${FONT};font-size:12px;line-height:19px;color:#80808C;">
+        Вы получили это письмо, потому что зарегистрировались в&nbsp;Lovix с&nbsp;адресом {{email}}.<br>
+        <a href="{{unsubscribe_url}}" style="color:#A3A3B4;text-decoration:underline;">Отписаться</a>
+        &nbsp;·&nbsp;
+        <a href="${withUtm('https://lovix.ai/legal-information', 'footer_legal')}" target="_blank" style="color:#A3A3B4;text-decoration:underline;">Правовая информация</a>
+        &nbsp;·&nbsp;
+        <a href="${withUtm('https://lovix.ai/contacts', 'footer_contacts')}" target="_blank" style="color:#A3A3B4;text-decoration:underline;">Контакты</a>
+        <br><br>
+        <span style="display:inline-block;border:1px solid #342A3E;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;color:#A3A3B4;">18+</span>
+        &nbsp;Все компаньоны — вымышленные AI-персонажи.<br>
+        © ${d && !isNaN(d) ? d.getFullYear() : new Date().getFullYear()} Lovix&nbsp;·&nbsp;{{company_address}}
+      </div>
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+</center>
+</body>
+</html>
+`
+}
+
+/* ════════════════ 2. КАСТОМНЫЕ БЛОКИ TIPTAP ════════════════ */
+
+const CDN = n => `https://cdn.test.lovix.ai/ioss(quality=85,resize=${n})/prod/templates/`
+const BLOCK_DEFS = {
+  heroBlock: {
+    icon:'🌆', label:'Hero',
+    summary: a => `${a.kicker} — ${a.title}`,
+    defaults: {
+      kicker:'Твой аккаунт готов', title:'Привет! Мы тебя ждали 💜',
+      lead:'Осталось выбрать, с кем провести вечер. Держи короткий гид — три шага, и первый разговор начнётся.',
+      bubble:'Я уже придумала, о чём спрошу тебя первой… 😏', bubbleName:'Алёна', bubbleStatus:'уже в сети',
+      img: CDN(464)+'anPlsxx4sLvVSvO0xU1z7VWZY6e31cBMKkd217lQ.png', imgHref:'https://lovix.ai/bot/alyona/chat',
+    },
+    fields: [
+      {k:'kicker', l:'Kicker (над заголовком)'}, {k:'title', l:'Заголовок (≤40)'},
+      {k:'lead', l:'Лид (≤140)', t:'area', full:1},
+      {k:'bubble', l:'Чат-пузырь (пусто — скрыть)', t:'area', full:1},
+      {k:'bubbleName', l:'Имя компаньона'}, {k:'bubbleStatus', l:'Статус'},
+      {k:'img', l:'URL портрета (232×290)', full:1}, {k:'imgHref', l:'Ссылка портрета', full:1},
+    ],
+  },
+  ctaBlock: {
+    icon:'🔘', label:'CTA-кнопка',
+    summary: a => `${a.text} → ${a.url}`,
+    defaults: { text:'Начать чат 💬', url:'https://lovix.ai/', caption:'Бесплатно. Без карты — просто выбери и напиши.' },
+    fields: [
+      {k:'text', l:'Текст кнопки (≤24)'}, {k:'url', l:'Ссылка'},
+      {k:'caption', l:'Подпись под кнопкой (пусто — скрыть)', full:1},
+    ],
+  },
+  companionsBlock: {
+    icon:'👯', label:'Карточки компаньонов',
+    summary: a => `${a.name1} + ${a.name2}`,
+    defaults: {
+      title:'Кстати, познакомься ✨',
+      name1:'Мария', style1:'реалистичная', quote1:'Вечер, бар, мартини. Расскажешь, как прошёл твой день?',
+      img1: CDN(540)+'pjrKeNTUTYOj3riMYf3P6ZKgcRduZAQkg1r3ri9B.jpg', url1:'https://lovix.ai/bot/mariya/chat', btn1:'Написать Марии',
+      name2:'Ева', style2:'аниме', quote2:'С возвращением, господин. Начнём с разговора?',
+      img2: CDN(540)+'6XT70nMI0ZGDPbfAjgvHo3DKbmXwaQ3wXRtaqxyS.jpg', url2:'https://lovix.ai/bot/eva-2/chat', btn2:'Написать Еве',
+    },
+    fields: [
+      {k:'title', l:'Заголовок секции (пусто — скрыть)', full:1},
+      {s:'Карточка 1'},
+      {k:'name1', l:'Имя'}, {k:'style1', l:'Чип стиля'},
+      {k:'quote1', l:'Реплика (≤90, без кавычек)', t:'area', full:1},
+      {k:'img1', l:'URL фото (270×338)', full:1}, {k:'url1', l:'Ссылка чата'}, {k:'btn1', l:'Текст кнопки'},
+      {s:'Карточка 2'},
+      {k:'name2', l:'Имя'}, {k:'style2', l:'Чип стиля'},
+      {k:'quote2', l:'Реплика (≤90, без кавычек)', t:'area', full:1},
+      {k:'img2', l:'URL фото (270×338)', full:1}, {k:'url2', l:'Ссылка чата'}, {k:'btn2', l:'Текст кнопки'},
+    ],
+  },
+  promoBlock: {
+    icon:'⚡', label:'Промо-плашка',
+    summary: a => a.text,
+    defaults: {
+      emoji:'⚡', text:'Захочешь больше — подписка откроет безлимитное общение и генерацию фото.',
+      linkText:'Посмотреть тарифы →', url:'https://lovix.ai/purchase',
+    },
+    fields: [
+      {k:'emoji', l:'Эмодзи'}, {k:'linkText', l:'Текст ссылки'},
+      {k:'text', l:'Текст (≤160)', t:'area', full:1}, {k:'url', l:'Ссылка', full:1},
+    ],
+  },
+}
+
+const makeBlock = name => Node.create({
+  name, group:'block', atom:true, draggable:true,
+  addAttributes(){ return Object.fromEntries(Object.entries(BLOCK_DEFS[name].defaults).map(([k,v]) => [k,{default:v}])) },
+  parseHTML(){ return [{tag:`div[data-block="${name}"]`, getAttrs: el => JSON.parse(el.getAttribute('data-attrs')||'{}')}] },
+  renderHTML({node}){ return ['div', {'data-block':name, 'data-attrs':JSON.stringify(node.attrs)}] },
+  addNodeView(){
+    return ({node, getPos}) => {
+      const def = BLOCK_DEFS[name]
+      const dom = document.createElement('div')
+      dom.className = 'blk'
+      const paint = a => {
+        dom.innerHTML = `<span class="ic">${def.icon}</span><span class="bt"><b>${def.label}</b><span></span></span><span class="edit">Изменить</span>`
+        dom.querySelector('.bt span').textContent = def.summary(a)
+      }
+      paint(node.attrs)
+      dom.addEventListener('click', e => { e.preventDefault(); openModal(name, getPos()) })
+      return { dom, update(n){ if (n.type.name !== name) return false; paint(n.attrs); return true } }
+    }
+  },
+})
+
+/* ════════════════ 3. ДЕФОЛТНЫЙ ДОКУМЕНТ (= письмо-пример) ════════════════ */
+
+const p = (...c) => ({type:'paragraph', content:c})
+const tx = (t, ...marks) => ({type:'text', text:t, ...(marks.length ? {marks} : {})})
+const B = {type:'bold'}, LNK = href => ({type:'link', attrs:{href}})
+
+const DEFAULT_DOC = {type:'doc', content:[
+  {type:'heroBlock', attrs:{...BLOCK_DEFS.heroBlock.defaults}},
+  p(tx('{{first_name|Привет}}! Ты в Lovix — здесь живут AI-компаньоны, которые слушают, отвечают с характером и помнят каждую мелочь из ваших разговоров. Вот самый короткий путь к первому чату:')),
+  {type:'orderedList', attrs:{start:1}, content:[
+    {type:'listItem', content:[p(
+      tx('Выбери, кто будет рядом', B), tx(' В каталоге — '),
+      tx('Girls', LNK('https://lovix.ai/ai-girlfriend')), tx(', '),
+      tx('Anime', LNK('https://lovix.ai/ai-anime')), tx(' и '),
+      tx('Boys', LNK('https://lovix.ai/ai-boyfriend')),
+      tx(', от нежных до дерзких. Листай, пока не ёкнет.'),
+    )]},
+    {type:'listItem', content:[p(
+      tx('Напиши первое сообщение', B),
+      tx(' Хватит простого «привет» — дальше она подхватит сама. Компаньоны помнят контекст: завтра разговор продолжится ровно там, где остановился.'),
+    )]},
+    {type:'listItem', content:[p(
+      tx('Или создай своего', B),
+      tx(' Внешность, характер, голос общения — реалистичный стиль или аниме. '),
+      tx('Собери идеал за пару минут', LNK('https://lovix.ai/companion-builder')), tx('.'),
+    )]},
+  ]},
+  {type:'companionsBlock', attrs:{...BLOCK_DEFS.companionsBlock.defaults}},
+  {type:'ctaBlock', attrs:{...BLOCK_DEFS.ctaBlock.defaults}},
+  {type:'promoBlock', attrs:{...BLOCK_DEFS.promoBlock.defaults}},
+]}
+
+const DEFAULT_META = {
+  subject:'С чего начать в Lovix: короткий гид',
+  preheader:'Три шага до первого чата — и компаньон, который помнит о тебе всё 💜',
+  slug:'2026-09-09-start-guide',
+  segment:'Зарегистрировались (без тарифа)',
+  date:'2026-09-09T11:00',
+}
+
+/* ════════════════ 4. РЕДАКТОР, МЕТА, ПРЕВЬЮ ════════════════ */
+
+const LS = 'lovix-email-builder-v1'
+const $ = id => document.getElementById(id)
+const saved = (() => { try { return JSON.parse(localStorage.getItem(LS)) } catch { return null } })()
+
+const meta = {...DEFAULT_META, ...(saved?.meta || {})}
+const bindMeta = (key, id, limit) => {
+  const el = $(id)
+  el.value = meta[key] ?? ''
+  const cnt = $('cnt-' + key)
+  const upd = () => {
+    meta[key] = el.value
+    if (cnt && limit) {
+      cnt.textContent = `${el.value.length}/${limit}`
+      cnt.classList.toggle('over', el.value.length > limit)
+    }
+    scheduleUpdate()
+  }
+  el.addEventListener('input', upd); upd()
+}
+
+const editor = new Editor({
+  element: $('editor'),
+  extensions: [
+    StarterKit.configure({heading:{levels:[1,2]}, codeBlock:false, code:false, horizontalRule:false}),
+    Link.configure({openOnClick:false, autolink:true}),
+    Image,
+    Placeholder.configure({placeholder:'Пиши текст письма… или вставь блок из тулбара'}),
+    makeBlock('heroBlock'), makeBlock('ctaBlock'), makeBlock('companionsBlock'), makeBlock('promoBlock'),
+  ],
+  content: saved?.doc || DEFAULT_DOC,
+  onUpdate: () => scheduleUpdate(),
+  onTransaction: () => refreshBar(),
+})
+window.editor = editor
+
+bindMeta('subject','m-subject',50); bindMeta('preheader','m-preheader',90)
+bindMeta('slug','m-slug'); bindMeta('segment','m-segment'); bindMeta('date','m-date')
+
+/* тулбар */
+const CMDS = {
+  bold: () => editor.chain().focus().toggleBold().run(),
+  italic: () => editor.chain().focus().toggleItalic().run(),
+  link: () => {
+    const prev = editor.getAttributes('link').href
+    const url = prompt('Ссылка (https://…):', prev || 'https://lovix.ai/')
+    if (url === null) return
+    url ? editor.chain().focus().extendMarkRange('link').setLink({href:url}).run()
+        : editor.chain().focus().extendMarkRange('link').unsetLink().run()
+  },
+  h2: () => editor.chain().focus().toggleHeading({level:2}).run(),
+  p: () => editor.chain().focus().setParagraph().run(),
+  ol: () => editor.chain().focus().toggleOrderedList().run(),
+  ul: () => editor.chain().focus().toggleBulletList().run(),
+  bq: () => editor.chain().focus().toggleBlockquote().run(),
+  img: () => {
+    const src = prompt('URL картинки (ширина 600, ретина ×2 → 1200):')
+    if (src) editor.chain().focus().setImage({src, alt: prompt('Alt-текст:') || ''}).run()
+  },
+  undo: () => editor.chain().focus().undo().run(),
+  redo: () => editor.chain().focus().redo().run(),
+}
+$('bar').addEventListener('click', e => {
+  const b = e.target.closest('[data-cmd]'); if (b) CMDS[b.dataset.cmd]()
+})
+function refreshBar(){
+  const map = {bold:'bold', italic:'italic', link:'link', bq:'blockquote'}
+  for (const [cmd, name] of Object.entries(map))
+    document.querySelector(`[data-cmd="${cmd}"]`).classList.toggle('on', editor.isActive(name))
+  document.querySelector('[data-cmd="h2"]').classList.toggle('on', editor.isActive('heading'))
+  document.querySelector('[data-cmd="ol"]').classList.toggle('on', editor.isActive('orderedList'))
+  document.querySelector('[data-cmd="ul"]').classList.toggle('on', editor.isActive('bulletList'))
+}
+
+/* меню вставки блоков */
+$('insbtn').addEventListener('click', e => { e.stopPropagation(); $('insmenu').classList.toggle('open') })
+document.addEventListener('click', () => $('insmenu').classList.remove('open'))
+document.querySelectorAll('[data-ins]').forEach(b => b.addEventListener('click', () => {
+  const t = b.dataset.ins
+  const pos = editor.state.selection.$to.pos
+  editor.chain().focus().insertContentAt(pos, {type:t, attrs:{...BLOCK_DEFS[t].defaults}}).run()
+  $('insmenu').classList.remove('open')
+}))
+
+/* модалка редактирования блока */
+let moState = null
+function openModal(type, pos){
+  const def = BLOCK_DEFS[type]
+  const node = editor.state.doc.nodeAt(pos)
+  if (!node) return
+  moState = {type, pos}
+  $('mo-title').innerHTML = `<span>${def.icon}</span> ${def.label}`
+  $('mo-grid').innerHTML = def.fields.map(f => {
+    if (f.s) return `<div class="sub">${f.s}</div>`
+    const v = esc(node.attrs[f.k] ?? '')
+    const inp = f.t === 'area'
+      ? `<textarea data-k="${f.k}">${v}</textarea>`
+      : `<input data-k="${f.k}" value="${v}">`
+    return `<div class="f${f.full ? ' full' : ''}"><label>${f.l}</label>${inp}</div>`
+  }).join('')
+  $('modalbg').classList.add('open')
+}
+$('mo-cancel').addEventListener('click', () => $('modalbg').classList.remove('open'))
+$('modalbg').addEventListener('click', e => { if (e.target === $('modalbg')) $('modalbg').classList.remove('open') })
+$('mo-save').addEventListener('click', () => {
+  if (!moState) return
+  const attrs = {}
+  document.querySelectorAll('#mo-grid [data-k]').forEach(el => attrs[el.dataset.k] = el.value)
+  const {pos} = moState
+  editor.view.dispatch(editor.state.tr.setNodeMarkup(pos, undefined, {...editor.state.doc.nodeAt(pos).attrs, ...attrs}))
+  $('modalbg').classList.remove('open')
+})
+$('mo-del').addEventListener('click', () => {
+  if (!moState) return
+  const {pos} = moState
+  const node = editor.state.doc.nodeAt(pos)
+  editor.view.dispatch(editor.state.tr.delete(pos, pos + node.nodeSize))
+  $('modalbg').classList.remove('open')
+})
+
+/* превью + вес + бейджи + автосейв */
+function scheduleUpdate(){ clearTimeout(timer); timer = setTimeout(update, 250) }
+function update(){
+  const doc = editor.getJSON()
+  currentHtml = renderEmail(meta, doc)
+  $('pv').srcdoc = currentHtml
+  const kb = Math.round(new Blob([currentHtml]).size / 1024)
+  $('kb').textContent = `${kb} КБ / 100`
+  $('kb').classList.toggle('warn', kb > 90)
+  const types = (doc.content||[]).map(n => n.type)
+  const bad = []
+  if (!types.includes('ctaBlock')) bad.push('нет CTA')
+  if (!types.some(t => !['heroBlock'].includes(t))) bad.push('пустое письмо')
+  $('badges').innerHTML = bad.map(b => `<span class="bad">⚠ ${b}</span>`).join('')
+  try { localStorage.setItem(LS, JSON.stringify({meta, doc})) } catch {}
+}
+
+/* устройства */
+$('dev-d').addEventListener('click', () => setDev(false))
+$('dev-m').addEventListener('click', () => setDev(true))
+function setDev(mob){
+  $('pvframe').classList.toggle('mob', mob)
+  $('dev-d').classList.toggle('on', !mob)
+  $('dev-m').classList.toggle('on', mob)
+}
+
+/* копирование и сброс */
+const toast = msg => {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 2200)
+}
+$('copy').addEventListener('click', async () => {
+  update()
+  try { await navigator.clipboard.writeText(currentHtml); toast('HTML письма скопирован ✓') }
+  catch {
+    const ta = document.createElement('textarea')
+    ta.value = currentHtml; document.body.appendChild(ta); ta.select()
+    document.execCommand('copy'); ta.remove(); toast('HTML письма скопирован ✓')
+  }
+})
+$('reset').addEventListener('click', () => {
+  if (!confirm('Сбросить черновик и вернуть письмо-пример?')) return
+  Object.assign(meta, DEFAULT_META)
+  ;['subject','preheader','slug','segment','date'].forEach((k,i) => {
+    $(['m-subject','m-preheader','m-slug','m-segment','m-date'][i]).value = meta[k]
+  })
+  $('cnt-subject').textContent = `${meta.subject.length}/50`
+  $('cnt-preheader').textContent = `${meta.preheader.length}/90`
+  editor.commands.setContent(DEFAULT_DOC)
+  update(); toast('Черновик сброшен к письму-примеру')
+})
+
+update()
+</script>
+</body>
+</html>
