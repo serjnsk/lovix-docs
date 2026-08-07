@@ -112,12 +112,24 @@
 </style>
 <style>
   .vzwrap{background:var(--bg-band);border:1px solid var(--line);border-radius:10px;
-    padding:8px 12px;overflow-x:auto;margin:14px 0 0}
-  .vzwrap pre.mermaid{margin:0;background:transparent;border:none;text-align:center}
-  .vzwrap pre.mermaid:not([data-processed]){visibility:hidden;min-height:140px}
-  .vzwrap svg{max-width:none}
+    margin:14px 0 0;position:relative;overflow:hidden;height:min(65vh,640px);
+    touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+  .vzwrap.dragging{cursor:grabbing}
+  .vzwrap pre.mermaid{margin:0;background:transparent;border:none;position:absolute;
+    left:0;top:0;padding:0;overflow:visible}
+  .vzwrap pre.mermaid:not([data-processed]){visibility:hidden}
+  .vzwrap svg{display:block;transform-origin:0 0;max-width:none}
   .mermaid g.node.vz-click{cursor:pointer}
   .mermaid g.node.vz-click:hover rect{stroke:var(--accent) !important;stroke-width:2.5px !important}
+  .vztools{position:absolute;left:10px;top:10px;z-index:5;display:flex;gap:6px;align-items:center;
+    font-size:12.5px;color:var(--dim);background:rgba(255,255,255,.88);backdrop-filter:blur(2px);
+    padding:6px 10px;border-radius:8px;border:1px solid var(--line)}
+  .vztools button{border:1px solid var(--line2);background:#fff;border-radius:6px;
+    padding:3px 10px;font:inherit;color:var(--muted);cursor:pointer}
+  .vztools button:hover{border-color:var(--accent);color:var(--accent)}
+  .vztools button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);font-weight:600}
+  .vzhint{margin-left:4px}
+  @media(max-width:900px){.vzhint{display:none}}
   #vzpanel{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;
     padding:12px 16px;margin:10px 0 6px;font-size:14px;color:var(--muted);background:var(--card)}
   #vzpanel b{color:#000;font-size:14.5px}
@@ -125,11 +137,6 @@
   .vzgrid > span:nth-child(odd){color:var(--dim)}
   .vzgo{color:var(--accent);cursor:pointer;font-weight:600}
   .vzgo:hover{text-decoration:underline}
-  .vztools{display:flex;gap:6px;align-items:center;margin:0 0 6px;font-size:12.5px;color:var(--dim)}
-  .vztools button{border:1px solid var(--line2);background:#fff;border-radius:6px;
-    padding:3px 10px;font:inherit;color:var(--muted);cursor:pointer}
-  .vztools button:hover{border-color:var(--accent);color:var(--accent)}
-  .vztools button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);font-weight:600}
   tr.vzflash td{animation:vzflash 2.2s ease-out}
   @keyframes vzflash{0%{background:#fff3bf}100%{background:transparent}}
 </style>
@@ -491,36 +498,137 @@ flowchart TD
       n.addEventListener("click", () => show(m[0]));
     });
 
-    // Zoom: fit-to-width by default, buttons for 100% / +/-.
+    // Miro-like canvas: drag to pan, wheel / pinch to zoom, buttons for fit/100%/±.
     document.querySelectorAll(".vzwrap").forEach(wrap => {
       const pre = wrap.querySelector("pre.mermaid");
       const svg = pre && pre.querySelector("svg");
       if (!svg) return;
-      const w0 = svg.getBoundingClientRect().width, h0 = svg.getBoundingClientRect().height;
-      let k = 1;
+      let k = 1, tx = 0, ty = 0, mode = "", interacted = false;
+      function nat(){
+        const t = svg.style.transform;
+        svg.style.transform = "none";
+        const r = svg.getBoundingClientRect();
+        svg.style.transform = t;
+        return {w: r.width, h: r.height};
+      }
+      function box(){
+        // Hidden tab / collapsed pane can report a 0-height viewport; fall
+        // back to sane defaults so fit() never collapses to the min zoom.
+        const W = wrap.clientWidth || 960, H = wrap.clientHeight || 480;
+        return {W: Math.max(W, 320), H: Math.max(H, 320)};
+      }
+
       const tools = document.createElement("div");
       tools.className = "vztools";
       tools.innerHTML = '<button data-z="fit">Вписать</button>' +
         '<button data-z="1">100%</button><button data-z="-">−</button>' +
-        '<button data-z="+">+</button><span class="vzk"></span>';
-      wrap.insertBefore(tools, pre);
+        '<button data-z="+">+</button><span class="vzk"></span>' +
+        '<span class="vzhint">двигай мышью · зум колесом</span>';
+      wrap.appendChild(tools);
       const lbl = tools.querySelector(".vzk");
-      function setScale(nk, mode){
-        k = Math.min(2, Math.max(0.3, nk));
-        svg.style.width = (w0 * k) + "px";
-        svg.style.height = (h0 * k) + "px";
+
+      function apply(){
+        svg.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + k + ")";
         lbl.textContent = Math.round(k * 100) + "%";
         tools.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.z === mode));
-        if (mode === "1") pre.scrollLeft = (pre.scrollWidth - pre.clientWidth) / 2;
+      }
+      function clamp(v){ return Math.min(3, Math.max(0.1, v)); }
+      function zoomAt(cx, cy, f, m){
+        const nk = clamp(k * f);
+        tx = cx - (cx - tx) * (nk / k);
+        ty = cy - (cy - ty) * (nk / k);
+        k = nk; mode = m || ""; apply();
+      }
+      function fit(){
+        const b = box(), n = nat();
+        k = clamp(Math.min((b.W - 24) / n.w, (b.H - 24) / n.h));
+        tx = (b.W - n.w * k) / 2; ty = (b.H - n.h * k) / 2;
+        mode = "fit"; apply();
+      }
+      function hundred(){
+        const b = box(), n = nat();
+        k = 1; tx = (b.W - n.w) / 2; ty = (b.H - n.h) / 2;
+        mode = "1"; apply();
       }
       tools.addEventListener("click", e => {
         const z = e.target.dataset && e.target.dataset.z;
         if (!z) return;
-        if (z === "fit") setScale((wrap.clientWidth - 28) / w0, "fit");
-        else if (z === "1") setScale(1, "1");
-        else setScale(k + (z === "+" ? 0.15 : -0.15), "");
+        e.stopPropagation();
+        interacted = true;
+        if (z === "fit") fit();
+        else if (z === "1") hundred();
+        else zoomAt(wrap.clientWidth / 2, wrap.clientHeight / 2, z === "+" ? 1.25 : 0.8);
       });
-      setScale((wrap.clientWidth - 28) / w0, "fit");
+
+      wrap.addEventListener("wheel", e => {
+        e.preventDefault();
+        interacted = true;
+        const r = wrap.getBoundingClientRect();
+        zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0015));
+      }, {passive: false});
+
+      wrap.addEventListener("dblclick", e => {
+        if (e.target.closest("g.node") || e.target.closest(".vztools")) return;
+        const r = wrap.getBoundingClientRect();
+        zoomAt(e.clientX - r.left, e.clientY - r.top, 1.5);
+      });
+
+      // Pointers: 1 finger/button = pan, 2 fingers = pinch. Click passes through
+      // only when the pointer barely moved.
+      const pts = new Map();
+      let moved = false, suppressClick = false, pin = null, start = null;
+      wrap.addEventListener("pointerdown", e => {
+        if (e.target.closest(".vztools")) return;
+        wrap.setPointerCapture(e.pointerId);
+        interacted = true;
+        pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
+        if (pts.size === 1) { moved = false; suppressClick = false; start = {x: e.clientX, y: e.clientY}; }
+        pin = null;
+      });
+      wrap.addEventListener("pointermove", e => {
+        if (!pts.has(e.pointerId)) return;
+        const prev = pts.get(e.pointerId);
+        pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
+        const r = wrap.getBoundingClientRect();
+        if (pts.size === 1) {
+          if (!moved && start && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 5) return;
+          moved = true;
+          wrap.classList.add("dragging");
+          tx += e.clientX - prev.x; ty += e.clientY - prev.y; mode = ""; apply();
+        } else if (pts.size === 2) {
+          const [a, b] = Array.from(pts.values());
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          const mid = {x: (a.x + b.x) / 2 - r.left, y: (a.y + b.y) / 2 - r.top};
+          if (pin) {
+            zoomAt(mid.x, mid.y, dist / pin.dist);
+            tx += mid.x - pin.mid.x; ty += mid.y - pin.mid.y; apply();
+          }
+          pin = {dist: dist, mid: mid};
+          moved = true;
+        }
+      });
+      function release(e){
+        if (!pts.has(e.pointerId)) return;
+        pts.delete(e.pointerId);
+        pin = null;
+        if (pts.size === 0) {
+          wrap.classList.remove("dragging");
+          if (moved) suppressClick = true;
+        }
+      }
+      wrap.addEventListener("pointerup", release);
+      wrap.addEventListener("pointercancel", release);
+      wrap.addEventListener("click", e => {
+        if (suppressClick) { suppressClick = false; e.stopPropagation(); e.preventDefault(); }
+      }, true);
+
+      // Initial fit; re-fit when the canvas gets its real size (hidden tab,
+      // pane resize, late font layout) until the user pans/zooms themselves.
+      fit();
+      [120, 400, 900].forEach(ms => setTimeout(() => { if (!interacted) fit(); }, ms));
+      if (typeof ResizeObserver !== "undefined") {
+        new ResizeObserver(() => { if (!interacted) fit(); }).observe(wrap);
+      }
     });
   });
 })();
