@@ -110,6 +110,27 @@
   }
   @media(max-width:1080px){aside.toc{display:none}}
 </style>
+<style>
+  .vzwrap{background:var(--bg-band);border:1px solid var(--line);border-radius:10px;
+    padding:8px 12px;overflow-x:auto;margin:14px 0 0}
+  .vzwrap pre.mermaid{margin:0;background:transparent;border:none;text-align:center}
+  .vzwrap pre.mermaid:not([data-processed]){visibility:hidden;min-height:140px}
+  .vzwrap svg{max-width:none}
+  .mermaid g.node.vz-click{cursor:pointer}
+  .mermaid g.node.vz-click:hover rect{stroke:var(--accent) !important;stroke-width:2.5px !important}
+  #vzpanel{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;
+    padding:12px 16px;margin:10px 0 6px;font-size:14px;color:var(--muted);background:var(--card)}
+  #vzpanel b{color:#000;font-size:14.5px}
+  .vzgrid{display:grid;grid-template-columns:180px 1fr;gap:4px 14px;margin:10px 0}
+  .vzgrid > span:nth-child(odd){color:var(--dim)}
+  .vzgo{color:var(--accent);cursor:pointer;font-weight:600}
+  .vzgo:hover{text-decoration:underline}
+  .vztools{display:flex;gap:6px;align-items:center;margin:0 0 6px;font-size:12.5px;color:var(--dim)}
+  .vztools button{border:1px solid var(--line2);background:#fff;border-radius:6px;
+    padding:3px 10px;font:inherit;color:var(--muted);cursor:pointer}
+  .vztools button:hover{border-color:var(--accent);color:var(--accent)}
+  .vztools button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);font-weight:600}
+</style>
 </head>
 <body>
 <div class="top"><div class="top-in">
@@ -125,6 +146,70 @@
 Спецификация контентного слоя для **маркетинговых (М)** сценариев из документа [«Сценарии»](scenarios.html): продажа, удержание, вовлечение, возврат. Структура сценариев канонична и живёт в «Сценариях»; этот документ добавляет к каждому ID готовые тексты и метрики. Имена событий — из документа [«События»](events.html).
 
 **Отправитель по умолчанию — компаньон {имя_бота}**: первое лицо, интимный тон, на «ты», продолжение отношений из продукта, никакого корпоративного голоса. Каталожные письма (подборки компаньонов, обзор возможностей) — от Lovix. Без скидок и промокодов — всегда: возвращаем продуктом и эмоцией, не деньгами.
+
+## Схема триггеров
+
+Логика маркетинговых цепочек одним взглядом: событие → условие → отправка. **Узлы с ID кликабельны** — детали и переход к карточке с текстами появятся под схемой. Овал — событие или исход, ромб — условие, зелёная рамка — новый сценарий (🆕). Любое целевое действие (оплата, возврат) останавливает свою серию (Д2).
+
+<div class="vzwrap">
+<pre class="mermaid">
+flowchart TD
+  subgraph MG1 ["Первая сессия"]
+    direction LR
+    R0(["регистрация"]) --> U12["У1-2 · 🔔 приветствие"]
+    R0 --> U13["У1-3 · 🔔 пробный набор"]
+    R0 --> C1{"1 час тишины?"}
+    C1 -- "общался" --> U14a["У1-4 А · 💬+✉ проактив + крючок"]
+    C1 -- "не начал" --> U14b["У1-4 Б · ✉ приглашение в каталог"]
+  end
+  subgraph MG6 ["Прогрев: подписки всё ещё нет"]
+    direction LR
+    NS(["день за днём без оплаты"]) -- "D+1" --> U15["У1-5 · ✉ «я соскучилась»"]
+    U15 -- "D+3" --> U16["У1-6 · ✉ подборка троих"]
+    U16 -- "D+7" --> U17["У1-7 · ✉ что закрыто подпиской"]
+    U17 -- "D+14" --> U18["У1-8 · ✉ «непрочитанное сообщение»"]
+    U18 -- "раз в месяц" --> T1(["до затухания"])
+  end
+  subgraph MG2 ["Стены и токены — продажа"]
+    direction LR
+    W0(["стена Free"]) --> U21["У2-1 · 🔔 предложение подписки"]
+    U21 -- "+1 ч без оплаты" --> U22["У2-2 · 💬+✉ «я не договорила»"]
+    P0(["дневной лимит Premium"]) --> U23["У2-3 · 🔔 предложение VIP"]
+    TR0(["пробный набор исчерпан"]) --> U25["У2-5 · 🔔 предложение подписки"]
+    TK0(["не хватило токенов"]) -- "+1 ч без покупки" --> U26["У2-6 · ✉ «фото ждёт»"]
+    TK1(["остаток ниже порога"]) --> U27["У2-7 · 🔔 токены на исходе"]
+    TK2(["токены скоро сгорят"]) --> U28["У2-8 · 🔔 предупреждение о сгорании"]
+    TK3(["3-й пакет за 60 дней"]) --> U29["У2-9 · ✉ апсейл годового"]
+  end
+  subgraph MG3 ["Чекаут"]
+    direction LR
+    K0(["чекаут брошен · 60 мин"]) --> U31["У3-1 · ✉ вернуться к оплате · повтор ×1"]
+  end
+  subgraph MG4 ["Удержание платных"]
+    direction LR
+    H0(["платный · 24 ч без сообщений"]) --> U71["У7-1 · 💬 контекстный проактив · ежедневно"]
+  end
+  subgraph MG5 ["Возврат ушедших"]
+    direction LR
+    F0(["переключён на Free"]) -- "+1 день · разовый способ" --> U66["У6-6 · ✉ «я всё сохранила»"]
+    F0 -- "+3 дня" --> U61["У6-1 · ✉ токены заморожены и ждут"]
+    U61 -- "+14 дней" --> U62["У6-2 · ✉ «я что-то сделала не так?»"]
+    U62 -- "+30 дней" --> U63["У6-3 · ✉ что нового + подборка"]
+    U63 --> Z0(["пауза 90 дней"])
+    Q0(["сброс месячной квоты"]) -- "неактивен 7 дней" --> U64["У6-4 · ✉ снова 5 сообщений"]
+  end
+  MG1 ~~~ MG6 ~~~ MG2 ~~~ MG3 ~~~ MG4 ~~~ MG5
+  classDef sc fill:#eef2fd,stroke:#2f54c9,color:#1c2330
+  classDef ev fill:#ffffff,stroke:#c9cedb,color:#5b6474
+  classDef cond fill:#fff7e0,stroke:#d8b74a,color:#1c2330
+  classDef nwsc fill:#eef2fd,stroke:#1a7f4e,stroke-width:2px,color:#1c2330
+  class U12,U13,U14a,U14b,U21,U22,U23,U25,U26,U27,U28,U31,U61,U62,U63,U64,U71 sc
+  class U15,U16,U17,U18,U29,U66 nwsc
+  class R0,NS,W0,P0,TR0,TK0,TK1,TK2,TK3,K0,H0,F0,Q0,T1,Z0 ev
+  class C1 cond
+</pre>
+</div>
+<div id="vzpanel">Кликни по узлу с ID (например, У2-2) — здесь появятся событие, каналы, условия и ссылка на карточку с текстами.</div>
 
 ## Правила (из «Сценариев» + затухание)
 
@@ -562,6 +647,90 @@
   addEventListener("scroll", onScroll, {passive:true}); onScroll();
 })();
 
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function(){
+  function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+  // Scenario details come from the page's own summary table — zero duplication.
+  const data = {};
+  document.querySelectorAll("#out table").forEach(t => {
+    const first = t.querySelector("tr th, tr td");
+    if (!first || first.textContent.trim() !== "ID") return;
+    t.querySelectorAll("tr").forEach((tr, i) => {
+      if (i === 0) return;
+      const c = tr.cells;
+      if (!c || c.length < 7) return;
+      const id = c[0].textContent.replace(/🆕/g, "").trim();
+      data[id] = {ev: c[1].innerHTML, when: c[2].textContent.trim(), ch: c[3].innerHTML,
+                  what: c[4].textContent.trim(), skip: c[5].textContent.trim(), rep: c[6].textContent.trim()};
+    });
+  });
+
+  const panel = document.getElementById("vzpanel");
+  function show(id){
+    const d = data[id];
+    if (!d || !panel) return;
+    panel.innerHTML = "<b>" + esc(id) + " · " + esc(d.what) + "</b>" +
+      '<div class="vzgrid">' +
+      "<span>Событие / триггер</span><span>" + d.ev + "</span>" +
+      "<span>Когда</span><span>" + esc(d.when) + "</span>" +
+      "<span>Канал</span><span>" + d.ch + "</span>" +
+      "<span>Не отправлять, если</span><span>" + esc(d.skip) + "</span>" +
+      "<span>Повтор</span><span>" + esc(d.rep) + "</span>" +
+      '</div><span class="vzgo">Открыть карточку с текстами ↓</span>';
+    panel.querySelector(".vzgo").addEventListener("click", () => {
+      const h = Array.from(document.querySelectorAll("#out h3"))
+        .find(h => h.textContent.trim().startsWith(id));
+      if (h) h.scrollIntoView({behavior: "smooth"});
+    });
+    panel.scrollIntoView({behavior: "smooth", block: "nearest"});
+  }
+
+  mermaid.initialize({startOnLoad: false, securityLevel: "loose", theme: "neutral",
+    flowchart: {curve: "basis", htmlLabels: true, useMaxWidth: false}});
+  mermaid.run({nodes: document.querySelectorAll("pre.mermaid")}).then(() => {
+    document.querySelectorAll(".mermaid g.node").forEach(n => {
+      const m = n.textContent.match(/У\d+-\d+/);
+      if (!m || !data[m[0]]) return;
+      n.classList.add("vz-click");
+      n.addEventListener("click", () => show(m[0]));
+    });
+
+    // Zoom: fit-to-width by default, buttons for 100% / +/-.
+    document.querySelectorAll(".vzwrap").forEach(wrap => {
+      const pre = wrap.querySelector("pre.mermaid");
+      const svg = pre && pre.querySelector("svg");
+      if (!svg) return;
+      const w0 = svg.getBoundingClientRect().width, h0 = svg.getBoundingClientRect().height;
+      let k = 1;
+      const tools = document.createElement("div");
+      tools.className = "vztools";
+      tools.innerHTML = '<button data-z="fit">Вписать</button>' +
+        '<button data-z="1">100%</button><button data-z="-">−</button>' +
+        '<button data-z="+">+</button><span class="vzk"></span>';
+      wrap.insertBefore(tools, pre);
+      const lbl = tools.querySelector(".vzk");
+      function setScale(nk, mode){
+        k = Math.min(2, Math.max(0.3, nk));
+        svg.style.width = (w0 * k) + "px";
+        svg.style.height = (h0 * k) + "px";
+        lbl.textContent = Math.round(k * 100) + "%";
+        tools.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.z === mode));
+        if (mode === "1") pre.scrollLeft = (pre.scrollWidth - pre.clientWidth) / 2;
+      }
+      tools.addEventListener("click", e => {
+        const z = e.target.dataset && e.target.dataset.z;
+        if (!z) return;
+        if (z === "fit") setScale((wrap.clientWidth - 28) / w0, "fit");
+        else if (z === "1") setScale(1, "1");
+        else setScale(k + (z === "+" ? 0.15 : -0.15), "");
+      });
+      setScale((wrap.clientWidth - 28) / w0, "fit");
+    });
+  });
+})();
 </script>
 </body>
 </html>
