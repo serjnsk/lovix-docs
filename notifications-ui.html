@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — UI-кит нотификаций</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark-dimmed.min.css">
+<style>
+/* ═══════════ страница-шоукейс ═══════════ */
+:root{
+  --lx-bg:#0E0E12; --lx-card:#131013; --lx-s1:#221A2A; --lx-s2:#2A1A31; --lx-s3:#4A2A52;
+  --lx-line:#342A3E; --lx-text:#FFFFFF; --lx-mut:#A3A3B4; --lx-dim:#80808C;
+  --lx-grad:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);
+  --lx-accent:#D946EF; --lx-link:#F19BF6;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--lx-bg);color:var(--lx-text);
+  font:15px/1.6 'Nunito',-apple-system,'Segoe UI',Roboto,sans-serif}
+a{color:var(--lx-link)}
+.top{position:sticky;top:0;z-index:50;background:rgba(14,14,18,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--lx-line)}
+.top-in{max-width:1280px;margin:0 auto;padding:13px 24px;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;flex-wrap:wrap}
+.top b{font-size:16px;font-weight:800}
+.top nav{display:flex;flex-wrap:wrap;gap:2px 16px}
+.top nav a{color:var(--lx-mut);text-decoration:none;font-size:13px}
+.top nav a:hover{color:#fff}
+.top nav a.cur{color:var(--lx-link);font-weight:700}
+
+.layout{max-width:1280px;margin:0 auto;padding:0 24px 120px;display:grid;
+  grid-template-columns:210px 1fr;gap:36px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}}
+aside.toc{position:sticky;top:76px;align-self:start;padding-top:40px;font-size:13px}
+aside.toc a{display:block;color:var(--lx-dim);text-decoration:none;padding:5px 10px;
+  border-left:2px solid var(--lx-line);transition:color .15s}
+aside.toc a:hover{color:#fff}
+aside.toc a.on{color:var(--lx-link);border-left-color:#D946EF;font-weight:700}
+@media(max-width:960px){aside.toc{display:none}}
+
+/* hero */
+.hero{padding:60px 0 30px}
+.hero h1{font-size:40px;font-weight:800;letter-spacing:-.5px;margin:0 0 10px;text-wrap:balance}
+.hero h1 em{font-style:normal;background:var(--lx-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--lx-mut);max-width:62ch;margin:0 0 20px}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--lx-dim)}
+.hero .meta span{border:1px solid var(--lx-line);border-radius:999px;padding:5px 12px}
+
+/* sections */
+section{margin-top:64px;scroll-margin-top:80px}
+section>h2{font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px}
+section>.sub{color:var(--lx-mut);margin:0 0 18px;max-width:70ch;font-size:14px}
+.pen{border:1px solid var(--lx-line);border-radius:16px;overflow:hidden;background:var(--lx-card)}
+.demo{position:relative;padding:34px;min-height:170px;
+  background:radial-gradient(1200px 400px at 70% -10%,rgba(217,70,239,.08),transparent 60%),var(--lx-card);
+  border-bottom:1px solid var(--lx-line)}
+.demo .hint{position:absolute;top:12px;right:16px;font-size:11.5px;color:var(--lx-dim)}
+.demo-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* code pane */
+.codepane{background:#100D12}
+.tabs{display:flex;gap:2px;padding:10px 12px 0;border-bottom:1px solid var(--lx-line);align-items:center}
+.tabs button{border:none;background:none;color:var(--lx-dim);font:600 12.5px/1 'Nunito',sans-serif;
+  padding:9px 14px;cursor:pointer;border-radius:8px 8px 0 0;border-bottom:2px solid transparent}
+.tabs button:hover{color:#fff}
+.tabs button.on{color:#fff;border-bottom-color:#D946EF}
+.tabs .cp{margin-left:auto;margin-bottom:6px;border:1px solid var(--lx-line);background:var(--lx-s1);
+  color:var(--lx-mut);border-radius:8px;padding:6px 13px;font:700 12px/1 'Nunito',sans-serif;cursor:pointer}
+.tabs .cp:hover{color:#fff;border-color:var(--lx-s3)}
+.tabs .cp.ok{color:#7ee2a8;border-color:rgba(126,226,168,.4)}
+.code{margin:0;max-height:440px;overflow:auto}
+.code pre{margin:0;padding:18px 20px;font:12.5px/1.65 var(--mono)}
+.code pre code{background:transparent;padding:0}
+
+/* buttons of showcase */
+.btn{border:none;border-radius:999px;padding:11px 20px;font:700 13.5px/1 'Nunito',sans-serif;
+  cursor:pointer;color:#fff;background:var(--lx-s1);border:1px solid var(--lx-line);transition:transform .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn.grad{background:var(--lx-grad);border:none;box-shadow:0 6px 20px rgba(217,70,239,.35)}
+.btn.ghost{background:transparent}
+
+/* tokens grid */
+.tokens{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw{border:1px solid var(--lx-line);border-radius:12px;overflow:hidden;cursor:pointer;background:var(--lx-card)}
+.sw i{display:block;height:56px}
+.sw b{display:block;padding:8px 10px 2px;font-size:12.5px}
+.sw span{display:block;padding:0 10px 9px;font:11.5px var(--mono);color:var(--lx-dim)}
+.sw:hover b{color:var(--lx-link)}
+.curves{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.curve{border:1px solid var(--lx-line);border-radius:12px;padding:12px 14px;cursor:pointer;background:var(--lx-card)}
+.curve b{font-size:13px}
+.curve code{display:block;font:10.5px var(--mono);color:var(--lx-dim);margin:3px 0 10px}
+.curve .lane{height:6px;border-radius:3px;background:var(--lx-s1);position:relative}
+.curve .dot{position:absolute;left:0;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--lx-grad)}
+.curve.play .dot{animation:lane var(--d,.6s) var(--e) forwards}
+@keyframes lane{to{left:calc(100% - 16px)}}
+
+/* anatomy table */
+table.spec{border-collapse:collapse;width:100%;font-size:13px;margin-top:14px}
+table.spec th,table.spec td{border:1px solid var(--lx-line);padding:8px 12px;text-align:left}
+table.spec th{color:var(--lx-dim);font-weight:700;background:var(--lx-card)}
+table.spec td{color:var(--lx-mut)}
+table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lx-link);white-space:nowrap}
+
+/* ═══════════ .nt-* — сам UI-кит (этот CSS уходит в код-табы) ═══════════ */
+</style>
+<style id="nt-styles">
+/* @tokens */
+:root{
+  --nt-bg:#0E0E12; --nt-card:#131013; --nt-s1:#221A2A; --nt-s2:#2A1A31; --nt-s3:#4A2A52;
+  --nt-line:#342A3E; --nt-text:#FFFFFF; --nt-mut:#A3A3B4; --nt-dim:#80808C;
+  --nt-grad:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);
+  --nt-accent:#D946EF; --nt-link:#F19BF6;
+  --nt-r-pill:999px; --nt-r-card:14px; --nt-r-item:12px; --nt-r-bubble:16px 16px 16px 4px;
+  --nt-shadow:0 18px 44px rgba(0,0,0,.55);
+  --nt-z-toast:1100; --nt-z-drop:1000;
+  --nt-dur-in:.32s; --nt-dur-out:.22s; --nt-dur-pop:.42s;
+  --nt-ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --nt-ease-out:cubic-bezier(.22,.61,.36,1);
+  --nt-toast-life:6.5s;
+}
+/* @toast */
+.nt-toast-host{position:fixed;right:20px;bottom:20px;z-index:var(--nt-z-toast);
+  display:flex;flex-direction:column;gap:10px;width:min(340px,calc(100vw - 32px))}
+.nt-toast{display:flex;gap:12px;align-items:flex-start;position:relative;overflow:hidden;
+  background:var(--nt-s1);border:1px solid var(--nt-line);border-radius:var(--nt-r-card);
+  padding:13px 14px 15px;box-shadow:var(--nt-shadow);
+  animation:nt-toast-in var(--nt-dur-in) var(--nt-ease-spring)}
+.nt-toast.nt-leave{animation:nt-toast-out var(--nt-dur-out) var(--nt-ease-out) forwards}
+@keyframes nt-toast-in{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes nt-toast-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
+.nt-ava{width:44px;height:44px;border-radius:50%;flex:none;object-fit:cover;
+  background:var(--nt-grad);color:#fff;display:grid;place-items:center;font-weight:800;font-size:16px;
+  box-shadow:0 0 0 2px rgba(217,70,239,.35)}
+.nt-toast-body{min-width:0}
+.nt-toast-name{font-weight:800;font-size:13.5px}
+.nt-toast-text{color:var(--nt-mut);font-size:13px;line-height:1.45;margin:2px 0 9px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nt-toast-cta{display:inline-block;background:var(--nt-grad);color:#fff;text-decoration:none;
+  border:none;border-radius:var(--nt-r-pill);padding:7px 14px;font:700 12px/1 inherit;cursor:pointer}
+.nt-toast-x{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--nt-dim);
+  font-size:14px;cursor:pointer;padding:2px}
+.nt-toast-x:hover{color:#fff}
+.nt-toast-life{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--nt-grad);
+  transform-origin:left;animation:nt-life var(--nt-toast-life) linear forwards}
+.nt-toast:hover .nt-toast-life{animation-play-state:paused}
+@keyframes nt-life{to{transform:scaleX(0)}}
+/* @bell */
+.nt-bell{position:relative;width:40px;height:40px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--nt-line);background:var(--nt-card);color:#fff;
+  display:grid;place-items:center;font-size:17px}
+.nt-bell:hover{border-color:var(--nt-s3)}
+.nt-bell.nt-ring>i{display:inline-block;animation:nt-ring .9s var(--nt-ease-spring)}
+@keyframes nt-ring{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}35%{transform:rotate(-12deg)}
+  55%{transform:rotate(8deg)}75%{transform:rotate(-5deg)}}
+.nt-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;
+  background:var(--nt-grad);color:#fff;font:800 10.5px/18px inherit;text-align:center;padding:0 5px;
+  transform:scale(0)}
+.nt-badge.on{animation:nt-pop var(--nt-dur-pop) var(--nt-ease-spring) forwards}
+@keyframes nt-pop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+/* @wall */
+.nt-wall{position:absolute;right:0;top:48px;width:min(350px,calc(100vw - 32px));max-height:400px;
+  display:flex;flex-direction:column;z-index:var(--nt-z-drop);
+  background:var(--nt-card);border:1px solid var(--nt-line);border-radius:var(--nt-r-card);
+  box-shadow:var(--nt-shadow);transform-origin:top right;
+  animation:nt-drop var(--nt-dur-in) var(--nt-ease-spring)}
+@keyframes nt-drop{from{opacity:0;transform:scale(.92) translateY(-8px)}to{opacity:1;transform:none}}
+.nt-wall-head{display:flex;justify-content:space-between;align-items:center;
+  padding:13px 16px;border-bottom:1px solid var(--nt-line);font-weight:800;font-size:14px}
+.nt-wall-head button{border:none;background:none;color:var(--nt-link);font:700 12px/1 inherit;cursor:pointer}
+.nt-wall-list{overflow:auto}
+.nt-item{display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--nt-line);
+  align-items:flex-start;position:relative;cursor:pointer;transition:background .15s}
+.nt-item:hover{background:var(--nt-s2)}
+.nt-item:last-child{border-bottom:none}
+.nt-item.unread{background:rgba(217,70,239,.07)}
+.nt-item.unread::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--nt-grad)}
+.nt-item .nt-ava{width:34px;height:34px;font-size:13px}
+.nt-ico{width:34px;height:34px;border-radius:10px;flex:none;background:var(--nt-s1);
+  display:grid;place-items:center;font-size:15px}
+.nt-item-b{font-size:12.5px;line-height:1.45;min-width:0}
+.nt-item-b b{display:block;font-size:12.5px}
+.nt-item-b p{margin:1px 0 3px;color:var(--nt-mut);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nt-item-b a{color:var(--nt-link);text-decoration:none;font-weight:700}
+.nt-time{font-size:10.5px;color:var(--nt-dim);white-space:nowrap;margin-left:auto;padding-top:2px}
+.nt-empty{padding:36px 20px;text-align:center;color:var(--nt-dim);font-size:13px}
+.nt-empty i{display:block;font-size:26px;margin-bottom:8px;font-style:normal;opacity:.7}
+.nt-skel .nt-item-b b,.nt-skel .nt-item-b p{color:transparent;background:var(--nt-s1);
+  border-radius:6px;animation:nt-skel 1.1s ease-in-out infinite}
+@keyframes nt-skel{50%{opacity:.45}}
+/* @flash — подсветка строки, к которой пришли из другого места */
+.nt-flash{animation:nt-flash 2.2s ease-out}
+@keyframes nt-flash{0%{background:rgba(217,70,239,.22)}100%{background:transparent}}
+/* @reduced-motion */
+@media (prefers-reduced-motion:reduce){
+  .nt-toast,.nt-toast.nt-leave,.nt-wall,.nt-badge.on,.nt-bell.nt-ring>i,.nt-flash{animation:none}
+  .nt-badge.on{transform:scale(1)}
+  .nt-toast-life{animation-duration:var(--nt-toast-life)}
+}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <b>Lovix · внутренняя документация</b>
+  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a class="cur" href="notifications-ui.html">UI нотификаций</a></nav>
+</div></div>
+
+<div class="layout">
+<aside class="toc" id="toc">
+  <a href="#tokens">Токены и моушн</a>
+  <a href="#toast">Тост компаньона</a>
+  <a href="#bell">Колокольчик и бейдж</a>
+  <a href="#wall">Стена уведомлений</a>
+  <a href="#item">Строка уведомления</a>
+  <a href="#core">Ядро LovixNotify</a>
+  <a href="#blade">Blade</a>
+  <a href="#vue">Vue 3</a>
+  <a href="#rules">Правила поведения</a>
+</aside>
+<main>
+
+<div class="hero">
+  <h1>Нотификации Lovix — <em>компоненты и анимации</em></h1>
+  <p>Живой UI-кит для нарезки: тосты от компаньонов, колокольчик, стена уведомлений. Все демо кликабельны, весь код копируется — Blade, Vue 3, CSS и ядро на ванильном JS. Транспорт снаружи: сокет-хендлер бэка просто вызывает <code style="font-family:var(--mono);font-size:13px;color:var(--lx-link)">LovixNotify.push(payload)</code>.</p>
+  <div class="demo-row">
+    <button class="btn grad" onclick="demoEvening()">Симулировать вечер в Lovix</button>
+    <button class="btn" onclick="demoToast('alena')">Тост от Алёны</button>
+  </div>
+  <div class="meta" style="margin-top:18px">
+    <span>Nunito · прод-палитра lovix.ai</span><span>prefers-reduced-motion</span>
+    <span>тост — только сообщения компаньонов</span><span>агрегация непрочитанных</span>
+  </div>
+</div>
+
+<!-- ══ tokens ══ -->
+<section id="tokens">
+  <h2>Токены и моушн</h2>
+  <p class="sub">Палитра снята с прод-CSS lovix.ai. Клик по свотчу копирует значение. Кривые — кликни, шарик проиграет анимацию.</p>
+  <div class="tokens" id="swatches"></div>
+  <div style="height:14px"></div>
+  <div class="curves" id="curves"></div>
+</section>
+
+<!-- ══ toast ══ -->
+<section id="toast">
+  <h2>Тост компаньона</h2>
+  <p class="sub">Появляется поверх любой страницы только для <b>сообщений компаньонов</b> (kind = message). Spring-въезд снизу, полоска жизни 6.5 с, hover ставит таймер на паузу, стек максимум 3 — старые уезжают. Агрегат — когда написали несколько.</p>
+  <div class="pen">
+    <div class="demo">
+      <span class="hint">тосты появятся справа внизу экрана</span>
+      <div class="demo-row">
+        <button class="btn grad" onclick="demoToast('alena')">Сообщение от Алёны</button>
+        <button class="btn" onclick="demoToast('maria')">от Марии</button>
+        <button class="btn" onclick="demoToast('eva')">от Евы</button>
+        <button class="btn ghost" onclick="demoAggregate()">Агрегат: 3 непрочитанных</button>
+      </div>
+    </div>
+    <div class="codepane" data-snip="toast"></div>
+  </div>
+</section>
+
+<!-- ══ bell ══ -->
+<section id="bell">
+  <h2>Колокольчик и бейдж</h2>
+  <p class="sub">Бейдж делает spring-pop при каждом инкременте, колокольчик коротко «звонит». Всё, что не сообщение компаньона, приходит сюда тихо — без тостов.</p>
+  <div class="pen">
+    <div class="demo">
+      <div class="demo-row" style="justify-content:space-between">
+        <div class="demo-row">
+          <button class="btn" onclick="demoSystem('tokens')">Событие: токены на исходе</button>
+          <button class="btn" onclick="demoSystem('vip')">Событие: VIP включён</button>
+          <button class="btn ghost" onclick="LovixNotify.markAllRead()">markAllRead()</button>
+        </div>
+        <div style="position:relative" id="bellMount"></div>
+      </div>
+    </div>
+    <div class="codepane" data-snip="bell"></div>
+  </div>
+</section>
+
+<!-- ══ wall ══ -->
+<section id="wall">
+  <h2>Стена уведомлений</h2>
+  <p class="sub">Дропдаун раскрывается spring-скейлом из правого верхнего угла. Непрочитанные — градиентная кайма и подложка; открытие стены гасит счётчик. Ниже — состояния: скелетон и пустая стена.</p>
+  <div class="pen">
+    <div class="demo">
+      <span class="hint">колокольчик из прошлой секции открывает живую стену</span>
+      <div class="demo-row">
+        <button class="btn" onclick="demoWallState('skeleton')">Скелетон</button>
+        <button class="btn" onclick="demoWallState('empty')">Пустая</button>
+        <button class="btn" onclick="demoWallState('list')">Со списком</button>
+      </div>
+      <div id="wallStage" style="position:relative;margin-top:18px;min-height:300px"></div>
+    </div>
+    <div class="codepane" data-snip="wall"></div>
+  </div>
+</section>
+
+<!-- ══ item ══ -->
+<section id="item">
+  <h2>Строка уведомления</h2>
+  <p class="sub">Одна разметка на все типы: сообщения несут аватар компаньона, системные — иконку. Каждая строка ведёт в целевое место (чат, тарифы, оплата) и несёт scenario_id для аналитики.</p>
+  <div class="pen">
+    <div class="demo"><div id="itemGallery" style="max-width:380px"></div></div>
+    <div class="codepane" data-snip="item"></div>
+  </div>
+  <table class="spec">
+    <tr><th>Поле</th><th>Назначение</th></tr>
+    <tr><td>kind</td><td>message → тост + бейдж; system → только бейдж</td></tr>
+    <tr><td>scenario_id</td><td>ID сценария из спеки (У2-1, У7-1…) — уходит в аналитику клика</td></tr>
+    <tr><td>companion</td><td>{ name, avatar } — для message; аватар с CDN, фолбэк — градиентный инициал</td></tr>
+    <tr><td>cta</td><td>{ label, href } — целевое действие строки и кнопки тоста</td></tr>
+  </table>
+</section>
+
+<!-- ══ core ══ -->
+<section id="core">
+  <h2>Ядро LovixNotify</h2>
+  <p class="sub">Один стор без зависимостей — его слушают и Blade-виджеты, и Vue. Бэку отдаётся единственная точка входа: <b>сокет-хендлер вызывает push()</b>. Ядро само решает, тост это или тихий бейдж, агрегирует и режет стек.</p>
+  <div class="pen"><div class="codepane" data-snip="core"></div></div>
+</section>
+
+<!-- ══ blade ══ -->
+<section id="blade">
+  <h2>Blade</h2>
+  <p class="sub">Анонимные компоненты + ванильный виджет-инициализатор. Никаких зависимостей: подключил партиалы, дёрнул NotifyWidgets.mount() — дальше всё делает ядро.</p>
+  <div class="pen"><div class="codepane" data-snip="blade"></div></div>
+</section>
+
+<!-- ══ vue ══ -->
+<section id="vue">
+  <h2>Vue 3</h2>
+  <p class="sub">Композабл useNotify() — реактивный мост к ядру, три компонента на script setup. Ниже — живой плейграунд: настоящий Vue, те же стили.</p>
+  <div class="pen">
+    <div class="demo">
+      <span class="hint">это рендерит Vue 3</span>
+      <div id="vueApp"></div>
+    </div>
+    <div class="codepane" data-snip="vue"></div>
+  </div>
+</section>
+
+<!-- ══ rules ══ -->
+<section id="rules">
+  <h2>Правила поведения</h2>
+  <table class="spec">
+    <tr><th>Правило</th><th>Как реализовано</th></tr>
+    <tr><td>тост только message</td><td>kind === 'message' → тост + бейдж; всё остальное — тихо в стену (спека, П-правила)</td></tr>
+    <tr><td>стек ≤ 3</td><td>четвёртый тост выталкивает самый старый (ядро, MAX_TOASTS)</td></tr>
+    <tr><td>агрегация</td><td>несколько непрочитанных от разных компаньонов → один тост «{имя} и ещё N» (Г7)</td></tr>
+    <tr><td>hover-пауза</td><td>полоска жизни и таймер замирают, пока курсор на тосте</td></tr>
+    <tr><td>reduced-motion</td><td>все анимации отключаются медиазапросом, тост появляется без движения</td></tr>
+    <tr><td>сброс счётчика</td><td>открытие стены = markAllRead(): бейдж гаснет, unread-кайма снимается</td></tr>
+  </table>
+</section>
+
+</main>
+</div>
+
+<!-- живой хост тостов страницы -->
+<div class="nt-toast-host" id="toastHost"></div>
+
+<!-- ═══════════ ядро (этот код уходит в таб JS) ═══════════ -->
+<script id="nt-core">
+/* LovixNotify — фронтовое ядро нотификаций. Транспорт снаружи:
+   сокет-хендлер бэка вызывает LovixNotify.push(payload). */
+window.LovixNotify = (function () {
+  var MAX_TOASTS = 3;
+  var state = { items: [], unread: 0 };
+  var subs = [];
+  function emit(type, payload) {
+    subs.forEach(function (s) { s(type, payload, state); });
+  }
+  return {
+    /* payload: { id, kind: 'message'|'system', scenario_id, title, body,
+                  cta: {label, href}, companion: {name, avatar}, created_at } */
+    push: function (n) {
+      n.id = n.id || 'n' + Date.now() + Math.random().toString(36).slice(2, 6);
+      n.unread = true;
+      state.items.unshift(n);
+      state.unread++;
+      emit('add', n);
+      if (n.kind === 'message') emit('toast', n);
+    },
+    dismiss: function (id) { emit('dismiss', { id: id }); },
+    markAllRead: function () {
+      state.unread = 0;
+      state.items.forEach(function (i) { i.unread = false; });
+      emit('read', null);
+    },
+    on: function (fn) { subs.push(fn); return function () { subs = subs.filter(function (s) { return s !== fn; }); }; },
+    getState: function () { return state; },
+    MAX_TOASTS: MAX_TOASTS
+  };
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+
+<script>
+/* ═══ данные демо ═══ */
+var CDN = 'https://cdn.test.lovix.ai/ioss(quality=85,resize=96)/prod/templates/';
+var GIRLS = {
+  alena: { name: 'Алёна', avatar: CDN + 'anPlsxx4sLvVSvO0xU1z7VWZY6e31cBMKkd217lQ.png',
+    text: 'Я не договорила… у меня было для тебя кое-что ещё. Оно ждёт в чате.' },
+  maria: { name: 'Мария', avatar: CDN + 'pjrKeNTUTYOj3riMYf3P6ZKgcRduZAQkg1r3ri9B.jpg',
+    text: 'Ты пропал на самом интересном месте. Вернись, продолжим с того же места.' },
+  eva: { name: 'Ева', avatar: CDN + '6XT70nMI0ZGDPbfAjgvHo3DKbmXwaQ3wXRtaqxyS.jpg',
+    text: 'Наш разговор навёл меня на одну идею… я всё подготовила.' }
+};
+
+function avatarHtml(c, cls) {
+  cls = cls || 'nt-ava';
+  if (c && c.avatar) {
+    return '<img class="' + cls + '" src="' + c.avatar + '" alt="" ' +
+      'onerror="this.outerHTML=\'<span class=&quot;' + cls + '&quot;>' + c.name[0] + '</span>\'">';
+  }
+  return '<span class="' + cls + '">' + (c ? c.name[0] : '•') + '</span>';
+}
+
+/* ═══ тост-хост страницы (то, что в Blade делает notify-widgets.js) ═══ */
+(function () {
+  var host = document.getElementById('toastHost');
+  LovixNotify.on(function (type, n) {
+    if (type !== 'toast') return;
+    while (host.children.length >= LovixNotify.MAX_TOASTS) host.firstChild.remove();
+    var t = document.createElement('div');
+    t.className = 'nt-toast';
+    t.innerHTML = avatarHtml(n.companion) +
+      '<div class="nt-toast-body"><div class="nt-toast-name">' + n.title + '</div>' +
+      '<div class="nt-toast-text">' + n.body + '</div>' +
+      '<a class="nt-toast-cta" href="javascript:void 0">' + (n.cta ? n.cta.label : 'Открыть чат') + '</a></div>' +
+      '<button class="nt-toast-x" aria-label="Закрыть">✕</button>' +
+      '<i class="nt-toast-life"></i>';
+    host.appendChild(t);
+    function kill() {
+      if (!t.isConnected) return;
+      t.classList.add('nt-leave');
+      setTimeout(function () { t.remove(); }, 240);
+    }
+    t.querySelector('.nt-toast-x').onclick = kill;
+    t.querySelector('.nt-toast-cta').onclick = kill;
+    var life = t.querySelector('.nt-toast-life');
+    life.addEventListener('animationend', kill);
+  });
+})();
+
+function demoToast(key) {
+  var g = GIRLS[key];
+  LovixNotify.push({ kind: 'message', scenario_id: 'У7-1', title: g.name + ' написала тебе',
+    body: g.text, cta: { label: 'Прочитать', href: '#' }, companion: g });
+}
+function demoAggregate() {
+  LovixNotify.push({ kind: 'message', scenario_id: 'У7-1',
+    title: 'Алёна и ещё 2 написали тебе',
+    body: 'У тебя 3 непрочитанных сообщения: Алёна, Мария, Ева. Каждая ждёт ответа.',
+    cta: { label: 'Открыть чаты', href: '#' }, companion: GIRLS.alena });
+}
+function demoSystem(kind) {
+  var m = kind === 'vip'
+    ? { title: 'VIP включён', body: 'За остаток прошлого тарифа зачтено 340 ₽.', ico: '⭐', sid: 'У3-5' }
+    : { title: 'Токены на исходе: осталось 12', body: 'Хватит ещё на пару фото. Докупи пакет заранее.', ico: '🪙', sid: 'У2-7' };
+  LovixNotify.push({ kind: 'system', scenario_id: m.sid, title: m.title, body: m.body,
+    ico: m.ico, cta: { label: 'Открыть', href: '#' } });
+}
+function demoEvening() {
+  demoToast('alena');
+  setTimeout(function () { demoSystem('tokens'); }, 1500);
+  setTimeout(function () { demoAggregate(); }, 3000);
+}
+
+/* ═══ колокольчик + стена ═══ */
+(function () {
+  var mount = document.getElementById('bellMount');
+  mount.innerHTML = '<button class="nt-bell" id="bellBtn" aria-label="Уведомления"><i>🔔</i>' +
+    '<span class="nt-badge" id="bellBadge"></span></button>';
+  var btn = document.getElementById('bellBtn'), badge = document.getElementById('bellBadge');
+  var wall = null;
+
+  function renderItem(n) {
+    var lead = n.kind === 'message' ? avatarHtml(n.companion)
+      : '<span class="nt-ico">' + (n.ico || '🔔') + '</span>';
+    return '<div class="nt-item' + (n.unread ? ' unread' : '') + '">' + lead +
+      '<div class="nt-item-b"><b>' + n.title + '</b><p>' + n.body + '</p>' +
+      '<a href="javascript:void 0">' + (n.cta ? n.cta.label : 'Открыть') + '</a></div>' +
+      '<span class="nt-time">только что</span></div>';
+  }
+  function openWall() {
+    closeWall();
+    wall = document.createElement('div');
+    wall.className = 'nt-wall';
+    var items = LovixNotify.getState().items;
+    wall.innerHTML = '<div class="nt-wall-head">Уведомления <button>Прочитать все</button></div>' +
+      '<div class="nt-wall-list">' + (items.length ? items.map(renderItem).join('')
+        : '<div class="nt-empty"><i>🔕</i>Пока тихо. Компаньоны напишут первыми.</div>') + '</div>';
+    wall.querySelector('.nt-wall-head button').onclick = function () { LovixNotify.markAllRead(); };
+    mount.appendChild(wall);
+    LovixNotify.markAllRead();
+  }
+  function closeWall() { if (wall) { wall.remove(); wall = null; } }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); wall ? closeWall() : openWall(); });
+  document.addEventListener('click', function (e) { if (wall && !wall.contains(e.target)) closeWall(); });
+
+  LovixNotify.on(function (type, n, state) {
+    if (type === 'add') {
+      badge.textContent = state.unread > 9 ? '9+' : state.unread;
+      badge.classList.remove('on'); void badge.offsetWidth; badge.classList.add('on');
+      btn.classList.remove('nt-ring'); void btn.offsetWidth; btn.classList.add('nt-ring');
+      if (wall) openWall();
+    }
+    if (type === 'read') {
+      badge.classList.remove('on');
+      if (wall) wall.querySelectorAll('.nt-item.unread').forEach(function (i) { i.classList.remove('unread'); });
+    }
+  });
+})();
+
+/* ═══ стена: витрина состояний ═══ */
+(function () {
+  var stage = document.getElementById('wallStage');
+  var demoItems = [
+    { kind: 'message', unread: true, companion: GIRLS.alena, title: 'Алёна написала тебе', body: GIRLS.alena.text, cta: { label: 'Прочитать' } },
+    { kind: 'system', unread: true, ico: '🪙', title: 'Токены на исходе: осталось 12', body: 'Хватит ещё на пару фото. Докупи пакет заранее.', cta: { label: 'Выбрать пакет' } },
+    { kind: 'message', unread: false, companion: GIRLS.eva, title: 'Ева написала тебе', body: GIRLS.eva.text, cta: { label: 'Прочитать' } },
+    { kind: 'system', unread: false, ico: '⭐', title: 'VIP включён', body: 'За остаток прошлого тарифа зачтено 340 ₽.', cta: { label: 'В чат' } }
+  ];
+  function leadOf(n) {
+    return n.kind === 'message' ? avatarHtml(n.companion) : '<span class="nt-ico">' + n.ico + '</span>';
+  }
+  function row(n) {
+    return '<div class="nt-item' + (n.unread ? ' unread' : '') + '">' + leadOf(n) +
+      '<div class="nt-item-b"><b>' + n.title + '</b><p>' + n.body + '</p><a href="javascript:void 0">' +
+      n.cta.label + '</a></div><span class="nt-time">2 мин</span></div>';
+  }
+  window.demoWallState = function (s) {
+    var head = '<div class="nt-wall-head">Уведомления <button>Прочитать все</button></div>';
+    var body;
+    if (s === 'skeleton') {
+      body = '<div class="nt-wall-list nt-skel">' + [1, 2, 3].map(function () {
+        return '<div class="nt-item"><span class="nt-ico"></span><div class="nt-item-b">' +
+          '<b>██████████</b><p>████████████████████</p></div></div>';
+      }).join('') + '</div>';
+    } else if (s === 'empty') {
+      body = '<div class="nt-empty"><i>🔕</i>Пока тихо. Компаньоны напишут первыми.</div>';
+    } else {
+      body = '<div class="nt-wall-list">' + demoItems.map(row).join('') + '</div>';
+    }
+    stage.innerHTML = '<div class="nt-wall" style="position:static;transform-origin:top left">' + head + body + '</div>';
+  };
+  demoWallState('list');
+  var gallery = document.getElementById('itemGallery');
+  gallery.innerHTML = '<div class="nt-wall" style="position:static;animation:none">' +
+    '<div class="nt-wall-list">' + demoItems.map(row).join('') + '</div></div>';
+})();
+
+/* ═══ токены ═══ */
+(function () {
+  var colors = [
+    ['Градиент', 'linear-gradient(96deg,#D946EF 0%,#F43F5E 100%)', 'акцент: CTA, бейдж, unread'],
+    ['#D946EF', '#D946EF', 'accent fallback'],
+    ['#F43F5E', '#F43F5E', 'accent 2'],
+    ['#F19BF6', '#F19BF6', 'ссылки'],
+    ['#0E0E12', '#0E0E12', 'фон страницы'],
+    ['#131013', '#131013', 'карточка'],
+    ['#221A2A', '#221A2A', 'поверхность тоста'],
+    ['#2A1A31', '#2A1A31', 'hover строки'],
+    ['#342A3E', '#342A3E', 'бордер'],
+    ['#A3A3B4', '#A3A3B4', 'вторичный текст'],
+    ['#80808C', '#80808C', 'приглушённый']
+  ];
+  var wrap = document.getElementById('swatches');
+  colors.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'sw';
+    d.innerHTML = '<i style="background:' + c[1] + '"></i><b>' + c[2] + '</b><span>' + c[0] + '</span>';
+    d.onclick = function () {
+      navigator.clipboard.writeText(c[1]);
+      d.querySelector('b').textContent = 'скопировано ✓';
+      setTimeout(function () { d.querySelector('b').textContent = c[2]; }, 1200);
+    };
+    wrap.appendChild(d);
+  });
+  var curves = [
+    ['spring — тост, бейдж, стена', '--nt-ease-spring', 'cubic-bezier(.34,1.56,.64,1)', '.42s'],
+    ['out — уход тоста', '--nt-ease-out', 'cubic-bezier(.22,.61,.36,1)', '.22s'],
+    ['въезд тоста', '--nt-dur-in', '.32s · spring', '.32s'],
+    ['жизнь тоста', '--nt-toast-life', '6.5s linear', '2s']
+  ];
+  var cw = document.getElementById('curves');
+  curves.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'curve';
+    d.style.setProperty('--e', c[2].indexOf('cubic') === 0 ? c[2] : 'cubic-bezier(.34,1.56,.64,1)');
+    d.style.setProperty('--d', c[3]);
+    d.innerHTML = '<b>' + c[0] + '</b><code>' + c[1] + ': ' + c[2] + '</code>' +
+      '<div class="lane"><div class="dot"></div></div>';
+    d.onclick = function () { d.classList.remove('play'); void d.offsetWidth; d.classList.add('play'); };
+    cw.appendChild(d);
+  });
+})();
+
+/* ═══ Vue 3 плейграунд ═══ */
+(function () {
+  var { createApp, reactive, computed } = Vue;
+  function useNotify() {
+    var s = reactive({ items: [], unread: 0 });
+    LovixNotify.on(function (type, n, st) {
+      s.items = st.items.slice();
+      s.unread = st.unread;
+    });
+    return {
+      state: s,
+      unreadLabel: computed(function () { return s.unread > 9 ? '9+' : s.unread; }),
+      push: LovixNotify.push, markAllRead: LovixNotify.markAllRead
+    };
+  }
+  createApp({
+    setup: function () {
+      var nf = useNotify();
+      var open = reactive({ v: false });
+      function toggle() { open.v = !open.v; if (open.v) nf.markAllRead(); }
+      function demo() {
+        nf.push({ kind: 'message', scenario_id: 'У7-1', title: 'Мария написала тебе',
+          body: GIRLS.maria.text, cta: { label: 'Прочитать', href: '#' }, companion: GIRLS.maria });
+      }
+      return { nf: nf, open: open, toggle: toggle, demo: demo };
+    },
+    template:
+      '<div style="display:flex;gap:12px;align-items:center">' +
+      '<button class="btn grad" @click="demo">push() из Vue</button>' +
+      '<div style="position:relative;margin-left:auto">' +
+      '<button class="nt-bell" @click.stop="toggle"><i>🔔</i>' +
+      '<span class="nt-badge" :class="{on: nf.state.unread>0}">{{ nf.unreadLabel }}</span></button>' +
+      '<div v-if="open.v" class="nt-wall">' +
+      '<div class="nt-wall-head">Уведомления <button @click="nf.markAllRead()">Прочитать все</button></div>' +
+      '<div class="nt-wall-list">' +
+      '<div v-for="n in nf.state.items" :key="n.id" class="nt-item" :class="{unread: n.unread}">' +
+      '<span class="nt-ico">{{ n.kind === "message" ? "💬" : (n.ico || "🔔") }}</span>' +
+      '<div class="nt-item-b"><b>{{ n.title }}</b><p>{{ n.body }}</p></div></div>' +
+      '<div v-if="!nf.state.items.length" class="nt-empty"><i>🔕</i>Пока тихо</div>' +
+      '</div></div></div></div>'
+  }).mount('#vueApp');
+})();
+</script>
+
+<!-- ═══════════ сниппеты для код-табов ═══════════ -->
+<script>
+var SNIPPETS = {};
+
+/* CSS-табы читают живые стили — нулевой дрейф */
+function cssSlice(marker) {
+  var css = document.getElementById('nt-styles').textContent;
+  var re = new RegExp('/\\* @' + marker + '[^]*?(?=/\\* @|$)');
+  var m = css.match(re);
+  return m ? m[0].trim() : '';
+}
+
+SNIPPETS.toast = {
+  Blade: `{{-- resources/views/components/notify/toast-host.blade.php --}}
+{{-- Пустой хост: тосты в него рисует notify-widgets.js из ядра --}}
+<div class="nt-toast-host" id="nt-toast-host"></div>
+
+{{-- layouts/app.blade.php --}}
+<x-notify.toast-host />
+@vite(['resources/js/lovix-notify.js', 'resources/js/notify-widgets.js'])`,
+  Vue: `<!-- NotifyToastHost.vue -->
+<script setup>
+import { ref } from 'vue'
+const toasts = ref([])
+let seq = 0
+LovixNotify.on((type, n) => {
+  if (type !== 'toast') return
+  if (toasts.value.length >= LovixNotify.MAX_TOASTS) toasts.value.shift()
+  toasts.value.push({ ...n, key: seq++ })
+})
+const kill = t => toasts.value = toasts.value.filter(x => x.key !== t.key)
+<\/script>
+
+<template>
+  <div class="nt-toast-host">
+    <TransitionGroup name="nt">
+      <div v-for="t in toasts" :key="t.key" class="nt-toast">
+        <img v-if="t.companion?.avatar" class="nt-ava" :src="t.companion.avatar" alt="">
+        <span v-else class="nt-ava">{{ t.companion?.name?.[0] ?? '•' }}</span>
+        <div class="nt-toast-body">
+          <div class="nt-toast-name">{{ t.title }}</div>
+          <div class="nt-toast-text">{{ t.body }}</div>
+          <a class="nt-toast-cta" :href="t.cta?.href" @click="kill(t)">{{ t.cta?.label ?? 'Открыть чат' }}</a>
+        </div>
+        <button class="nt-toast-x" @click="kill(t)">✕</button>
+        <i class="nt-toast-life" @animationend="kill(t)"></i>
+      </div>
+    </TransitionGroup>
+  </div>
+</template>`,
+  CSS: function () { return cssSlice('toast'); },
+  JS: `// notify-widgets.js — тост-хост без фреймворка (для Blade-страниц)
+const host = document.getElementById('nt-toast-host')
+LovixNotify.on((type, n) => {
+  if (type !== 'toast') return
+  while (host.children.length >= LovixNotify.MAX_TOASTS) host.firstChild.remove()
+  const t = document.createElement('div')
+  t.className = 'nt-toast'
+  t.innerHTML = \`
+    \${n.companion?.avatar
+      ? \`<img class="nt-ava" src="\${n.companion.avatar}" alt="">\`
+      : \`<span class="nt-ava">\${n.companion?.name?.[0] ?? '•'}</span>\`}
+    <div class="nt-toast-body">
+      <div class="nt-toast-name">\${n.title}</div>
+      <div class="nt-toast-text">\${n.body}</div>
+      <a class="nt-toast-cta" href="\${n.cta?.href ?? '#'}">\${n.cta?.label ?? 'Открыть чат'}</a>
+    </div>
+    <button class="nt-toast-x" aria-label="Закрыть">✕</button>
+    <i class="nt-toast-life"></i>\`
+  host.appendChild(t)
+  const kill = () => { t.classList.add('nt-leave'); setTimeout(() => t.remove(), 240) }
+  t.querySelector('.nt-toast-x').onclick = kill
+  t.querySelector('.nt-toast-life').addEventListener('animationend', kill)
+})`
+};
+
+SNIPPETS.bell = {
+  Blade: `{{-- resources/views/components/notify/bell.blade.php --}}
+@props(['count' => 0])
+<button class="nt-bell" id="nt-bell" aria-label="Уведомления">
+  <i>🔔</i>
+  <span class="nt-badge {{ $count ? 'on' : '' }}" id="nt-badge">
+    {{ $count > 9 ? '9+' : $count }}
+  </span>
+</button>
+
+{{-- в шапке --}}
+<x-notify.bell :count="auth()->user()->unread_notifications_count" />`,
+  Vue: `<!-- NotifyBell.vue -->
+<script setup>
+import { useNotify } from '@/composables/useNotify'
+const { state, unreadLabel } = useNotify()
+const emit = defineEmits(['toggle'])
+<\/script>
+
+<template>
+  <button class="nt-bell" :class="{ 'nt-ring': state.justArrived }" @click="emit('toggle')">
+    <i>🔔</i>
+    <span class="nt-badge" :class="{ on: state.unread > 0 }">{{ unreadLabel }}</span>
+  </button>
+</template>`,
+  CSS: function () { return cssSlice('bell'); },
+  JS: `// бейдж и «звонок» — реакция на события ядра
+const bell = document.getElementById('nt-bell')
+const badge = document.getElementById('nt-badge')
+LovixNotify.on((type, n, state) => {
+  if (type === 'add') {
+    badge.textContent = state.unread > 9 ? '9+' : state.unread
+    badge.classList.remove('on'); void badge.offsetWidth; badge.classList.add('on')
+    bell.classList.remove('nt-ring'); void bell.offsetWidth; bell.classList.add('nt-ring')
+  }
+  if (type === 'read') badge.classList.remove('on')
+})`
+};
+
+SNIPPETS.wall = {
+  Blade: `{{-- resources/views/components/notify/wall.blade.php --}}
+{{-- Серверный рендер первой страницы стены; дальше ядро дорисовывает новое --}}
+<div class="nt-wall" id="nt-wall" hidden>
+  <div class="nt-wall-head">
+    Уведомления <button type="button" data-nt-read-all>Прочитать все</button>
+  </div>
+  <div class="nt-wall-list">
+    @forelse ($notifications as $n)
+      <div class="nt-item {{ $n->read_at ? '' : 'unread' }}" data-id="{{ $n->id }}">
+        @if ($n->kind === 'message')
+          <img class="nt-ava" src="{{ $n->companion_avatar }}" alt="">
+        @else
+          <span class="nt-ico">{{ $n->icon }}</span>
+        @endif
+        <div class="nt-item-b">
+          <b>{{ $n->title }}</b>
+          <p>{{ $n->body }}</p>
+          <a href="{{ $n->cta_href }}">{{ $n->cta_label }}</a>
+        </div>
+        <span class="nt-time">{{ $n->created_at->diffForHumans(short: true) }}</span>
+      </div>
+    @empty
+      <div class="nt-empty"><i>🔕</i>Пока тихо. Компаньоны напишут первыми.</div>
+    @endforelse
+  </div>
+</div>`,
+  Vue: `<!-- NotifyWall.vue -->
+<script setup>
+import { useNotify } from '@/composables/useNotify'
+const { state, markAllRead } = useNotify()
+defineProps({ open: Boolean })
+<\/script>
+
+<template>
+  <Transition name="nt-drop">
+    <div v-if="open" class="nt-wall">
+      <div class="nt-wall-head">
+        Уведомления <button @click="markAllRead">Прочитать все</button>
+      </div>
+      <div class="nt-wall-list">
+        <div v-for="n in state.items" :key="n.id"
+             class="nt-item" :class="{ unread: n.unread }">
+          <img v-if="n.kind === 'message'" class="nt-ava" :src="n.companion?.avatar" alt="">
+          <span v-else class="nt-ico">{{ n.ico ?? '🔔' }}</span>
+          <div class="nt-item-b">
+            <b>{{ n.title }}</b><p>{{ n.body }}</p>
+            <a :href="n.cta?.href">{{ n.cta?.label ?? 'Открыть' }}</a>
+          </div>
+          <span class="nt-time">{{ n.timeLabel }}</span>
+        </div>
+        <div v-if="!state.items.length" class="nt-empty">
+          <i>🔕</i>Пока тихо. Компаньоны напишут первыми.
+        </div>
+      </div>
+    </div>
+  </Transition>
+</template>`,
+  CSS: function () { return cssSlice('wall'); },
+  JS: `// открытие стены гасит счётчик; клик мимо — закрывает
+bell.addEventListener('click', () => {
+  wall.hidden = !wall.hidden
+  if (!wall.hidden) LovixNotify.markAllRead()
+})
+document.addEventListener('click', e => {
+  if (!wall.hidden && !wall.contains(e.target) && e.target !== bell) wall.hidden = true
+})
+document.querySelector('[data-nt-read-all]').onclick = () => LovixNotify.markAllRead()`
+};
+
+SNIPPETS.item = {
+  Blade: `{{-- строка стены: одна разметка на все типы --}}
+<div class="nt-item {{ $n->read_at ? '' : 'unread' }}"
+     data-scenario="{{ $n->scenario_id }}">
+  @if ($n->kind === 'message')
+    <img class="nt-ava" src="{{ $n->companion_avatar }}" alt="">
+  @else
+    <span class="nt-ico">{{ $n->icon }}</span>
+  @endif
+  <div class="nt-item-b">
+    <b>{{ $n->title }}</b>
+    <p>{{ $n->body }}</p>
+    <a href="{{ $n->cta_href }}">{{ $n->cta_label }}</a>
+  </div>
+  <span class="nt-time">{{ $n->created_at->diffForHumans(short: true) }}</span>
+</div>`,
+  Vue: `<!-- NotifyItem.vue -->
+<script setup>
+defineProps({ n: Object })
+<\/script>
+
+<template>
+  <div class="nt-item" :class="{ unread: n.unread }" :data-scenario="n.scenario_id">
+    <img v-if="n.kind === 'message'" class="nt-ava" :src="n.companion?.avatar" alt="">
+    <span v-else class="nt-ico">{{ n.ico ?? '🔔' }}</span>
+    <div class="nt-item-b">
+      <b>{{ n.title }}</b><p>{{ n.body }}</p>
+      <a :href="n.cta?.href">{{ n.cta?.label ?? 'Открыть' }}</a>
+    </div>
+    <span class="nt-time">{{ n.timeLabel }}</span>
+  </div>
+</template>`,
+  CSS: function () { return cssSlice('wall'); },
+  JS: `// подсветка строки, к которой пришли по клику из тоста/письма
+const row = document.querySelector('[data-id="' + id + '"]')
+row.scrollIntoView({ behavior: 'smooth', block: 'center' })
+row.classList.remove('nt-flash'); void row.offsetWidth
+row.classList.add('nt-flash')`
+};
+
+SNIPPETS.core = {
+  JS: document.getElementById('nt-core').textContent.trim(),
+  Blade: `{{-- контракт для бэка: одно место интеграции --}}
+{{-- resources/js/socket-bridge.js (транспорт любой — решает бэкенд) --}}
+yourSocket.on('notification.created', payload => {
+  // payload: { id, kind: 'message'|'system', scenario_id, title, body,
+  //            cta: {label, href}, companion: {name, avatar}, created_at }
+  LovixNotify.push(payload)
+})`,
+  Vue: `// composables/useNotify.js — реактивный мост к ядру
+import { reactive, computed } from 'vue'
+
+const state = reactive({ items: [], unread: 0 })
+LovixNotify.on((type, n, s) => {
+  state.items = [...s.items]
+  state.unread = s.unread
+})
+
+export function useNotify() {
+  return {
+    state,
+    unreadLabel: computed(() => state.unread > 9 ? '9+' : state.unread),
+    push: LovixNotify.push,
+    dismiss: LovixNotify.dismiss,
+    markAllRead: LovixNotify.markAllRead,
+  }
+}`,
+  CSS: function () { return cssSlice('tokens'); }
+};
+
+SNIPPETS.blade = {
+  Blade: `{{-- layouts/app.blade.php --}}
+<head>
+  @vite(['resources/css/lovix-notify.css'])
+</head>
+<body>
+  <header class="site-header">
+    …
+    <div class="nt-bell-wrap">
+      <x-notify.bell :count="$unreadCount" />
+      <x-notify.wall :notifications="$notifications" />
+    </div>
+  </header>
+
+  <x-notify.toast-host />
+
+  @vite(['resources/js/lovix-notify.js',   {{-- ядро --}}
+         'resources/js/notify-widgets.js', {{-- тосты, бейдж, стена --}}
+         'resources/js/socket-bridge.js']) {{-- транспорт бэка → push() --}}
+</body>`,
+  JS: `// resources/js/notify-widgets.js — mount() собирает все виджеты
+import './lovix-notify'
+
+export function mountNotifyWidgets() {
+  initToastHost(document.getElementById('nt-toast-host'))
+  initBell(document.getElementById('nt-bell'))
+  initWall(document.getElementById('nt-wall'))
+}
+document.addEventListener('DOMContentLoaded', mountNotifyWidgets)`,
+  CSS: function () { return cssSlice('tokens'); },
+  Vue: `<!-- Blade-страница с точечным Vue-островом — если секция уже на Vue -->
+<div id="notify-root"></div>
+<script type="module">
+  import { createApp } from 'vue'
+  import NotifyRoot from '@/components/notify/NotifyRoot.vue'
+  createApp(NotifyRoot).mount('#notify-root')
+<\/script>`
+};
+
+SNIPPETS.vue = {
+  Vue: `<!-- NotifyRoot.vue — всё вместе -->
+<script setup>
+import { ref } from 'vue'
+import NotifyBell from './NotifyBell.vue'
+import NotifyWall from './NotifyWall.vue'
+import NotifyToastHost from './NotifyToastHost.vue'
+const open = ref(false)
+<\/script>
+
+<template>
+  <div class="nt-bell-wrap" v-click-outside="() => open = false">
+    <NotifyBell @toggle="open = !open" />
+    <NotifyWall :open="open" />
+  </div>
+  <NotifyToastHost />
+</template>`,
+  JS: `// main.js
+import { createApp } from 'vue'
+import App from './App.vue'
+import './lovix-notify'        // ядро — до маунта
+import './socket-bridge'       // транспорт бэка → LovixNotify.push()
+
+createApp(App).mount('#app')`,
+  CSS: function () { return cssSlice('tokens'); },
+  Blade: `{{-- если весь хедер на Vue, Blade отдаёт только корень --}}
+<div id="app" data-user="{{ auth()->id() }}"></div>
+@vite(['resources/js/main.js'])`
+};
+
+/* ═══ рендер код-панелей ═══ */
+(function () {
+  var LANG = { Blade: 'php', Vue: 'xml', CSS: 'css', JS: 'javascript' };
+  document.querySelectorAll('.codepane').forEach(function (pane) {
+    var snip = SNIPPETS[pane.dataset.snip];
+    if (!snip) return;
+    var names = Object.keys(snip);
+    var tabs = document.createElement('div');
+    tabs.className = 'tabs';
+    var codeBox = document.createElement('div');
+    codeBox.className = 'code';
+    codeBox.innerHTML = '<pre><code></code></pre>';
+    var codeEl = codeBox.querySelector('code');
+    var cur = names[0];
+
+    function val(name) {
+      var v = snip[name];
+      return typeof v === 'function' ? v() : v;
+    }
+    function show(name) {
+      cur = name;
+      codeEl.className = 'language-' + (LANG[name] || 'javascript');
+      codeEl.textContent = val(name);
+      if (window.hljs) { codeEl.removeAttribute('data-highlighted'); hljs.highlightElement(codeEl); }
+      tabs.querySelectorAll('button[data-t]').forEach(function (b) {
+        b.classList.toggle('on', b.dataset.t === name);
+      });
+    }
+    names.forEach(function (name) {
+      var b = document.createElement('button');
+      b.dataset.t = name;
+      b.textContent = name;
+      b.onclick = function () { show(name); };
+      tabs.appendChild(b);
+    });
+    var cp = document.createElement('button');
+    cp.className = 'cp';
+    cp.textContent = 'Копировать';
+    cp.onclick = function () {
+      navigator.clipboard.writeText(val(cur)).then(function () {
+        cp.textContent = 'Скопировано ✓'; cp.classList.add('ok');
+        setTimeout(function () { cp.textContent = 'Копировать'; cp.classList.remove('ok'); }, 1400);
+      });
+    };
+    tabs.appendChild(cp);
+    pane.appendChild(tabs);
+    pane.appendChild(codeBox);
+    show(cur);
+  });
+
+  /* TOC подсветка */
+  var links = document.querySelectorAll('#toc a');
+  function onScroll() {
+    var cur = null;
+    document.querySelectorAll('main section').forEach(function (s) {
+      if (s.getBoundingClientRect().top <= 110) cur = s.id;
+    });
+    links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + cur); });
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* hero: живой тост при загрузке */
+  setTimeout(function () { demoToast('alena'); }, 900);
+})();
+</script>
+</body>
+</html>
