@@ -579,10 +579,13 @@ flowchart TD
       let moved = false, suppressClick = false, pin = null, start = null;
       wrap.addEventListener("pointerdown", e => {
         if (e.target.closest(".vztools")) return;
-        wrap.setPointerCapture(e.pointerId);
+        // No pointer capture yet: capturing here would retarget the follow-up
+        // click to the canvas and node clicks would never fire. Capture only
+        // once an actual drag starts (threshold crossed) or a pinch begins.
         interacted = true;
         pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
         if (pts.size === 1) { moved = false; suppressClick = false; start = {x: e.clientX, y: e.clientY}; }
+        if (pts.size === 2) { try { wrap.setPointerCapture(e.pointerId); } catch(_){} }
         pin = null;
       });
       wrap.addEventListener("pointermove", e => {
@@ -592,6 +595,7 @@ flowchart TD
         const r = wrap.getBoundingClientRect();
         if (pts.size === 1) {
           if (!moved && start && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 5) return;
+          if (!moved) { try { wrap.setPointerCapture(e.pointerId); } catch(_){} }
           moved = true;
           wrap.classList.add("dragging");
           tx += e.clientX - prev.x; ty += e.clientY - prev.y; mode = ""; apply();
