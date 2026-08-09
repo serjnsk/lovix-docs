@@ -96,12 +96,29 @@
     aside.toc{width:250px;flex:0 0 250px}
   }
   @media(max-width:1080px){aside.toc{display:none}}
+
+  .top nav{display:flex;align-items:center;flex-wrap:wrap}
+  .dd{position:relative}
+  .dd-menu{display:none;position:absolute;right:0;top:100%;padding-top:8px;z-index:60}
+  .dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
+  .dd-in{background:#fff;border:1px solid #e3e6ec;border-radius:12px;box-shadow:0 12px 40px rgba(20,30,60,.14);padding:6px;min-width:230px}
+  .dd-in a{display:block !important;margin:0 !important;padding:8px 12px !important;border-radius:8px;
+    font-size:13px !important;font-weight:500 !important;color:#5b6474 !important;text-decoration:none;white-space:nowrap;background:none !important}
+  .dd-in a:hover{background:#f6f7fa !important;color:#1c2330 !important}
+  .dd-in a.cur{color:#2f54c9 !important;background:#eef2fd !important;font-weight:700 !important}
+  .dd-car{font-size:9px;display:inline-block;transition:transform .15s}
+  .dd:hover .dd-car{transform:rotate(180deg)}
+  .dd-btn{border:0;background:none;cursor:pointer;color:var(--muted);
+    font:400 13.5px -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    padding:0;margin-left:18px;display:inline-flex;align-items:center;gap:5px}
+  .dd-btn:hover{color:#000}
+  .dd-btn.cur{color:var(--accent);font-weight:700}
 </style>
 </head>
 <body>
 <div class="top"><div class="top-in">
   <b>Lovix · внутренняя документация</b>
-  <nav><a href="index.html">Токеномика</a><a class="cur" href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a href="notifications-ui.html">UI нотификаций</a></nav>
+  <nav><a href="index.html">Токеномика</a><a class="cur" href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><div class="dd"><button class="dd-btn" type="button">Рассылки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a href="notifications-ui.html">UI нотификаций</a></div></div></div></nav>
 </div></div>
 <div class="layout"><aside class="toc" id="toc"></aside>
 <main style="padding:12px 28px 90px"><div class="md" id="out"></div></main></div>
