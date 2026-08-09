@@ -1,0 +1,98 @@
+</script>
+<script>
+  for (const i of [0,1,2,3]) {
+    const src = document.getElementById("md"+i);
+    document.getElementById("out"+i).innerHTML = marked.parse(src.textContent, {gfm:true});
+  }
+  const PLANS = {
+    premium: {
+      "1m": {price: 990,  was: null, bill: ""},
+      "3m": {price: 890,  was: 990, bill: "разовый платёж 2 670 ₽ за 3 месяца"},
+      "1y": {price: 790,  was: 990, bill: "разовый платёж 9 490 ₽ за год"}
+    },
+    vip: {
+      "1m": {price: 1590, was: null, bill: ""},
+      "3m": {price: 1430, was: 1590, bill: "разовый платёж 4 290 ₽ за 3 месяца"},
+      "1y": {price: 1272, was: 1590, bill: "разовый платёж 15 260 ₽ за год"}
+    }
+  };
+  const cards = document.querySelectorAll(".plans .pcard");
+  const premium = cards[1], vip = cards[2];
+  function apply(card, cfg){
+    card.querySelector("[data-price]").textContent = cfg.price.toLocaleString("ru-RU");
+    const was = card.querySelector("[data-was]");
+    if (cfg.was) { was.hidden = false; was.textContent = cfg.was.toLocaleString("ru-RU") + " ₽"; }
+    else was.hidden = true;
+    card.querySelector("[data-bill]").innerHTML = cfg.bill || "&nbsp;";
+  }
+  document.querySelectorAll(".seg button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".seg button").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      apply(premium, PLANS.premium[btn.dataset.p]);
+      apply(vip, PLANS.vip[btn.dataset.p]);
+    });
+  });
+
+(function(){
+  const main = document.querySelector("main");
+  const toc = document.getElementById("toc");
+  const heads = main.querySelectorAll(".md h2, .md h3, .proto-label b");
+  let n = 0;
+  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "Оглавление"; toc.appendChild(t);
+  const items = [];
+  let curSub = null, curParent = null;
+  heads.forEach(h => {
+    const proto = h.closest(".proto");
+    const target = proto || h;
+    if (!target.id) target.id = "sec-" + (n++);
+    target.style.scrollMarginTop = "70px";
+    const a = document.createElement("a");
+    a.href = "#" + target.id;
+    a.textContent = proto ? "Прототип: " + h.textContent : h.textContent;
+    const isChild = (h.tagName === "H3" && !proto);
+    if (isChild) {
+      a.className = "h3";
+      if (!curSub) {
+        curSub = document.createElement("div"); curSub.className = "toc-sub";
+        toc.appendChild(curSub);
+        if (curParent) curParent.sub = curSub;
+      }
+      curSub.appendChild(a);
+      items.push({target, a, parent: curParent});
+    } else {
+      curSub = null;
+      const row = document.createElement("div"); row.className = "toc-row";
+      row.appendChild(a); toc.appendChild(row);
+      const it = {target, a, row, sub: null, tgl: null};
+      curParent = it; items.push(it);
+    }
+  });
+  items.forEach(it => {
+    if (it.sub) {
+      const b = document.createElement("button"); b.className = "toc-tgl"; b.textContent = "\u25B6";
+      b.addEventListener("click", () => {
+        const open = it.sub.classList.toggle("open");
+        b.classList.toggle("open", open);
+      });
+      it.row.appendChild(b); it.tgl = b;
+    }
+  });
+  function setOpen(it, open){
+    if (it && it.sub){ it.sub.classList.toggle("open", open); it.tgl.classList.toggle("open", open); }
+  }
+  let lastOwner = null;
+  function onScroll(){
+    let cur = items[0];
+    for (const it of items) {
+      if (it.target.getBoundingClientRect().top <= 90) cur = it; else break;
+    }
+    items.forEach(it => it.a.classList.toggle("active", it === cur));
+    const owner = cur ? (cur.parent || cur) : null;
+    if (owner !== lastOwner) { setOpen(owner, true); lastOwner = owner; }
+  }
+  addEventListener("scroll", onScroll, {passive:true}); onScroll();
+})();
+</script>
+</body>
+</html>
