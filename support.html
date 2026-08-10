@@ -172,6 +172,15 @@
 
 Как разбирать входящие обращения по продуктам **Lovix · Milki · Botfans · Examka · Sdal**: что отвечаем сами, что эскалируем и куда. Порядок всегда один: определи тип обращения — дальше действуй по таблице. Типовые ответы — в разделе «Шаблоны ответов», отсебятину не пишем.
 
+## Каналы
+
+Все обращения сведены в **HappyDesk** — разбираем и отвечаем только там, мимо него в почту и ботов напрямую не отвечаем.
+
+| Продукт | Откуда приходит | Где разбираем |
+|---|---|---|
+| Lovix, Botfans, Milki | Почта | HappyDesk |
+| Examka, Sdal | Telegram-боты | HappyDesk |
+
 ## Схема-маршрутизатор
 
 Кликни и потаскай холст, колесо — зум.
@@ -179,7 +188,7 @@
 <div class="vzwrap">
 <pre class="mermaid">
 flowchart TD
-  IN(["Входящее обращение"]) --> T{"Что это?"}
+  IN(["Входящее обращение (HappyDesk)"]) --> T{"Что это?"}
   T -- "банковское сообщение о чарджбеке" --> CB{"Какой продукт?"}
   CB -- "Lovix · Milki · Botfans" --> CB1["П1 · не отвечаем, в переписку не вступаем"]
   CB -- "Examka · Sdal" --> CB2["П2 · ответ по канону из треда"]
@@ -255,31 +264,43 @@ flowchart TD
 
 ## Шаблоны ответов
 
-Болванки. Перед отправкой подставить имя, продукт и детали; скрины пути отмены добавляются при заведении шаблона продукта. Тон — спокойный, без канцелярита и без обещаний по срокам.
+Болванки. Перед отправкой подставить имя, продукт и детали; скрины пути отмены добавляются при заведении шаблона продукта. Тон — спокойный, без канцелярита и без обещаний по срокам. **Отвечаем на языке обращения**: русским — RU-болванка, всем остальным — EN.
 
 **Отмена подписки**
 
 > Отменить подписку можно самостоятельно: {Профиль → Подписка → Отменить — уточнить путь по продукту, приложить скрины}. После отмены доступ сохранится до конца оплаченного периода, новых списаний не будет. Если на каком-то шаге что-то не получается — напишите, поможем.
 
+> EN: You can cancel your subscription yourself: {Profile → Subscription → Cancel — product-specific path + screenshots}. After cancelling you keep access until the end of the paid period, and there will be no further charges. If anything doesn't work along the way, let us know — we'll help.
+
 **Отказ в возврате**
 
 > Возврат по уже оказанному периоду мы не делаем. Чтобы списаний больше не было, отмените подписку — вот как: {путь отмены + скрины}. Доступ останется до конца оплаченного периода.
+
+> EN: We don't issue refunds for a period that has already been provided. To stop future charges, please cancel your subscription — here's how: {cancellation path + screenshots}. You keep access until the end of the paid period.
 
 **Извинение + койны** (только после аппрува)
 
 > Понимаем, ситуация неприятная — извините. Начислили вам {200–300} койнов в качестве извинения, они уже на балансе. По самому вопросу: {ответ по существу}.
 
+> EN: We understand this was frustrating — we're sorry. As an apology we've added {200–300} coins to your balance. Regarding your question: {answer}.
+
 **Передали разработчикам** (на баг)
 
 > Спасибо, что сообщили — воспроизвели проблему и передали разработчикам. Как поправим, станет доступно в обычном режиме, ничего дополнительно делать не нужно.
+
+> EN: Thanks for reporting this — we've reproduced the issue and passed it to the developers. Once it's fixed everything will work as usual, no action needed on your side.
 
 **Идею записали** (на запрос функционала)
 
 > Спасибо за идею — записали и передали команде продукта. Такие запросы мы собираем и учитываем при планировании.
 
+> EN: Thanks for the idea — we've noted it and passed it to the product team. We collect such requests and take them into account when planning.
+
 **Сотрудничество**
 
 > Спасибо за предложение — передали ответственному за партнёрства, с вами свяжутся.
+
+> EN: Thanks for reaching out — we've forwarded your proposal to the person in charge of partnerships, they'll get back to you.
 
 ## Чек-лист перед ответом
 
