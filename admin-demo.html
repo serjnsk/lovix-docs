@@ -250,6 +250,100 @@ table.mini th{text-align:left;color:var(--dim);font-size:10.5px;text-transform:u
 table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--mut)}
 .seo{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;max-width:860px}
 .seo b{color:#fff}
+
+/* ═══ светлая тема окна админки — как в реальной админке ═══ */
+.admin{background:#fff;border-color:#e2e8f0;color:#0f172a}
+.a-crumbs{display:flex;align-items:center;gap:6px;padding:13px 20px;border-bottom:1px solid #e2e8f0;
+  font-weight:800;font-size:14px;color:#94a3b8;background:#fff}
+.a-crumbs a{color:#2563eb;text-decoration:none;cursor:pointer}
+.a-crumbs .a-save{margin-left:auto;border:1px solid #e2e8f0;border-radius:8px;padding:7px 14px;
+  color:#94a3b8;font:700 12.5px/1 'Nunito',sans-serif;background:#fff}
+.admin .a-head{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 20px;gap:0}
+.admin .a-tabs{margin-left:0;gap:0}
+.admin .a-tab{background:none;border:none;border-radius:0;color:#64748b;padding:13px 16px;
+  border-bottom:2px solid transparent;font-weight:700}
+.admin .a-tab.on{background:none;color:#2563eb;border-bottom-color:#2563eb}
+.admin .a-body{background:#f8fafc}
+.admin table.grid th{color:#64748b;border-color:#e2e8f0}
+.admin table.grid td{color:#334155;border-color:#e2e8f0}
+.admin table.grid tr.row:hover td{background:#eff6ff}
+.admin table.grid td[style*="color:#fff"],.admin .bnm,.admin .a-head b{color:#0f172a !important}
+.admin .fchip{background:#f1f5f9;border-color:#e2e8f0;color:#475569}
+.admin .slugc{background:#eff6ff;border-color:#bfdbfe;color:#2563eb}
+.admin .locb{border-color:#e2e8f0;color:#475569}
+.admin .cnt{color:#64748b}.admin .cnt b{color:#0f172a}
+.admin .fill{background:#e2e8f0}.admin .fill i{background:#3b82f6}.admin .fill.low i{background:#dc2626}
+.admin .lowtag{color:#dc2626;border-color:#fecaca;background:#fef2f2}
+.admin .bcard{background:#fff;border-color:#e2e8f0;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+.admin .bph{color:#fff}
+.admin .bmeta{color:#64748b}
+.admin .src.f{background:#f1f5f9;color:#475569;border-color:#e2e8f0}
+.admin .src.p{background:#2563eb;color:#fff}
+.admin .bchk{background:#fff;border-color:#cbd5e1;color:#fff}
+.admin .bchk.on{background:#2563eb;border-color:#2563eb}
+.admin .bx{background:#fff;border-color:#e2e8f0;color:#94a3b8}
+.admin .bx:hover{color:#dc2626;border-color:#fca5a5}
+.admin .back{background:#fff;border-color:#e2e8f0;color:#475569}
+.admin .back:hover{color:#0f172a}
+.admin .btn.grad{background:#2563eb;box-shadow:none}
+.admin .excl{color:#64748b}
+.admin .foundline{color:#64748b}.admin .foundline b{color:#0f172a}
+.admin .ordtag{color:#2563eb;border-color:#bfdbfe;background:#eff6ff}
+.admin .ordreset{color:#64748b}.admin .ordreset:hover{color:#0f172a}
+.admin .dock h5{color:#94a3b8}
+.admin .dockitem{border-color:#cbd5e1;color:#475569;background:#fff}
+.admin .dockitem b{color:#0f172a}
+.admin .dockitem.hov{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 1.5px rgba(37,99,235,.35)}
+.admin .panel{background:#fff;border-color:#e2e8f0}
+.admin .panel h4{color:#94a3b8}
+.admin .trait{border-color:#e2e8f0}.admin .trait .tname{color:#334155}
+.admin .tchip{background:#fff;border-color:#cbd5e1;color:#475569}
+.admin .tchip.on{background:#2563eb;color:#fff;border-color:transparent}
+.admin .tsrc.ai{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
+.admin .tsrc.man{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+.admin .sumline{color:#475569}
+.admin .sumline .fchip{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.admin .catrow{border-color:#e2e8f0}.admin .catrow .cr-b b{color:#0f172a}
+.admin .cbox{background:#fff;border-color:#cbd5e1;color:#fff}
+.admin .cbox.on{background:#2563eb;border-color:#2563eb}
+.admin .cbox.lock{background:#f1f5f9;color:#94a3b8}
+.admin .cond .okc{color:#16a34a}.admin .cond .badc{color:#dc2626}
+.admin .state.f{background:#f1f5f9;color:#475569;border-color:#e2e8f0}
+.admin .state.p{background:#2563eb;color:#fff}
+.admin .state.no{color:#94a3b8}
+.admin .genov{background:rgba(255,255,255,.82);color:#0f172a}
+.admin .genov i{background:none;-webkit-text-fill-color:#2563eb;color:#2563eb}
+.admin .bcard.newb .bnm::after{color:#16a34a;border-color:#bbf7d0;background:#f0fdf4}
+.admin .prevtag{color:#16a34a}
+/* цветные кнопки тулбара как в реальной админке */
+.admin .tbtn{border:none;color:#fff;border-radius:8px;font-weight:800}
+.admin .tbtn[data-clr="blue"]{background:#2563eb}
+.admin .tbtn[data-clr="green"]{background:#16a34a}
+.admin .tbtn[data-clr="purple"]{background:#7c3aed}
+.admin .tbtn[data-clr="indigo"]{background:#4f46e5}
+.admin .tbtn[data-clr="violet"]{background:#8b5cf6}
+.admin .tbtn[data-clr="teal"]{background:#0d9488}
+.admin .tbtn[data-clr="pink"]{background:#db2777}
+.admin .tbtn[data-clr="orange"]{background:#ea580c}
+.admin .tbtn:hover{filter:brightness(1.08);color:#fff;border-color:transparent}
+.admin .tbtn input{background:rgba(255,255,255,.25);border:none;color:#fff}
+/* светлые модалки и тосты */
+.modal{background:#fff;border-color:#e2e8f0;color:#0f172a}
+.m-head{border-color:#e2e8f0}.m-head b{color:#0f172a}
+.m-head input{background:#f8fafc;border-color:#e2e8f0;color:#0f172a}
+.m-list .mrow:hover{background:#eff6ff}
+.mrow .mnm{color:#0f172a}.mrow .mmeta{color:#64748b}
+.modal .cbox{background:#fff;border-color:#cbd5e1}
+.modal .cbox.on{background:#2563eb;border-color:#2563eb}
+.modal .state.f{background:#f1f5f9;color:#475569;border-color:#e2e8f0}
+.m-foot{border-color:#e2e8f0}
+.modal .btn{background:#fff;border-color:#e2e8f0;color:#475569}
+.modal .btn.grad{background:#2563eb;color:#fff;border-color:transparent;box-shadow:none}
+.upzone{border-color:#cbd5e1;color:#94a3b8}
+.pfield{background:#f8fafc;border-color:#e2e8f0;color:#0f172a}
+.pcheck{color:#475569}
+.ghost{background:#fff;border-color:#bfdbfe;color:#0f172a}
+.toast{background:#fff;border-color:#e2e8f0;border-left-color:#2563eb;color:#0f172a}
 </style>
 </head>
 <body>
@@ -270,10 +364,11 @@ table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--mu
 <!-- ══ живое демо ══ -->
 <section id="demo">
   <h2>Живое демо</h2>
-  <p class="sub">Категории: открой «Горничные», добавь ботов галочками; карточку можно перетащить — в док справа (pin) или внутри сетки (ручной порядок). Чекбоксы + «Генерация превью» — прогресс на карточках. Шаблоны: Мария — milf галочкой или возраст 42, категория загорится «по фильтру».</p>
+  <p class="sub">UI — светлая тема текущей админки. Категории: открой «Горничные», добавь ботов галочками; карточку можно перетащить — в док справа (pin) или внутри сетки (ручной порядок). Чекбоксы + «Генерация превью» — прогресс на карточках. Шаблоны: Мария — milf галочкой или возраст 42, категория загорится «по фильтру».</p>
   <div class="admin">
+    <div class="a-crumbs"><a>Админ панель</a> / <a>Админка</a> / <span style="color:#0f172a">Управление контентом</span>
+      <span class="a-save">💾 Сохранить</span></div>
     <div class="a-head">
-      <b>Админка · Управление контентом</b>
       <div class="a-tabs">
         <button class="a-tab on" data-tab="cats">Категории</button>
         <button class="a-tab" data-tab="bots">Шаблоны</button>
@@ -495,7 +590,7 @@ table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--mu
     }).join('') + '</span>';
   }
 
-  var TOOL_QUEUE = ['Догенерить галереи', 'Генерация сценариев', 'Тексты', 'Сохранить', 'Откатить'];
+  var TOOL_QUEUE = [['Догенерить галереи','violet'], ['Генерация сценариев','teal'], ['Тексты','pink'], ['Сохранить','blue'], ['Откатить','orange']];
   function renderCat(c) {
     var list = catBots(c);
     var excl = BOTS.filter(function (b) { return excludes.has(key(b, c)); });
@@ -507,11 +602,11 @@ table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--mu
       '<button class="btn grad" id="addBtn">Добавить из базы</button></div>' +
 
       '<div class="tbar">' +
-      '<button class="tbtn" data-q="Обновить">⟳ Обновить</button>' +
-      '<button class="tbtn acc" id="genN">✨ Сгенерировать <input id="genCnt" value="2"></button>' +
-      '<button class="tbtn" id="fromPhoto">🖼 Создать из фото</button>' +
-      '<button class="tbtn" id="genPrevBtn">🎞 Генерация превью</button>' +
-      TOOL_QUEUE.map(function (n) { return '<button class="tbtn" data-q="' + n + '">' + n + '</button>'; }).join('') +
+      '<button class="tbtn" data-clr="blue" data-q="Обновить">⟳ Обновить</button>' +
+      '<button class="tbtn" data-clr="green" id="genN">✨ Сгенерировать <input id="genCnt" value="2"></button>' +
+      '<button class="tbtn" data-clr="purple" id="fromPhoto">🖼 Создать из фото</button>' +
+      '<button class="tbtn" data-clr="indigo" id="genPrevBtn">🎞 Генерация превью</button>' +
+      TOOL_QUEUE.map(function (n) { return '<button class="tbtn" data-clr="' + n[1] + '" data-q="' + n[0] + '">' + n[0] + '</button>'; }).join('') +
       '</div>' +
       '<div class="foundline">Найдено: <b>' + list.length + '</b> · выбрано: <b id="selCnt">' + selected.size + '</b>' +
       (orders[c.id] ? ' <span class="ordtag">ручной порядок</span> <span class="ordreset" id="ordReset">сбросить к автосортировке</span>' : '') +
