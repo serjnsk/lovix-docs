@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="ru">
+<!-- Рукописное демо функционала контент-модуля админки: два таба на одном живом состоянии -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Админка: демо управления контентом</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E0E12; --card:#131013; --s1:#221A2A; --s2:#2A1A31; --s3:#4A2A52;
+  --line:#342A3E; --text:#FFFFFF; --mut:#A3A3B4; --dim:#80808C;
+  --grad:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);
+  --accent:#D946EF; --link:#F19BF6; --ok:#5cb586; --bad:#f43f5e;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 'Nunito',-apple-system,'Segoe UI',Roboto,sans-serif}
+a{color:var(--link)}
+.top{position:sticky;top:0;z-index:50;background:rgba(14,14,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.top b{font-size:16px;font-weight:800}
+.top nav{display:flex;flex-wrap:wrap;gap:2px 16px;align-items:center}
+.top nav a{color:var(--mut);text-decoration:none;font-size:13px}
+.top nav a:hover{color:#fff}
+.top nav a.cur{color:var(--link);font-weight:700}
+.dd{position:relative;display:inline-block}
+.dd-btn{border:0;background:none;cursor:pointer;color:var(--mut);font:400 13px 'Nunito',sans-serif;padding:0;display:inline-flex;align-items:center;gap:5px}
+.dd-btn:hover{color:#fff}
+.dd-car{font-size:9px}
+.dd-menu{display:none;position:absolute;right:0;top:100%;padding-top:8px;z-index:60}
+.dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
+.dd-in{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.5);padding:6px;min-width:210px;display:flex;flex-direction:column}
+.dd-in a{padding:8px 12px;border-radius:8px;font-size:13px}
+.dd-in a:hover{background:var(--s1)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 110px}
+
+.hero{padding:50px 0 6px}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:-.5px;margin:0 0 10px;text-wrap:balance}
+.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:76ch;margin:0 0 16px}
+.btn{display:inline-block;border:none;border-radius:999px;padding:11px 20px;font:800 13.5px/1 'Nunito',sans-serif;
+  color:#fff;background:var(--s1);border:1px solid var(--line);cursor:pointer;text-decoration:none}
+.btn.grad{background:var(--grad);border:none;box-shadow:0 6px 20px rgba(217,70,239,.35)}
+
+section{margin-top:54px;scroll-margin-top:80px}
+section>h2{font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px}
+section>.sub{color:var(--mut);margin:0 0 16px;max-width:78ch;font-size:14px}
+
+/* ── окно админки ── */
+.admin{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.a-head{display:flex;align-items:center;gap:18px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.a-head b{font-size:15px}
+.a-tabs{display:flex;gap:4px;margin-left:auto}
+.a-tab{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:999px;
+  padding:8px 18px;font:700 13px/1 'Nunito',sans-serif;cursor:pointer}
+.a-tab.on{background:var(--grad);color:#fff;border-color:transparent}
+.a-body{padding:18px 20px;min-height:480px}
+
+/* таблицы */
+table.grid{border-collapse:collapse;width:100%;font-size:13px}
+table.grid th{color:var(--dim);font-weight:700;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+table.grid td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--mut)}
+table.grid tr.row{cursor:pointer}
+table.grid tr.row:hover td{background:var(--s2)}
+.fchip{display:inline-block;background:var(--s1);border:1px solid var(--line);border-radius:7px;
+  padding:3px 8px;font:600 11px/1.3 var(--mono);color:var(--mut);margin:2px 3px 2px 0;white-space:nowrap}
+.cnt{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.cnt b{color:#fff}
+.fill{width:110px;height:6px;border-radius:3px;background:var(--s1);position:relative;overflow:hidden}
+.fill i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--grad)}
+.fill.low i{background:var(--bad)}
+.lowtag{font:800 10px/1 var(--mono);color:var(--bad);border:1px solid rgba(244,63,94,.4);border-radius:6px;padding:3px 6px;margin-left:8px}
+
+/* аватары и карточки ботов */
+.ava{width:40px;height:40px;border-radius:11px;object-fit:cover;background:var(--grad);
+  color:#fff;display:inline-grid;place-items:center;font-weight:800;font-size:15px;flex:none}
+.bots{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:11px}
+.bcard{background:var(--s1);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+.bcard .bimg{height:150px;width:100%;object-fit:cover;display:block;background:var(--s2)}
+.bcard .bph{height:150px;display:grid;place-items:center;font-size:38px;font-weight:800;color:rgba(255,255,255,.85)}
+.bcard .bnm{padding:9px 11px 3px;font-weight:800;font-size:13px}
+.bcard .bmeta{padding:0 11px 10px;font-size:11px;color:var(--dim)}
+.src{position:absolute;top:8px;left:8px;font:800 10px/1 var(--mono);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px)}
+.src.f{background:rgba(34,26,42,.85);color:var(--mut);border:1px solid var(--line)}
+.src.p{background:var(--grad);color:#fff}
+.bx{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:7px;border:1px solid var(--line);
+  background:rgba(14,14,18,.7);color:var(--mut);cursor:pointer;font-size:11px}
+.bx:hover{color:#fff;border-color:var(--bad)}
+
+.cathead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.back{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:9px;padding:8px 13px;font:700 12.5px/1 'Nunito',sans-serif;cursor:pointer}
+.back:hover{color:#fff}
+.excl{margin-top:14px;font-size:12.5px;color:var(--dim)}
+.excl .fchip{cursor:pointer}
+.excl .fchip:hover{color:#fff;border-color:var(--s3)}
+
+/* карточка бота */
+.bot-lay{display:grid;grid-template-columns:340px 1fr;gap:18px}
+@media(max-width:900px){.bot-lay{grid-template-columns:1fr}}
+.panel{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h4{margin:0 0 10px;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.trait{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.trait:last-child{border-bottom:none}
+.trait .tname{width:110px;flex:none;font-size:13px}
+.tsrc{font:800 9.5px/1 var(--mono);padding:3px 7px;border-radius:6px;margin-left:auto;flex:none}
+.tsrc.ai{background:var(--s2);color:var(--dim);border:1px solid var(--line)}
+.tsrc.man{background:rgba(92,181,134,.12);color:var(--ok);border:1px solid rgba(92,181,134,.4)}
+.tchips{display:flex;gap:5px;flex-wrap:wrap}
+.tchip{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:999px;
+  padding:5px 11px;font:700 11.5px/1 'Nunito',sans-serif;cursor:pointer}
+.tchip.on{background:var(--grad);color:#fff;border-color:transparent}
+.sumline{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:13px;color:var(--mut)}
+.sumline .fchip{background:var(--s2);color:#fff;border-color:var(--s3)}
+.catrow{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+.catrow:last-child{border-bottom:none}
+.cbox{width:20px;height:20px;border-radius:6px;border:1px solid var(--s3);background:var(--card);
+  flex:none;cursor:pointer;display:grid;place-items:center;font-size:12px;color:#fff;margin-top:1px}
+.cbox.on{background:var(--grad);border-color:transparent}
+.cbox.lock{background:var(--s2);cursor:default;color:var(--dim);font-size:10px}
+.catrow .cr-b{font-size:12.5px;min-width:0}
+.catrow .cr-b b{font-size:13px}
+.cond{font-size:11.5px;font-family:var(--mono);margin-top:2px}
+.cond .okc{color:var(--ok)}
+.cond .badc{color:var(--bad)}
+.state{margin-left:auto;flex:none;font:800 10px/1 var(--mono);padding:4px 8px;border-radius:6px}
+.state.f{background:var(--s2);color:var(--mut);border:1px solid var(--line)}
+.state.p{background:var(--grad);color:#fff}
+.state.no{color:var(--dim)}
+
+/* модалка */
+.mback{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90;display:none}
+.mback.on{display:block}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(680px,calc(100vw - 28px));
+  max-height:82vh;display:none;flex-direction:column;z-index:91;
+  background:var(--card);border:1px solid var(--s3);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal.on{display:flex}
+.m-head{display:flex;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.m-head b{font-size:14px}
+.m-head input{margin-left:auto;background:var(--s1);border:1px solid var(--line);border-radius:9px;
+  color:#fff;padding:8px 12px;font:600 13px 'Nunito',sans-serif;width:210px}
+.m-list{overflow:auto;padding:6px 8px}
+.mrow{display:flex;gap:11px;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer}
+.mrow:hover{background:var(--s2)}
+.mrow.dis{opacity:.45;cursor:default}
+.mrow .mnm{font-weight:800;font-size:13px}
+.mrow .mmeta{font-size:11px;color:var(--dim)}
+.m-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+/* тосты */
+.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:99}
+.toast{background:var(--s1);border:1px solid var(--s3);border-left:3px solid var(--accent);border-radius:11px;
+  padding:11px 15px;font-size:13px;box-shadow:0 14px 34px rgba(0,0,0,.5);animation:tin .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}}
+@media(prefers-reduced-motion:reduce){.toast{animation:none}}
+
+/* мокапы */
+.mocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.mock{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.mock h4{margin:0 0 4px;font-size:14.5px}
+.mock .ms{color:var(--dim);font-size:12px;margin:0 0 12px}
+.mock textarea{width:100%;background:var(--s1);border:1px solid var(--line);border-radius:10px;color:var(--mut);
+  font:12px/1.6 var(--mono);padding:10px;resize:none}
+.mock select{background:var(--s1);border:1px solid var(--line);border-radius:8px;color:#fff;padding:7px 10px;font:700 12px 'Nunito',sans-serif}
+.mock .mrowline{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.genprev{margin-top:10px;height:120px;border-radius:10px;display:none;place-items:center;
+  background:linear-gradient(150deg,#D946EF33,#F43F5E22);border:1px dashed var(--s3);color:var(--mut);font-size:12px}
+.genprev.on{display:grid}
+.photo{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.photo img{width:100%;height:110px;object-fit:cover;display:block}
+.photo .tags{position:absolute;left:6px;bottom:6px;display:flex;gap:4px;flex-wrap:wrap}
+.photo .tags span{font:800 9.5px/1 var(--mono);background:rgba(14,14,18,.8);border:1px solid var(--line);
+  color:var(--mut);border-radius:5px;padding:3px 6px}
+.photo .star{position:absolute;top:6px;right:6px;font-size:13px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+table.mini{border-collapse:collapse;width:100%;font-size:12px}
+table.mini th{text-align:left;color:var(--dim);font-size:10.5px;text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--line)}
+table.mini td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--mut)}
+.seo{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;max-width:860px}
+.seo b{color:#fff}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <b>Lovix · внутренняя документация</b>
+  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a href="locale-detection.html">Локаль</a><a href="admin-content.html">Админка</a><a class="cur" href="admin-demo.html">Демо админки</a><div class="dd"><button class="dd-btn" type="button">Рассылки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a href="notifications-ui.html">UI нотификаций</a></div></div></div></nav>
+</div></div>
+
+<div class="wrap">
+
+<div class="hero">
+  <h1>Раздел «Наполнение контентом» — <em>потрогай руками</em></h1>
+  <p>Раздел строится от двух интентов: <b style="color:#fff">Категории</b> — «управляю витринами» (фильтр читается, наполненность видна, боты прикрепляются галочками) и <b style="color:#fff">Шаблоны</b> — «управляю ботами» (характеристики правятся вручную, один бот живёт сразу в нескольких категориях: milf + secretary + latina). Оба таба работают на одном состоянии: пин из карточки бота сразу виден в счётчиках категорий.</p>
+  <a class="btn grad" href="admin-content.html">Спека модуля →</a>
+</div>
+
+<!-- ══ живое демо ══ -->
+<section id="demo">
+  <h2>Живое демо раздела</h2>
+  <p class="sub">Кликни категорию «Горничные» (она малочисленная) и добавь ботов галочками. Потом открой таб «Шаблоны» → Мария — поставь ей milf галочкой или просто поменяй возраст на 42 и смотри, как категория загорится «по фильтру».</p>
+  <div class="admin">
+    <div class="a-head">
+      <b>Админка · Наполнение контентом</b>
+      <div class="a-tabs">
+        <button class="a-tab on" data-tab="cats">Категории</button>
+        <button class="a-tab" data-tab="bots">Шаблоны</button>
+      </div>
+    </div>
+    <div class="a-body" id="abody"></div>
+  </div>
+</section>
+
+<!-- ══ мокапы ══ -->
+<section id="more">
+  <h2>Что ещё будет в разделе</h2>
+  <p class="sub">Статичные примеры — механики второго и третьего этапов из спеки.</p>
+  <div class="mocks">
+    <div class="mock">
+      <h4>Промпт генерации категории</h4>
+      <p class="ms">Свой промпт и модель на категорию — лечим однообразие Грока. Тест до запуска пачки.</p>
+      <textarea rows="4" readonly>Соблазнительная {этничность} девушка {возраст} лет, образ «{категория}», реалистичное фото, тёплый вечерний свет, детальная кожа, разнообразные лица</textarea>
+      <div class="mrowline">
+        <select><option>Nano Banana</option><option>Grok</option></select>
+        <button class="btn" id="genTest" type="button">Тест 1 шт</button>
+      </div>
+      <div class="genprev" id="genPrev">превью сгенерировано — можно запускать пачку</div>
+    </div>
+    <div class="mock">
+      <h4>Медиатека: фото с метками</h4>
+      <p class="ms">У бота несколько фото; категория показывает фото со своей меткой, иначе основное (★).</p>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+    <div class="mock">
+      <h4>Отчёт малочисленных</h4>
+      <p class="ms">Ниже настраиваемого порога — в работу; сортировка по трафику страницы, чтобы наполнять важное первым.</p>
+      <table class="mini">
+        <tr><th>Категория</th><th>Ботов</th><th>Трафик/мес</th></tr>
+        <tr><td>Горничные</td><td style="color:var(--bad);font-weight:800" id="repMaid">2</td><td>4 200</td></tr>
+        <tr><td>Secretary</td><td style="color:var(--bad);font-weight:800" id="repSec">2</td><td>2 900</td></tr>
+        <tr><td>Аниме</td><td>9</td><td>1 100</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SEO ══ -->
+<section id="seo">
+  <h2>SEO — остаётся как есть</h2>
+  <div class="seo">
+    <p style="margin:0 0 10px">SEO-раздел не меняется: страницы категорий, мета, тексты и первичные фильтры создаются как сейчас. Всё новое из этого демо живёт в <b>отдельном разделе «Наполнение контентом»</b> — он работает поверх созданных категорий и не трогает их SEO-часть.</p>
+    <p style="margin:0;color:var(--mut);font-size:13.5px">Границы простые: SEO создаёт категорию и её страницу → контент наполняет её ботами, фото и промптами. Никто не ходит в чужой раздел.</p>
+  </div>
+  <p style="margin-top:18px"><a href="admin-content.html">Полная спека модуля с декомпозицией на этапы →</a></p>
+</section>
+
+</div>
+
+<div class="mback" id="mback"></div>
+<div class="modal" id="modal">
+  <div class="m-head"><b id="mTitle">Добавить из базы</b><input id="mSearch" placeholder="Поиск по имени и характеристикам"></div>
+  <div class="m-list" id="mList"></div>
+  <div class="m-foot"><button class="btn" id="mCancel" type="button">Отмена</button>
+    <button class="btn grad" id="mPin" type="button">Прикрепить (0)</button></div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+(function () {
+  var CDN = 'https://cdn.test.lovix.ai/ioss(quality=85,resize=200)/prod/templates/';
+  var AVA = {
+    alena: CDN + 'anPlsxx4sLvVSvO0xU1z7VWZY6e31cBMKkd217lQ.png',
+    maria: CDN + 'pjrKeNTUTYOj3riMYf3P6ZKgcRduZAQkg1r3ri9B.jpg',
+    eva: CDN + '6XT70nMI0ZGDPbfAjgvHo3DKbmXwaQ3wXRtaqxyS.jpg'
+  };
+  var TRAITS = { sex: 'Пол', age: 'Возраст', job: 'Род занятий', eth: 'Этничность', style: 'Стиль' };
+  var JOBS = ['секретарша', 'горничная', 'домохозяйка', 'студентка'];
+  var ETHS = ['латина', 'европейка', 'азиатка'];
+  var AGES = [25, 34, 42];
+
+  var BOTS = [
+    { id: 'maria', name: 'Мария', img: AVA.maria, tint: '#e35d8f', sex: 'Ж', age: 34, job: 'секретарша', eth: 'латина', style: 'реализм' },
+    { id: 'alena', name: 'Алёна', img: AVA.alena, tint: '#8b5cf6', sex: 'Ж', age: 42, job: 'домохозяйка', eth: 'европейка', style: 'реализм' },
+    { id: 'eva', name: 'Ева', img: AVA.eva, tint: '#5c8bf6', sex: 'Ж', age: 25, job: 'студентка', eth: 'азиатка', style: 'аниме' },
+    { id: 'nika', name: 'Ника', tint: '#5cb586', sex: 'Ж', age: 42, job: 'домохозяйка', eth: 'латина', style: 'реализм' },
+    { id: 'lana', name: 'Лана', tint: '#e0925a', sex: 'Ж', age: 34, job: 'горничная', eth: 'европейка', style: 'реализм' },
+    { id: 'yuna', name: 'Юна', tint: '#c65cf6', sex: 'Ж', age: 25, job: 'секретарша', eth: 'азиатка', style: 'аниме' },
+    { id: 'kira', name: 'Кира', tint: '#f43f5e', sex: 'Ж', age: 42, job: 'секретарша', eth: 'европейка', style: 'реализм' },
+    { id: 'maya', name: 'Майя', tint: '#5cb5b0', sex: 'Ж', age: 34, job: 'домохозяйка', eth: 'латина', style: 'реализм' },
+    { id: 'sonya', name: 'Соня', tint: '#8f5ce3', sex: 'Ж', age: 25, job: 'горничная', eth: 'азиатка', style: 'реализм' },
+    { id: 'rita', name: 'Рита', tint: '#e35d8f', sex: 'Ж', age: 42, job: 'домохозяйка', eth: 'европейка', style: 'реализм' }
+  ];
+  var manual = {}; // botId -> {trait:true}
+
+  var CATS = [
+    { id: 'milf', name: 'Milf', conds: [
+      { label: 'пол = Ж', test: function (b) { return b.sex === 'Ж'; } },
+      { label: 'возраст 40+', test: function (b) { return b.age >= 40; } }] },
+    { id: 'secretary', name: 'Secretary', conds: [
+      { label: 'род занятий = секретарша', test: function (b) { return b.job === 'секретарша'; } },
+      { label: 'возраст 30+', test: function (b) { return b.age >= 30; } }] },
+    { id: 'latina', name: 'Latina', conds: [
+      { label: 'этничность = латина', test: function (b) { return b.eth === 'латина'; } }] },
+    { id: 'maid', name: 'Горничные', conds: [
+      { label: 'род занятий = горничная', test: function (b) { return b.job === 'горничная'; } }] },
+    { id: 'housewife', name: 'Домохозяйки', conds: [
+      { label: 'род занятий = домохозяйка', test: function (b) { return b.job === 'домохозяйка'; } },
+      { label: 'возраст 30+', test: function (b) { return b.age >= 30; } }] },
+    { id: 'anime', name: 'Аниме', conds: [
+      { label: 'стиль = аниме', test: function (b) { return b.style === 'аниме'; } }] }
+  ];
+  var THRESHOLD = 4; /* демо-порог; в проде настраивается, по умолчанию 12 */
+  var pins = new Set();      // 'bot:cat'
+  var excludes = new Set();  // 'bot:cat'
+
+  function passes(b, c) { return c.conds.every(function (cn) { return cn.test(b); }); }
+  function key(b, c) { return b.id + ':' + c.id; }
+  function membership(b, c) {
+    if (excludes.has(key(b, c))) return null;
+    if (passes(b, c)) return 'f';
+    if (pins.has(key(b, c))) return 'p';
+    return null;
+  }
+  function catBots(c) {
+    return BOTS.map(function (b) { return { b: b, m: membership(b, c) }; })
+      .filter(function (x) { return x.m; });
+  }
+  function botCats(b) {
+    return CATS.filter(function (c) { return membership(b, c); });
+  }
+  function avaHtml(b, cls) {
+    cls = cls || 'ava';
+    if (b.img) return '<img class="' + cls + '" src="' + b.img + '" alt="" onerror="this.outerHTML=\'<span class=&quot;' + cls + '&quot; style=&quot;background:linear-gradient(135deg,' + b.tint + ',#F43F5E)&quot;>' + b.name[0] + '</span>\'">';
+    return '<span class="' + cls + '" style="background:linear-gradient(135deg,' + b.tint + ',#8b5cf6)">' + b.name[0] + '</span>';
+  }
+  function toast(msg) {
+    var t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.getElementById('toasts').appendChild(t);
+    setTimeout(function () { t.remove(); }, 3200);
+  }
+
+  /* ─── рендер ─── */
+  var body = document.getElementById('abody');
+  var tab = 'cats', openCat = null, openBot = null;
+
+  function render() {
+    if (tab === 'cats') return openCat ? renderCat(openCat) : renderCatList();
+    return openBot ? renderBot(openBot) : renderBotList();
+  }
+
+  function renderCatList() {
+    var rows = CATS.map(function (c) {
+      var list = catBots(c);
+      var f = list.filter(function (x) { return x.m === 'f'; }).length;
+      var p = list.length - f;
+      var low = list.length < THRESHOLD;
+      var pct = Math.min(100, Math.round(list.length / THRESHOLD * 100));
+      return '<tr class="row" data-cat="' + c.id + '"><td style="color:#fff;font-weight:800">' + c.name +
+        (low ? '<span class="lowtag">мало</span>' : '') + '</td>' +
+        '<td>' + c.conds.map(function (cn) { return '<span class="fchip">' + cn.label + '</span>'; }).join('') + '</td>' +
+        '<td class="cnt"><b>' + list.length + '</b> · фильтр ' + f + ' · pin ' + p + '</td>' +
+        '<td><div class="fill' + (low ? ' low' : '') + '"><i style="width:' + pct + '%"></i></div></td></tr>';
+    }).join('');
+    body.innerHTML = '<table class="grid"><tr><th>Категория</th><th>Применённый фильтр</th><th>Ботов</th><th>Наполненность · демо-порог ' + THRESHOLD + '</th></tr>' + rows + '</table>';
+    body.querySelectorAll('tr.row').forEach(function (r) {
+      r.onclick = function () { openCat = CATS.find(function (c) { return c.id === r.dataset.cat; }); render(); };
+    });
+  }
+
+  function renderCat(c) {
+    var list = catBots(c);
+    var excl = BOTS.filter(function (b) { return excludes.has(key(b, c)); });
+    body.innerHTML = '<div class="cathead"><button class="back">← Категории</button>' +
+      '<b style="font-size:16px">' + c.name + '</b>' +
+      c.conds.map(function (cn) { return '<span class="fchip">' + cn.label + '</span>'; }).join('') +
+      '<span class="cnt" style="margin-left:auto"><b>' + list.length + '</b> / порог ' + THRESHOLD + '</span>' +
+      '<button class="btn grad" id="addBtn">Добавить из базы</button></div>' +
+      '<div class="bots">' + list.map(function (x) {
+        return '<div class="bcard">' +
+          (x.b.img ? '<img class="bimg" src="' + x.b.img + '" alt="" onerror="this.outerHTML=\'<div class=&quot;bph&quot; style=&quot;background:linear-gradient(150deg,' + x.b.tint + '66,' + x.b.tint + '22)&quot;>' + x.b.name[0] + '</div>\'">'
+            : '<div class="bph" style="background:linear-gradient(150deg,' + x.b.tint + '66,' + x.b.tint + '22)">' + x.b.name[0] + '</div>') +
+          '<span class="src ' + x.m + '">' + (x.m === 'f' ? 'по фильтру' : 'pin') + '</span>' +
+          '<button class="bx" title="' + (x.m === 'f' ? 'Исключить из категории' : 'Открепить') + '" data-b="' + x.b.id + '">✕</button>' +
+          '<div class="bnm">' + x.b.name + '</div><div class="bmeta">' + x.b.age + ' · ' + x.b.job + ' · ' + x.b.eth + '</div></div>';
+      }).join('') + '</div>' +
+      (excl.length ? '<div class="excl">Исключённые (' + excl.length + '): ' + excl.map(function (b) {
+        return '<span class="fchip" data-r="' + b.id + '">' + b.name + ' ↩</span>';
+      }).join(' ') + '</div>' : '');
+    body.querySelector('.back').onclick = function () { openCat = null; render(); };
+    body.querySelector('#addBtn').onclick = function () { openModal(c); };
+    body.querySelectorAll('.bx').forEach(function (x) {
+      x.onclick = function () {
+        var b = BOTS.find(function (bb) { return bb.id === x.dataset.b; });
+        if (passes(b, c)) { excludes.add(key(b, c)); toast(b.name + ' исключена из «' + c.name + '»'); }
+        else { pins.delete(key(b, c)); toast('Pin снят: ' + b.name); }
+        render();
+      };
+    });
+    body.querySelectorAll('.excl .fchip').forEach(function (ch) {
+      ch.onclick = function () {
+        var b = BOTS.find(function (bb) { return bb.id === ch.dataset.r; });
+        excludes.delete(key(b, c)); toast(b.name + ' возвращена'); render();
+      };
+    });
+  }
+
+  function renderBotList() {
+    var rows = BOTS.map(function (b) {
+      var n = botCats(b).length;
+      return '<tr class="row" data-b="' + b.id + '"><td style="width:52px">' + avaHtml(b) + '</td>' +
+        '<td style="color:#fff;font-weight:800">' + b.name + '</td>' +
+        '<td>' + b.age + ' · ' + b.job + ' · ' + b.eth + ' · ' + b.style + '</td>' +
+        '<td class="cnt">в <b>' + n + '</b> категориях</td></tr>';
+    }).join('');
+    body.innerHTML = '<table class="grid"><tr><th></th><th>Шаблон</th><th>Характеристики</th><th>Категории</th></tr>' + rows + '</table>';
+    body.querySelectorAll('tr.row').forEach(function (r) {
+      r.onclick = function () { openBot = BOTS.find(function (b) { return b.id === r.dataset.b; }); render(); };
+    });
+  }
+
+  function traitRow(b, tkey, options) {
+    var man = manual[b.id] && manual[b.id][tkey];
+    var chips = options.map(function (v) {
+      return '<button class="tchip' + (String(b[tkey]) === String(v) ? ' on' : '') + '" data-t="' + tkey + '" data-v="' + v + '">' + v + '</button>';
+    }).join('');
+    return '<div class="trait"><span class="tname">' + TRAITS[tkey] + '</span>' +
+      '<span class="tchips">' + chips + '</span>' +
+      '<span class="tsrc ' + (man ? 'man' : 'ai') + '">' + (man ? '🔒 вручную' : 'ИИ') + '</span></div>';
+  }
+
+  function renderBot(b) {
+    var cats = botCats(b);
+    body.innerHTML = '<div class="cathead"><button class="back">← Шаблоны</button>' + avaHtml(b) +
+      '<b style="font-size:16px">' + b.name + '</b></div>' +
+      '<div class="sumline">Бот в <b style="color:#fff">&nbsp;' + cats.length + '&nbsp;</b> категориях: ' +
+      (cats.length ? cats.map(function (c) { return '<span class="fchip">' + c.name + '</span>'; }).join('') : '—') + '</div>' +
+      '<div class="bot-lay"><div class="panel"><h4>Характеристики · ручное сильнее ИИ</h4>' +
+      traitRow(b, 'age', AGES) + traitRow(b, 'job', JOBS) + traitRow(b, 'eth', ETHS) +
+      '<div class="trait"><span class="tname">Пол</span><span class="tchips"><span class="tchip on">Ж</span></span><span class="tsrc ai">ИИ</span></div>' +
+      '</div><div class="panel"><h4>Категории бота · галочка = pin, замочек = по фильтру</h4>' +
+      CATS.map(function (c) {
+        var m = membership(b, c);
+        var boxCls = m === 'f' ? 'cbox lock' : 'cbox' + (m === 'p' ? ' on' : '');
+        var boxTxt = m === 'f' ? '🔒' : (m === 'p' ? '✓' : '');
+        var conds = c.conds.map(function (cn) {
+          var ok = cn.test(b);
+          return '<span class="' + (ok ? 'okc' : 'badc') + '">' + (ok ? '✓' : '✗') + ' ' + cn.label +
+            (!ok && cn.label.indexOf('возраст') === 0 ? ' (сейчас ' + b.age + ')' : '') + '</span>';
+        }).join(' · ');
+        var st = m === 'f' ? '<span class="state f">по фильтру</span>' : m === 'p' ? '<span class="state p">pin</span>' : '<span class="state no">—</span>';
+        return '<div class="catrow"><span class="' + boxCls + '" data-c="' + c.id + '" data-m="' + (m || '') + '">' + boxTxt + '</span>' +
+          '<div class="cr-b"><b>' + c.name + '</b><div class="cond">' + conds + '</div></div>' + st + '</div>';
+      }).join('') + '</div></div>';
+    body.querySelector('.back').onclick = function () { openBot = null; render(); };
+    body.querySelectorAll('.tchip[data-t]').forEach(function (ch) {
+      ch.onclick = function () {
+        var t = ch.dataset.t, v = ch.dataset.v;
+        b[t] = (t === 'age') ? parseInt(v, 10) : v;
+        manual[b.id] = manual[b.id] || {};
+        manual[b.id][t] = true;
+        toast(TRAITS[t] + ' → ' + v + ' · помечено «вручную», ИИ не перетрёт');
+        render();
+      };
+    });
+    body.querySelectorAll('.cbox').forEach(function (x) {
+      x.onclick = function () {
+        var c = CATS.find(function (cc) { return cc.id === x.dataset.c; });
+        var m = x.dataset.m;
+        if (m === 'f') { excludes.add(key(b, c)); toast(b.name + ' исключена из «' + c.name + '»'); }
+        else if (m === 'p') { pins.delete(key(b, c)); toast('Pin снят: «' + c.name + '»'); }
+        else if (excludes.has(key(b, c))) { excludes.delete(key(b, c)); toast('Исключение снято: «' + c.name + '»'); }
+        else { pins.add(key(b, c)); toast(b.name + ' прикреплена к «' + c.name + '» (pin)'); }
+        render();
+      };
+    });
+  }
+
+  /* ─── модалка «Добавить из базы» ─── */
+  var mCat = null, mChecked = new Set();
+  var mback = document.getElementById('mback'), modal = document.getElementById('modal');
+  function openModal(c) {
+    mCat = c; mChecked.clear();
+    document.getElementById('mTitle').textContent = 'Добавить в «' + c.name + '»';
+    document.getElementById('mSearch').value = '';
+    renderModal();
+    mback.classList.add('on'); modal.classList.add('on');
+  }
+  function closeModal() { mback.classList.remove('on'); modal.classList.remove('on'); }
+  function renderModal() {
+    var q = document.getElementById('mSearch').value.toLowerCase();
+    var list = BOTS.filter(function (b) {
+      return !q || (b.name + ' ' + b.job + ' ' + b.eth + ' ' + b.age).toLowerCase().indexOf(q) !== -1;
+    });
+    document.getElementById('mList').innerHTML = list.map(function (b) {
+      var already = !!membership(b, mCat);
+      var on = mChecked.has(b.id);
+      return '<div class="mrow' + (already ? ' dis' : '') + '" data-b="' + b.id + '">' +
+        '<span class="cbox' + (on ? ' on' : '') + '">' + (already ? '🔒' : (on ? '✓' : '')) + '</span>' +
+        avaHtml(b) + '<div><div class="mnm">' + b.name + '</div><div class="mmeta">' + b.age + ' · ' + b.job + ' · ' + b.eth + '</div></div>' +
+        (already ? '<span class="state f" style="margin-left:auto">уже в категории</span>' : '') + '</div>';
+    }).join('');
+    document.getElementById('mPin').textContent = 'Прикрепить (' + mChecked.size + ')';
+    document.querySelectorAll('.mrow:not(.dis)').forEach(function (r) {
+      r.onclick = function () {
+        var id = r.dataset.b;
+        mChecked.has(id) ? mChecked.delete(id) : mChecked.add(id);
+        renderModal();
+      };
+    });
+  }
+  document.getElementById('mSearch').addEventListener('input', renderModal);
+  document.getElementById('mCancel').onclick = closeModal;
+  mback.onclick = closeModal;
+  document.getElementById('mPin').onclick = function () {
+    if (!mChecked.size) return;
+    mChecked.forEach(function (id) {
+      var b = BOTS.find(function (bb) { return bb.id === id; });
+      excludes.delete(key(b, mCat));
+      if (!passes(b, mCat)) pins.add(key(b, mCat));
+    });
+    toast('Прикреплено к «' + mCat.name + '»: ' + mChecked.size);
+    closeModal(); render();
+    var rep = { maid: 'repMaid', secretary: 'repSec' }[mCat.id];
+    if (rep) document.getElementById(rep).textContent = catBots(mCat).length;
+  };
+
+  /* ─── табы ─── */
+  document.querySelectorAll('.a-tab').forEach(function (t) {
+    t.onclick = function () {
+      tab = t.dataset.tab; openCat = null; openBot = null;
+      document.querySelectorAll('.a-tab').forEach(function (x) { x.classList.toggle('on', x === t); });
+      render();
+    };
+  });
+  render();
+
+  /* ─── мокапы ─── */
+  document.getElementById('genTest').onclick = function () {
+    document.getElementById('genPrev').classList.add('on');
+  };
+  var pg = document.getElementById('pgrid');
+  [['maria', ['milf', 'latina'], true], ['maria', ['secretary'], false], ['maria', ['housewife'], false]].forEach(function (p, i) {
+    var b = BOTS[0];
+    pg.innerHTML += '<div class="photo">' +
+      (b.img ? '<img src="' + b.img.replace('resize=200', 'resize=300') + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+      (p[2] ? '<span class="star">⭐</span>' : '') +
+      '<div class="tags">' + p[1].map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div></div>';
+  });
+})();
+</script>
+</body>
+</html>
