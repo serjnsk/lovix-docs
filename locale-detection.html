@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ru">
+<!-- Рукописная интерактивная спека: алгоритм = функция resolveLocale на этой же странице -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Автоопределение локали (CF)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark-dimmed.min.css">
+<style>
+:root{
+  --bg:#0E0E12; --card:#131013; --s1:#221A2A; --s2:#2A1A31; --s3:#4A2A52;
+  --line:#342A3E; --text:#FFFFFF; --mut:#A3A3B4; --dim:#80808C;
+  --grad:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);
+  --accent:#D946EF; --link:#F19BF6; --ok:#5cb586;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 'Nunito',-apple-system,'Segoe UI',Roboto,sans-serif}
+a{color:var(--link)}
+.top{position:sticky;top:0;z-index:50;background:rgba(14,14,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.top b{font-size:16px;font-weight:800}
+.top nav{display:flex;flex-wrap:wrap;gap:2px 16px}
+.top nav a{color:var(--mut);text-decoration:none;font-size:13px}
+.top nav a:hover{color:#fff}
+.top nav a.cur{color:var(--link);font-weight:700}
+.dd{position:relative;display:inline-block}
+.dd-btn{border:0;background:none;cursor:pointer;color:var(--mut);
+  font:400 13px 'Nunito',sans-serif;padding:0;display:inline-flex;align-items:center;gap:5px}
+.dd-btn:hover{color:#fff}
+.dd-car{font-size:9px;display:inline-block;transition:transform .15s}
+.dd:hover .dd-car{transform:rotate(180deg)}
+.dd-menu{display:none;position:absolute;right:0;top:100%;padding-top:8px;z-index:60}
+.dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
+.dd-in{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);padding:6px;min-width:210px;display:flex;flex-direction:column}
+.dd-in a{padding:8px 12px;border-radius:8px;font-size:13px}
+.dd-in a:hover{background:var(--s1)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 110px}
+
+.hero{padding:52px 0 8px}
+.hero h1{font-size:38px;font-weight:800;letter-spacing:-.5px;margin:0 0 10px;text-wrap:balance}
+.hero h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:74ch;margin:0}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-top:16px}
+.hero .meta span{border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+
+section{margin-top:56px;scroll-margin-top:80px}
+section>h2{font-size:23px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px}
+section>.sub{color:var(--mut);margin:0 0 16px;max-width:76ch;font-size:14px}
+
+/* ── симулятор ── */
+.sim{display:grid;grid-template-columns:330px 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.sim{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.panel h3{margin:0 0 4px;font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em}
+.panel .grp{margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:999px;
+  padding:7px 13px;font:700 12.5px/1 'Nunito',sans-serif;cursor:pointer}
+.chip:hover{color:#fff;border-color:var(--s3)}
+.chip.on{background:var(--grad);color:#fff;border-color:transparent}
+.tgl{display:flex;align-items:center;gap:9px;margin-top:9px;cursor:pointer;font-size:13.5px;color:var(--mut)}
+.tgl i{width:34px;height:20px;border-radius:10px;background:var(--s1);border:1px solid var(--line);position:relative;flex:none;transition:background .15s}
+.tgl i::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .15s}
+.tgl.on{color:#fff}
+.tgl.on i{background:var(--grad);border-color:transparent}
+.tgl.on i::after{left:16px;background:#fff}
+.run{margin-top:18px;width:100%;border:none;border-radius:999px;padding:13px;font:800 14px/1 'Nunito',sans-serif;
+  color:#fff;background:var(--grad);cursor:pointer;box-shadow:0 6px 20px rgba(217,70,239,.35)}
+.run:hover{transform:translateY(-1px)}
+.verdict{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;min-height:92px}
+.verdict .v-loc{font-size:30px;font-weight:800;display:flex;align-items:center;gap:10px}
+.verdict .v-why{color:var(--mut);font-size:13px;margin-top:4px}
+.verdict .v-tag{display:inline-block;margin-top:8px;font:700 11px/1 var(--mono);color:var(--link);
+  border:1px solid var(--s3);border-radius:6px;padding:4px 8px}
+
+/* ── схема ── */
+.flowwrap{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:22px;overflow-x:auto}
+.flow{position:relative;min-width:760px}
+.frow{display:flex;gap:14px;margin-bottom:34px;align-items:stretch}
+.frow:last-child{margin-bottom:0}
+.node{position:relative;border:1px solid var(--line);background:var(--s1);border-radius:12px;
+  padding:11px 15px;font-size:12.5px;line-height:1.4;min-width:150px;max-width:230px;color:var(--mut);z-index:2}
+.node b{display:block;color:#fff;font-size:12.5px}
+.node.q{border-radius:14px;background:var(--s2);border-color:var(--s3)}
+.node.q b{color:#fff}
+.node.end{background:var(--card);border-style:dashed}
+.node.res b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.node.lit{border-color:transparent;background:var(--s2);
+  box-shadow:0 0 0 1.5px #D946EF,0 8px 26px rgba(217,70,239,.35)}
+.node.lit b{color:#fff;background:none;-webkit-text-fill-color:#fff}
+.edges{position:absolute;inset:0;pointer-events:none;z-index:1}
+.edges path{stroke:var(--line);stroke-width:2;fill:none}
+.edges path.lit{stroke:url(#lxgrad);stroke-width:2.6}
+.edges text{fill:var(--dim);font:600 10.5px 'Nunito',sans-serif}
+.edges text.lit{fill:var(--link)}
+@media (prefers-reduced-motion:reduce){.node.lit{box-shadow:0 0 0 1.5px #D946EF}}
+
+/* ── кейсы приёмки ── */
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:11px}
+.case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;
+  display:flex;gap:11px;align-items:flex-start}
+.case .play{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--s3);
+  background:var(--s1);color:#fff;cursor:pointer;font-size:12px}
+.case .play:hover{background:var(--grad);border-color:transparent}
+.case .c-b{font-size:12.5px;line-height:1.45;color:var(--mut)}
+.case .c-b b{display:block;color:#fff;font-size:12.5px}
+.case .c-res{margin-left:auto;flex:none;font:800 12px/1 var(--mono);padding:5px 9px;border-radius:7px;visibility:hidden}
+.case.pass .c-res{visibility:visible;color:var(--ok);border:1px solid rgba(92,181,134,.4);background:rgba(92,181,134,.08)}
+.case.fail .c-res{visibility:visible;color:#f43f5e;border:1px solid rgba(244,63,94,.4)}
+.runall{border:none;border-radius:999px;padding:11px 20px;font:800 13px/1 'Nunito',sans-serif;
+  color:#fff;background:var(--grad);cursor:pointer;margin-bottom:14px}
+
+/* ── чек-листы ── */
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.checkcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.checkcard h4{margin:0 0 10px;font-size:14.5px}
+.checkcard ul{list-style:none;margin:0;padding:0}
+.checkcard li{position:relative;padding:5px 0 5px 26px;font-size:13px;color:var(--mut)}
+.checkcard li::before{content:"✓";position:absolute;left:0;top:5px;width:17px;height:17px;border-radius:50%;
+  background:var(--s2);color:var(--link);font:800 10px/17px 'Nunito',sans-serif;text-align:center}
+
+/* ── правила и код ── */
+table.spec{border-collapse:collapse;width:100%;font-size:13px}
+table.spec th,table.spec td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+table.spec th{color:var(--dim);font-weight:700;background:var(--card)}
+table.spec td{color:var(--mut)}
+table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--link);white-space:nowrap}
+.codebox{background:#100D12;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.codebox .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);
+  font:700 12px/1 var(--mono);color:var(--dim)}
+.codebox .bar button{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:8px;
+  padding:6px 13px;font:700 12px/1 'Nunito',sans-serif;cursor:pointer}
+.codebox .bar button:hover{color:#fff}
+.codebox .bar button.ok{color:#7ee2a8;border-color:rgba(126,226,168,.4)}
+.codebox pre{margin:0;padding:16px 18px;overflow:auto;max-height:480px;font:12.5px/1.65 var(--mono)}
+.codebox code{background:transparent;padding:0}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <b>Lovix · внутренняя документация</b>
+  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a class="cur" href="locale-detection.html">Локаль</a><div class="dd"><button class="dd-btn" type="button">Рассылки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a href="notifications-ui.html">UI нотификаций</a></div></div></div></nav>
+</div></div>
+
+<div class="wrap">
+
+<div class="hero">
+  <h1>Автоопределение локали — <em>живая спека</em></h1>
+  <p>Весь трафик идёт через Cloudflare; решение о редиректе принимается на стороне CF <b>до отдачи страницы</b>. От CF берём гео по IP (ISO-код страны, свои списки IP не храним) и метку VPN. Алгоритм ниже — настоящая функция: её гоняет симулятор, её же прогоняют критерии приёмки, её исходник копируется разработчику.</p>
+  <div class="meta">
+    <span>срабатывает только без сохранённого выбора</span>
+    <span>язык браузера &gt; гео</span>
+    <span>en/en-US неинформативен → гео</span>
+    <span>боты без редиректа</span>
+    <span><a href="https://project.directline.media/project/411283/22769818/" style="color:inherit">таска в трекере ↗</a></span>
+  </div>
+</div>
+
+<!-- ══ симулятор + схема ══ -->
+<section id="sim">
+  <h2>Симулятор первого захода</h2>
+  <p class="sub">Собери вход и жми «Прогнать» — путь решения подсветится на схеме, справа внизу будет вердикт. Кейс VPN: поставь язык RU и гео 🇳🇱 — победит язык браузера.</p>
+  <div class="sim">
+    <div class="panel">
+      <h3>Вход</h3>
+      <div class="grp">Язык браузера
+        <div class="chips" id="langChips"></div>
+      </div>
+      <div class="grp">Гео по IP (CF, ISO)
+        <div class="chips" id="geoChips"></div>
+      </div>
+      <div class="grp">
+        <div class="tgl" data-t="saved"><i></i>Кука с локалью (RU)</div>
+        <div class="tgl" data-t="profile"><i></i>Локаль в профиле (DE)</div>
+        <div class="tgl" data-t="vpn"><i></i>Метка VPN от CF</div>
+        <div class="tgl" data-t="bot"><i></i>Поисковый бот</div>
+      </div>
+      <button class="run" id="runBtn">Прогнать</button>
+      <div class="verdict" id="verdict">
+        <div class="v-why">Здесь появится решение алгоритма.</div>
+      </div>
+    </div>
+    <div class="flowwrap">
+      <div class="flow" id="flow">
+        <svg class="edges" id="edges">
+          <defs><linearGradient id="lxgrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#D946EF"/><stop offset="1" stop-color="#F43F5E"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="frow">
+          <div class="node" data-n="start"><b>Запрос</b>первый заход на сайт</div>
+          <div class="node q" data-n="bot"><b>Поисковый бот?</b>Googlebot и др.</div>
+          <div class="node end" data-n="asis"><b>Без редиректа</b>отдаём запрошенную страницу, hreflang/canonical на месте</div>
+        </div>
+        <div class="frow">
+          <div class="node q" data-n="saved"><b>Есть сохранённый выбор?</b>кука или локаль в профиле</div>
+          <div class="node res" data-n="use-saved"><b>Сохранённая локаль</b>CF пропускает без автоопределения</div>
+        </div>
+        <div class="frow">
+          <div class="node q" data-n="lang"><b>Язык браузера ≠ en?</b>Accept-Language</div>
+          <div class="node q" data-n="has-lang"><b>Такая локаль есть?</b></div>
+          <div class="node res" data-n="use-lang"><b>Локаль браузера</b>VPN-кейс тоже сюда: язык важнее гео</div>
+          <div class="node res" data-n="use-en"><b>EN — дефолт</b>локали языка нет</div>
+        </div>
+        <div class="frow">
+          <div class="node q" data-n="geo"><b>Гео CF → локаль есть?</b>en/en-US неинформативен</div>
+          <div class="node res" data-n="use-geo"><b>Локаль по гео</b></div>
+          <div class="node res" data-n="use-en2"><b>EN — дефолт</b></div>
+        </div>
+        <div class="frow">
+          <div class="node end" data-n="save"><b>Сохранить выбор</b>гость → кука · авторизованный → профиль · реф-метки (ref, UTM) переживают редирект</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ приёмка ══ -->
+<section id="accept">
+  <h2>Критерии приёмки — прогоняются по-настоящему</h2>
+  <p class="sub">Каждая карточка вызывает ту же <code style="font-family:var(--mono);color:var(--link)">resolveLocale()</code> и сверяет результат с ожиданием. Зелёный PASS честный, не нарисованный.</p>
+  <button class="runall" id="runAll">Прогнать все ▶</button>
+  <div class="cases" id="cases"></div>
+  <div style="height:22px"></div>
+  <div class="checks">
+    <div class="checkcard"><h4>Партнёрка</h4><ul>
+      <li>Реф-метки (ref, UTM и прочие) сохраняются при редиректе на другую локаль</li>
+      <li>Переход по партнёрской ссылке с редиректом — атрибуция засчитывается</li>
+      <li>Параметры не теряются ни при автоопределении, ни при ручном переключении, ни при возврате после оплаты</li>
+    </ul></div>
+    <div class="checkcard"><h4>SEO</h4><ul>
+      <li>Редирект не срабатывает для поисковых ботов — они получают запрошенную версию</li>
+      <li>Каноникалы и hreflang корректны на всех локалях</li>
+      <li>Sitemap открывается и валиден</li>
+    </ul></div>
+    <div class="checkcard"><h4>Инфраструктура</h4><ul>
+      <li>Весь трафик через CF, включая РФ — без деградации для РФ-пользователей</li>
+      <li>Гео от CF в ISO-формате, собственные списки IP не используются</li>
+      <li>Метка VPN доступна и логируется для аналитики</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ══ правила ══ -->
+<section id="rules">
+  <h2>Правила словами</h2>
+  <table class="spec">
+    <tr><th>№</th><th>Алгоритм (только при отсутствии сохранённого выбора)</th></tr>
+    <tr><td>А1</td><td>Есть кука или локаль в профиле — всегда показываем её, CF пропускает запрос без редиректа</td></tr>
+    <tr><td>А2</td><td>Нет выбора — приоритет №1 язык браузера, №2 гео по IP</td></tr>
+    <tr><td>А3</td><td>Язык браузера ≠ en — отдаём локаль браузера; такой локали нет — дефолт EN</td></tr>
+    <tr><td>А4</td><td>Язык en / en-US неинформативен — решаем по гео из CF</td></tr>
+    <tr><td>А5</td><td>VPN-кейс (гео ≠ язык, например IP 🇳🇱 + браузер RU) — приоритет за языком браузера</td></tr>
+  </table>
+  <div style="height:14px"></div>
+  <table class="spec">
+    <tr><th>№</th><th>Сохранение выбора</th></tr>
+    <tr><td>С1</td><td>Авторизованный — локаль в профиле; при логине с любого устройства переключаем на неё</td></tr>
+    <tr><td>С2</td><td>Неавторизованный — локаль в куке; кука переживает повторные визиты</td></tr>
+    <tr><td>С3</td><td>Явный выбор пользователя всегда важнее автоопределения и не перетирается</td></tr>
+    <tr><td>С4</td><td>Переключение локали ведёт на ту же страницу в новой локали; страницы нет — на главную этой локали</td></tr>
+  </table>
+</section>
+
+<!-- ══ код ══ -->
+<section id="code">
+  <h2>Алгоритм как код</h2>
+  <p class="sub">Ровно тот исходник, который исполняется на этой странице. Вход от CF: <code style="font-family:var(--mono);color:var(--link)">geo</code> — страна ISO-3166-1 alpha-2, <code style="font-family:var(--mono);color:var(--link)">vpn</code> — метка CF (на решение не влияет, логируется), <code style="font-family:var(--mono);color:var(--link)">bot</code> — verified bot.</p>
+  <div class="codebox">
+    <div class="bar">resolveLocale.js <button id="copyAlgo" type="button">Копировать</button></div>
+    <pre><code class="language-javascript" id="algoCode"></code></pre>
+  </div>
+</section>
+
+</div>
+
+<!-- ═══ алгоритм: единственный источник истины ═══ -->
+<script id="lx-algo">
+/* Вход: { bot, saved: 'ru'|null, profile: 'de'|null,
+           browser: 'ru'|'en-US'|…, geo: 'DE'|…, vpn }
+   Выход: { locale, redirect, reason, path } — path подсвечивает схему. */
+var LOCALES = ['ru', 'en', 'de', 'fr', 'es', 'it', 'pt', 'ja'];
+var GEO2LOCALE = { RU:'ru', BY:'ru', KZ:'ru', DE:'de', AT:'de', FR:'fr',
+                   ES:'es', MX:'es', IT:'it', PT:'pt', BR:'pt', JP:'ja' };
+
+function resolveLocale(inp) {
+  var path = ['start', 'bot'];
+
+  /* SEO: боты получают запрошенную страницу, никаких редиректов */
+  if (inp.bot) {
+    path.push('asis');
+    return { locale: null, redirect: false, path: path,
+      reason: 'Поисковый бот — отдаём запрошенную версию без редиректа' };
+  }
+
+  /* Сохранённый выбор всегда важнее автоопределения */
+  path.push('saved');
+  var savedLocale = inp.profile || inp.saved;
+  if (savedLocale) {
+    path.push('use-saved');
+    return { locale: savedLocale, redirect: true, path: path,
+      reason: inp.profile
+        ? 'Локаль из профиля — при логине включается на любом устройстве'
+        : 'Локаль из куки — явный выбор не перетирается' };
+  }
+
+  /* Приоритет №1 — язык браузера (en/en-US неинформативен) */
+  path.push('lang');
+  var lang = String(inp.browser || '').toLowerCase().split('-')[0];
+  if (lang && lang !== 'en') {
+    path.push('has-lang');
+    if (LOCALES.indexOf(lang) !== -1) {
+      path.push('use-lang', 'save');
+      var geoLocale = GEO2LOCALE[inp.geo];
+      return { locale: lang, redirect: true, path: path,
+        reason: geoLocale && geoLocale !== lang
+          ? 'Гео (' + inp.geo + ') не совпало с языком — VPN-кейс, язык браузера важнее'
+          : 'Язык браузера информативен — берём его' };
+    }
+    path.push('use-en', 'save');
+    return { locale: 'en', redirect: true, path: path,
+      reason: 'Локали «' + lang + '» у нас нет — дефолт EN' };
+  }
+
+  /* Приоритет №2 — гео по IP от CF */
+  path.push('geo');
+  var byGeo = GEO2LOCALE[inp.geo];
+  if (byGeo) {
+    path.push('use-geo', 'save');
+    return { locale: byGeo, redirect: true, path: path,
+      reason: 'en/en-US неинформативен — решаем по гео CF (' + inp.geo + ')' };
+  }
+  path.push('use-en2', 'save');
+  return { locale: 'en', redirect: true, path: path,
+    reason: 'Язык en и гео без своей локали — дефолт EN' };
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+<script>
+(function () {
+  var FLAG = { ru:'🇷🇺', en:'🇺🇸', de:'🇩🇪', fr:'🇫🇷', es:'🇪🇸', it:'🇮🇹', pt:'🇵🇹', ja:'🇯🇵' };
+  var GEOFLAG = { DE:'🇩🇪', NL:'🇳🇱', US:'🇺🇸', RU:'🇷🇺', FR:'🇫🇷', JP:'🇯🇵', TR:'🇹🇷' };
+
+  /* ── чипы входа ── */
+  var state = { browser:'ru', geo:'DE', saved:false, profile:false, vpn:false, bot:false };
+  var langs = ['ru','de','fr','ja','tr','en-US'];
+  var geos = ['DE','NL','US','RU','FR','JP'];
+  function chips(elId, items, key, label) {
+    var box = document.getElementById(elId);
+    items.forEach(function (v) {
+      var c = document.createElement('button');
+      c.className = 'chip' + (state[key] === v ? ' on' : '');
+      c.textContent = label(v);
+      c.onclick = function () {
+        state[key] = v;
+        box.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+        c.classList.add('on');
+      };
+      box.appendChild(c);
+    });
+  }
+  chips('langChips', langs, 'browser', function (v) { return v; });
+  chips('geoChips', geos, 'geo', function (v) { return (GEOFLAG[v] || '') + ' ' + v; });
+  document.querySelectorAll('.tgl').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var k = t.dataset.t;
+      state[k] = !state[k];
+      t.classList.toggle('on', state[k]);
+    });
+  });
+
+  /* ── стрелки схемы ── */
+  var EDGES = [
+    ['start','bot',''], ['bot','asis','да'], ['bot','saved','нет'],
+    ['saved','use-saved','да'], ['saved','lang','нет'],
+    ['lang','has-lang','≠ en'], ['has-lang','use-lang','есть'], ['has-lang','use-en','нет'],
+    ['lang','geo','en / en-US'], ['geo','use-geo','есть'], ['geo','use-en2','нет'],
+    ['use-lang','save',''], ['use-en','save',''], ['use-geo','save',''], ['use-en2','save','']
+  ];
+  var flow = document.getElementById('flow');
+  var svg = document.getElementById('edges');
+  function nodeEl(n) { return flow.querySelector('[data-n="' + n + '"]'); }
+  function drawEdges() {
+    svg.querySelectorAll('path,text').forEach(function (e) { e.remove(); });
+    var fr = flow.getBoundingClientRect();
+    svg.setAttribute('width', flow.scrollWidth);
+    svg.setAttribute('height', flow.scrollHeight);
+    EDGES.forEach(function (e) {
+      var a = nodeEl(e[0]).getBoundingClientRect(), b = nodeEl(e[1]).getBoundingClientRect();
+      var sameRow = Math.abs(a.top - b.top) < 20;
+      var x1, y1, x2, y2;
+      if (sameRow) { x1 = a.right - fr.left; y1 = a.top - fr.top + a.height / 2;
+                     x2 = b.left - fr.left;  y2 = b.top - fr.top + b.height / 2; }
+      else { x1 = a.left - fr.left + a.width / 2; y1 = a.bottom - fr.top;
+             x2 = b.left - fr.left + Math.min(b.width / 2, 90); y2 = b.top - fr.top; }
+      var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      var d = sameRow
+        ? 'M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2
+        : 'M' + x1 + ' ' + y1 + ' C ' + x1 + ' ' + (y1 + 18) + ', ' + x2 + ' ' + (y2 - 18) + ', ' + x2 + ' ' + y2;
+      p.setAttribute('d', d);
+      p.dataset.e = e[0] + '>' + e[1];
+      svg.appendChild(p);
+      if (e[2]) {
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', (x1 + x2) / 2 + (sameRow ? -14 : 8));
+        t.setAttribute('y', (y1 + y2) / 2 + (sameRow ? -6 : 2));
+        t.textContent = e[2];
+        t.dataset.e = e[0] + '>' + e[1];
+        svg.appendChild(t);
+      }
+    });
+  }
+  drawEdges();
+  addEventListener('resize', drawEdges);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawEdges);
+
+  /* ── прогон ── */
+  var timer = null;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function clearLit() {
+    flow.querySelectorAll('.node.lit').forEach(function (n) { n.classList.remove('lit'); });
+    svg.querySelectorAll('.lit').forEach(function (n) { n.classList.remove('lit'); });
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+  function light(path, instant) {
+    clearLit();
+    var steps = [];
+    path.forEach(function (n, i) {
+      steps.push(function () { nodeEl(n).classList.add('lit'); });
+      if (i < path.length - 1) {
+        steps.push(function () {
+          svg.querySelectorAll('[data-e="' + n + '>' + path[i + 1] + '"]')
+            .forEach(function (e) { e.classList.add('lit'); });
+        });
+      }
+    });
+    if (instant || reduced) { steps.forEach(function (s) { s(); }); return; }
+    var i = 0;
+    timer = setInterval(function () {
+      if (i >= steps.length) { clearInterval(timer); timer = null; return; }
+      steps[i++]();
+    }, 130);
+  }
+  function inputFromState() {
+    return { bot: state.bot, vpn: state.vpn,
+      saved: state.saved ? 'ru' : null, profile: state.profile ? 'de' : null,
+      browser: state.browser, geo: state.geo };
+  }
+  function verdict(r) {
+    var v = document.getElementById('verdict');
+    var loc = r.locale
+      ? (FLAG[r.locale] || '') + ' ' + r.locale.toUpperCase()
+      : '— как запрошено';
+    v.innerHTML = '<div class="v-loc">' + loc + '</div>' +
+      '<div class="v-why">' + r.reason + '</div>' +
+      '<span class="v-tag">' + (r.redirect ? 'redirect на стороне CF' : 'без редиректа') + '</span>';
+  }
+  document.getElementById('runBtn').addEventListener('click', function () {
+    var r = resolveLocale(inputFromState());
+    light(r.path);
+    verdict(r);
+  });
+
+  /* ── кейсы приёмки ── */
+  var CASES = [
+    { id:'A1', name:'Браузер RU, гео 🇩🇪', inp:{browser:'ru',geo:'DE'}, want:'ru', note:'язык браузера решает' },
+    { id:'A2', name:'Браузер DE, гео 🇷🇺', inp:{browser:'de',geo:'RU'}, want:'de', note:'язык браузера решает' },
+    { id:'A3', name:'Браузер TR — локали нет', inp:{browser:'tr',geo:'US'}, want:'en', note:'дефолт EN' },
+    { id:'A4', name:'Браузер en-US, гео 🇩🇪', inp:{browser:'en-US',geo:'DE'}, want:'de', note:'en неинформативен → гео' },
+    { id:'A5', name:'VPN: браузер RU, IP 🇳🇱', inp:{browser:'ru',geo:'NL',vpn:true}, want:'ru', note:'язык важнее гео' },
+    { id:'S1', name:'Кука RU после ручного выбора', inp:{browser:'de',geo:'DE',saved:'ru'}, want:'ru', note:'автоопределение молчит' },
+    { id:'S2', name:'Логин: в профиле DE', inp:{browser:'en-US',geo:'US',profile:'de'}, want:'de', note:'профиль важнее всего' },
+    { id:'S3', name:'Повторный визит гостя с кукой', inp:{browser:'en-US',geo:'US',saved:'ru'}, want:'ru', note:'кука переживает визиты' },
+    { id:'B1', name:'Googlebot', inp:{browser:'en-US',geo:'US',bot:true}, want:null, note:'без редиректа' }
+  ];
+  var box = document.getElementById('cases');
+  CASES.forEach(function (c) {
+    var d = document.createElement('div');
+    d.className = 'case';
+    d.innerHTML = '<button class="play" type="button">▶</button>' +
+      '<div class="c-b"><b>' + c.id + ' · ' + c.name + '</b>ожидаем: ' +
+      (c.want ? (FLAG[c.want] || '') + ' ' + c.want.toUpperCase() : 'без редиректа') +
+      ' — ' + c.note + '</div><span class="c-res"></span>';
+    d.querySelector('.play').onclick = function () { runCase(c, d, false); };
+    box.appendChild(d);
+    c.el = d;
+  });
+  function runCase(c, el, instant) {
+    var r = resolveLocale(c.inp);
+    var ok = r.locale === c.want && (c.want !== null) === r.redirect;
+    el.classList.remove('pass', 'fail');
+    el.classList.add(ok ? 'pass' : 'fail');
+    el.querySelector('.c-res').textContent = ok ? 'PASS' : 'FAIL: ' + r.locale;
+    if (!instant) { light(r.path); verdict(r); }
+    return ok;
+  }
+  document.getElementById('runAll').addEventListener('click', function () {
+    var i = 0;
+    var t = setInterval(function () {
+      if (i >= CASES.length) { clearInterval(t); return; }
+      var c = CASES[i++];
+      runCase(c, c.el, true);
+    }, reduced ? 0 : 140);
+  });
+
+  /* ── код алгоритма: живой исходник ── */
+  var codeEl = document.getElementById('algoCode');
+  codeEl.textContent = document.getElementById('lx-algo').textContent.trim();
+  if (window.hljs) hljs.highlightElement(codeEl);
+  document.getElementById('copyAlgo').addEventListener('click', function () {
+    var b = this;
+    navigator.clipboard.writeText(codeEl.textContent).then(function () {
+      b.textContent = 'Скопировано ✓'; b.classList.add('ok');
+      setTimeout(function () { b.textContent = 'Копировать'; b.classList.remove('ok'); }, 1400);
+    });
+  });
+
+  /* лёгкое автодемо при загрузке: VPN-кейс */
+  setTimeout(function () {
+    var r = resolveLocale({ browser:'ru', geo:'NL', vpn:true });
+    light(r.path, true);
+    verdict(r);
+  }, 700);
+})();
+</script>
+</body>
+</html>
