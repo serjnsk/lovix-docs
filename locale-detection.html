@@ -6,38 +6,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lovix — Автоопределение локали (CF)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark-dimmed.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
 <style>
 :root{
-  --bg:#0E0E12; --card:#131013; --s1:#221A2A; --s2:#2A1A31; --s3:#4A2A52;
-  --line:#342A3E; --text:#FFFFFF; --mut:#A3A3B4; --dim:#80808C;
-  --grad:linear-gradient(96deg,#D946EF 0%,#F43F5E 100%);
-  --accent:#D946EF; --link:#F19BF6; --ok:#5cb586;
+  --bg:#ffffff; --card:#f6f7fa; --s1:#eef0f5; --s2:#e9ecf3; --s3:#c9cedb;
+  --line:#e3e6ec; --text:#1c2330; --mut:#5b6474; --dim:#8b93a5;
+  --grad:linear-gradient(96deg,#2f54c9 0%,#4a6cf7 100%);
+  --accent:#2f54c9; --link:#2f54c9; --ok:#1a7f4e; --bad:#dc2626;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 'Nunito',-apple-system,'Segoe UI',Roboto,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,sans-serif}
 a{color:var(--link)}
-.top{position:sticky;top:0;z-index:50;background:rgba(14,14,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top-in{max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 .top b{font-size:16px;font-weight:800}
 .top nav{display:flex;flex-wrap:wrap;gap:2px 16px}
 .top nav a{color:var(--mut);text-decoration:none;font-size:13px}
-.top nav a:hover{color:#fff}
+.top nav a:hover{color:#000}
 .top nav a.cur{color:var(--link);font-weight:700}
 .dd{position:relative;display:inline-block}
 .dd-btn{border:0;background:none;cursor:pointer;color:var(--mut);
-  font:400 13px 'Nunito',sans-serif;padding:0;display:inline-flex;align-items:center;gap:5px}
-.dd-btn:hover{color:#fff}
+  font:400 13px inherit;padding:0;display:inline-flex;align-items:center;gap:5px}
+.dd-btn:hover{color:#000}
 .dd-car{font-size:9px;display:inline-block;transition:transform .15s}
 .dd:hover .dd-car{transform:rotate(180deg)}
 .dd-menu{display:none;position:absolute;right:0;top:100%;padding-top:8px;z-index:60}
 .dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
 .dd-in{background:var(--card);border:1px solid var(--line);border-radius:12px;
-  box-shadow:0 16px 40px rgba(0,0,0,.5);padding:6px;min-width:210px;display:flex;flex-direction:column}
+  box-shadow:0 12px 30px rgba(28,35,48,.16);padding:6px;min-width:210px;display:flex;flex-direction:column}
 .dd-in a{padding:8px 12px;border-radius:8px;font-size:13px}
-.dd-in a:hover{background:var(--s1)}
+.dd-in a:hover{background:var(--s1);color:#000}
 .wrap{max-width:1240px;margin:0 auto;padding:0 24px 110px}
 
 .hero{padding:52px 0 8px}
@@ -59,22 +59,22 @@ section>.sub{color:var(--mut);margin:0 0 16px;max-width:76ch;font-size:14px}
 .panel .grp{margin-top:14px}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 .chip{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:999px;
-  padding:7px 13px;font:700 12.5px/1 'Nunito',sans-serif;cursor:pointer}
-.chip:hover{color:#fff;border-color:var(--s3)}
+  padding:7px 13px;font:700 12.5px/1 inherit;cursor:pointer}
+.chip:hover{color:#000;border-color:var(--s3)}
 .chip.on{background:var(--grad);color:#fff;border-color:transparent}
 .tgl{display:flex;align-items:center;gap:9px;margin-top:9px;cursor:pointer;font-size:13.5px;color:var(--mut)}
 .tgl i{width:34px;height:20px;border-radius:10px;background:var(--s1);border:1px solid var(--line);position:relative;flex:none;transition:background .15s}
-.tgl i::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:all .15s}
-.tgl.on{color:#fff}
+.tgl i::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .15s}
+.tgl.on{color:#000}
 .tgl.on i{background:var(--grad);border-color:transparent}
 .tgl.on i::after{left:16px;background:#fff}
-.run{margin-top:18px;width:100%;border:none;border-radius:999px;padding:13px;font:800 14px/1 'Nunito',sans-serif;
-  color:#fff;background:var(--grad);cursor:pointer;box-shadow:0 6px 20px rgba(217,70,239,.35)}
+.run{margin-top:18px;width:100%;border:none;border-radius:999px;padding:13px;font:800 14px/1 inherit;
+  color:#fff;background:var(--grad);cursor:pointer;box-shadow:0 6px 18px rgba(47,84,201,.30)}
 .run:hover{transform:translateY(-1px)}
 .verdict{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;min-height:92px}
 .verdict .v-loc{font-size:30px;font-weight:800;display:flex;align-items:center;gap:10px}
 .verdict .v-why{color:var(--mut);font-size:13px;margin-top:4px}
-.verdict .v-tag{display:inline-block;margin-top:8px;font:700 11px/1 var(--mono);color:var(--link);
+.verdict .v-tag{display:inline-block;margin-top:8px;font:700 11px/1 var(--mono);color:var(--accent);
   border:1px solid var(--s3);border-radius:6px;padding:4px 8px}
 
 /* ── схема ── */
@@ -85,34 +85,34 @@ section>.sub{color:var(--mut);margin:0 0 16px;max-width:76ch;font-size:14px}
 .frow:last-child{margin-bottom:0}
 .node{position:relative;border:1px solid var(--line);background:var(--s1);border-radius:12px;
   padding:11px 15px;font-size:12.5px;line-height:1.4;min-width:150px;max-width:230px;color:var(--mut);z-index:2}
-.node b{display:block;color:#fff;font-size:12.5px}
-.node.q{border-radius:14px;background:var(--s2);border-color:var(--s3)}
-.node.q b{color:#fff}
+.node b{display:block;color:#000;font-size:12.5px}
+.node.q{border-radius:14px;background:#fff7e0;border-color:#d8b74a}
+.node.q b{color:#000}
 .node.end{background:var(--card);border-style:dashed}
 .node.res b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .node.lit{border-color:transparent;background:var(--s2);
-  box-shadow:0 0 0 1.5px #D946EF,0 8px 26px rgba(217,70,239,.35)}
-.node.lit b{color:#fff;background:none;-webkit-text-fill-color:#fff}
+  box-shadow:0 0 0 1.5px #2f54c9,0 8px 26px rgba(47,84,201,.28)}
+.node.lit b{color:#000;background:none;-webkit-text-fill-color:#000}
 .edges{position:absolute;inset:0;pointer-events:none;z-index:1}
 .edges path{stroke:var(--line);stroke-width:2;fill:none}
 .edges path.lit{stroke:url(#lxgrad);stroke-width:2.6}
-.edges text{fill:var(--dim);font:600 10.5px 'Nunito',sans-serif}
+.edges text{fill:var(--dim);font:600 10.5px inherit}
 .edges text.lit{fill:var(--link)}
-@media (prefers-reduced-motion:reduce){.node.lit{box-shadow:0 0 0 1.5px #D946EF}}
+@media (prefers-reduced-motion:reduce){.node.lit{box-shadow:0 0 0 1.5px #2f54c9}}
 
 /* ── кейсы приёмки ── */
 .cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:11px}
 .case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;
   display:flex;gap:11px;align-items:flex-start}
 .case .play{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--s3);
-  background:var(--s1);color:#fff;cursor:pointer;font-size:12px}
-.case .play:hover{background:var(--grad);border-color:transparent}
+  background:#fff;color:var(--accent);cursor:pointer;font-size:12px}
+.case .play:hover{background:var(--grad);border-color:transparent;color:#fff}
 .case .c-b{font-size:12.5px;line-height:1.45;color:var(--mut)}
-.case .c-b b{display:block;color:#fff;font-size:12.5px}
+.case .c-b b{display:block;color:#000;font-size:12.5px}
 .case .c-res{margin-left:auto;flex:none;font:800 12px/1 var(--mono);padding:5px 9px;border-radius:7px;visibility:hidden}
-.case.pass .c-res{visibility:visible;color:var(--ok);border:1px solid rgba(92,181,134,.4);background:rgba(92,181,134,.08)}
-.case.fail .c-res{visibility:visible;color:#f43f5e;border:1px solid rgba(244,63,94,.4)}
-.runall{border:none;border-radius:999px;padding:11px 20px;font:800 13px/1 'Nunito',sans-serif;
+.case.pass .c-res{visibility:visible;color:var(--ok);border:1px solid rgba(26,127,78,.35);background:rgba(26,127,78,.07)}
+.case.fail .c-res{visibility:visible;color:var(--bad);border:1px solid rgba(220,38,38,.4)}
+.runall{border:none;border-radius:999px;padding:11px 20px;font:800 13px/1 inherit;
   color:#fff;background:var(--grad);cursor:pointer;margin-bottom:14px}
 
 /* ── чек-листы ── */
@@ -122,7 +122,7 @@ section>.sub{color:var(--mut);margin:0 0 16px;max-width:76ch;font-size:14px}
 .checkcard ul{list-style:none;margin:0;padding:0}
 .checkcard li{position:relative;padding:5px 0 5px 26px;font-size:13px;color:var(--mut)}
 .checkcard li::before{content:"✓";position:absolute;left:0;top:5px;width:17px;height:17px;border-radius:50%;
-  background:var(--s2);color:var(--link);font:800 10px/17px 'Nunito',sans-serif;text-align:center}
+  background:var(--s2);color:var(--link);font:800 10px/17px inherit;text-align:center}
 
 /* ── правила и код ── */
 table.spec{border-collapse:collapse;width:100%;font-size:13px}
@@ -130,12 +130,12 @@ table.spec th,table.spec td{border:1px solid var(--line);padding:8px 12px;text-a
 table.spec th{color:var(--dim);font-weight:700;background:var(--card)}
 table.spec td{color:var(--mut)}
 table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--link);white-space:nowrap}
-.codebox{background:#100D12;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.codebox{background:#f6f8fa;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .codebox .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);
   font:700 12px/1 var(--mono);color:var(--dim)}
-.codebox .bar button{border:1px solid var(--line);background:var(--s1);color:var(--mut);border-radius:8px;
-  padding:6px 13px;font:700 12px/1 'Nunito',sans-serif;cursor:pointer}
-.codebox .bar button:hover{color:#fff}
+.codebox .bar button{border:1px solid var(--s3);background:#fff;color:var(--mut);border-radius:8px;
+  padding:6px 13px;font:700 12px/1 inherit;cursor:pointer}
+.codebox .bar button:hover{color:#000}
 .codebox .bar button.ok{color:#7ee2a8;border-color:rgba(126,226,168,.4)}
 .codebox pre{margin:0;padding:16px 18px;overflow:auto;max-height:480px;font:12.5px/1.65 var(--mono)}
 .codebox code{background:transparent;padding:0}
@@ -190,7 +190,7 @@ table.spec td:first-child{font-family:var(--mono);font-size:12px;color:var(--lin
       <div class="flow" id="flow">
         <svg class="edges" id="edges">
           <defs><linearGradient id="lxgrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#D946EF"/><stop offset="1" stop-color="#F43F5E"/>
+            <stop offset="0" stop-color="#2f54c9"/><stop offset="1" stop-color="#4a6cf7"/>
           </linearGradient></defs>
         </svg>
         <div class="frow">
