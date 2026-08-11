@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="ru">
+<!-- Рукописная страница: дизайн-система razdevator.hot. Источник токенов: UI-STYLE.md лендинга -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Razdevator.hot — дизайн-система</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark.min.css">
+<style>
+/* ══ база страницы ══ */
+:root{
+  --bg:#090B1E; --surface:#13162F; --surface2:#1B1F3C;
+  --border:#2B3057; --glass-bd:#3A3F6B;
+  --text:#ECEDFB; --muted:#9A9CC6; --sub:#C3C4E4;
+  --pink:#FC55A6; --purple:#8564FB; --orchid:#C77DFF;
+  --ok:#5cd180; --warn:#ffc85c; --err:#ff8a9c;
+  --grad:linear-gradient(90deg,#FC55A6,#8564FB);
+  --grad-tr:linear-gradient(135deg,#FC55A6,#8564FB);
+  --radius:20px;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);overflow-x:hidden;
+  font:16px/1.6 'Inter',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Outfit',sans-serif;line-height:1.1;letter-spacing:-.02em;margin:0}
+a{color:var(--orchid)}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* верхний нав доки */
+.top{position:sticky;top:0;z-index:50;background:rgba(9,11,30,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.top-in{max-width:1240px;margin:0 auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.top b{font:700 16px 'Outfit',sans-serif}
+.top nav{display:flex;flex-wrap:wrap;gap:2px 16px}
+.top nav a{color:var(--muted);text-decoration:none;font-size:13px}
+.top nav a:hover{color:#fff}
+.top nav a.cur{color:var(--orchid);font-weight:700}
+.dd{position:relative;display:inline-block}
+.dd-btn{border:0;background:none;cursor:pointer;color:var(--muted);font:400 13px 'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:5px}
+.dd-btn:hover{color:#fff}
+.dd-btn.cur{color:var(--orchid);font-weight:700}
+.dd-car{font-size:9px;display:inline-block;transition:transform .15s}
+.dd:hover .dd-car{transform:rotate(180deg)}
+.dd-menu{display:none;position:absolute;right:0;top:100%;padding-top:8px;z-index:60}
+.dd:hover .dd-menu,.dd:focus-within .dd-menu{display:block}
+.dd-in{background:var(--surface);border:1px solid var(--glass-bd);border-radius:12px;box-shadow:0 18px 44px rgba(3,2,12,.6);padding:6px;min-width:220px;display:flex;flex-direction:column}
+.dd-in a{padding:8px 12px;border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none}
+.dd-in a:hover{background:var(--surface2);color:#fff}
+.dd-in a.cur{color:var(--orchid);font-weight:700}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 120px}
+section{margin-top:72px;scroll-margin-top:80px}
+section>h2{font-size:clamp(26px,4vw,44px);font-weight:800;margin-bottom:8px}
+section>.sub{color:var(--muted);margin:0 0 22px;max-width:78ch;font-size:15px}
+
+/* хиро */
+.hero{position:relative;padding:64px 0 10px}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:-1}
+.hero::before{width:420px;height:420px;left:-140px;top:-120px;background:rgba(252,85,166,.24);filter:blur(150px)}
+.hero::after{width:460px;height:460px;right:-120px;top:-40px;background:rgba(133,100,251,.26);filter:blur(150px)}
+.hero h1{font-size:clamp(30px,4.4vw,56px);font-weight:800;margin-bottom:12px;text-wrap:balance}
+.hero p{color:var(--sub);max-width:76ch;margin:0}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:18px}
+.hero .meta span{border:1px solid var(--border);background:rgba(27,31,60,.5);border-radius:999px;padding:6px 13px}
+
+/* блок "почему так" */
+.why{margin-top:14px;background:rgba(19,22,47,.62);border:1px solid var(--border);border-left:3px solid;
+  border-image:linear-gradient(180deg,#FC55A6,#8564FB) 1;border-radius:0 14px 14px 0;padding:12px 16px}
+.why b{display:block;font:700 11px/1 'Outfit',sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--orchid);margin-bottom:6px}
+.why p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+
+/* палитра */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.sw{border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;background:var(--surface);transition:transform .15s,border-color .15s}
+.sw:hover{transform:translateY(-2px);border-color:var(--glass-bd)}
+.sw .c{height:74px}
+.sw .i{padding:10px 13px}
+.sw .i b{display:block;font:600 12.5px var(--mono);color:var(--text)}
+.sw .i span{font:400 11.5px var(--mono);color:var(--muted)}
+.sw .i em{display:block;font:400 11px 'Inter',sans-serif;font-style:normal;color:var(--muted);margin-top:3px}
+
+/* типографика */
+.typo{display:flex;flex-direction:column;gap:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px}
+.typo .row{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+.typo .tag{flex:none;width:150px;font:600 11px var(--mono);color:var(--muted)}
+
+/* сетка и эффекты */
+.fx{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.fxcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.fxcard h4{margin:0 0 10px;font:600 15px 'Outfit',sans-serif}
+.fxcard p{margin:0;color:var(--muted);font-size:13px}
+.radii{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.radii i{width:52px;height:52px;background:var(--surface2);border:1px solid var(--glass-bd);display:grid;place-items:center;font:600 9.5px var(--mono);color:var(--muted);font-style:normal}
+.glassdemo{position:relative;height:104px;border-radius:16px;overflow:hidden;margin-top:12px;background:var(--grad-tr)}
+.glassdemo .g{position:absolute;inset:14px;background:rgba(19,22,47,.62);border:1px solid var(--glass-bd);border-radius:12px;backdrop-filter:blur(14px);display:grid;place-items:center;font:600 12px var(--mono);color:var(--sub)}
+.spin-demo{width:26px;height:26px;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;animation:spin .7s linear infinite;margin-top:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* стенд компонента */
+.comp{margin-top:34px;background:var(--surface);border:1px solid var(--border);border-radius:24px;overflow:hidden}
+.comp>.head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border)}
+.comp>.head h3{font:600 18px 'Outfit',sans-serif}
+.comp>.head .ref{font:600 11px var(--mono);color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 11px}
+.stage{padding:30px;display:flex;gap:22px;flex-wrap:wrap;align-items:center;justify-content:center;
+  background:radial-gradient(600px 300px at 20% 0%,rgba(252,85,166,.07),transparent),radial-gradient(600px 300px at 85% 100%,rgba(133,100,251,.09),transparent)}
+.comp .body{padding:0 22px 22px}
+
+/* код-табы */
+.codebox{background:#0b0e22;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:14px}
+.codebox .bar{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.codebox .bar .t{border:1px solid transparent;background:none;color:var(--muted);border-radius:8px;padding:6px 13px;font:700 12px var(--mono);cursor:pointer}
+.codebox .bar .t.on{background:var(--surface2);color:#fff;border-color:var(--glass-bd)}
+.codebox .bar .cp{margin-left:auto;border:1px solid var(--glass-bd);background:none;color:var(--muted);border-radius:8px;padding:6px 13px;font:700 12px 'Inter',sans-serif;cursor:pointer}
+.codebox .bar .cp:hover{color:#fff}
+.codebox .bar .cp.ok{color:var(--ok);border-color:rgba(92,209,128,.5)}
+.codebox pre{margin:0;padding:15px 17px;overflow:auto;max-height:420px;font:12.5px/1.65 var(--mono);background:transparent}
+.codebox code{background:transparent;padding:0}
+
+/* плейсхолдеры фото */
+.ph{border-radius:16px;display:grid;place-items:center;font:700 11px var(--mono);color:rgba(255,255,255,.75);letter-spacing:.12em;position:relative;overflow:hidden}
+.ph::after{content:"";position:absolute;inset:0;background:radial-gradient(90px 90px at 30% 25%,rgba(255,255,255,.16),transparent)}
+.ph.a{background:linear-gradient(160deg,#3b2a55 0%,#1d1f45 55%,#131737 100%)}
+.ph.b{background:linear-gradient(160deg,#552a4b 0%,#3b2358 60%,#1a1c40 100%)}
+
+/* ══ компоненты кита ══ */
+
+/* @btn */
+.btn{font:600 16.5px 'Outfit',sans-serif;border-radius:14px;padding:17px 34px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;color:var(--text);
+  transition:transform .15s,box-shadow .15s,border-color .15s,opacity .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.5;box-shadow:none;transform:none;cursor:default}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 12px 30px rgba(133,100,251,.45)}
+.btn-login{background:rgba(27,31,60,.75);border:1px solid var(--glass-bd)}
+.btn-login:hover{border-color:var(--pink)}
+.btn .sp{display:none;width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite}
+.btn.loading .sp{display:block}
+.btn.loading .txt{opacity:.55}
+/* @drop */
+.drop{width:min(420px,100%);border:1.5px dashed var(--glass-bd);border-radius:16px;background:rgba(19,22,47,.5);
+  padding:34px 22px;text-align:center;cursor:pointer;transition:border-color .15s,box-shadow .2s}
+.drop:hover{border-color:var(--orchid)}
+.drop.drag{border-color:var(--purple);box-shadow:inset 0 0 0 2px rgba(133,100,251,.55)}
+.drop .ic{width:46px;height:46px;margin:0 auto 12px;border-radius:14px;background:var(--grad-tr);display:grid;place-items:center;font-size:20px;box-shadow:0 10px 24px rgba(133,100,251,.4)}
+.drop b{display:block;font:600 15px 'Outfit',sans-serif}
+.drop span{font-size:12.5px;color:var(--muted)}
+.drop .prev{display:none;margin:14px auto 0;width:84px;height:84px}
+.drop.done{border-style:solid;border-color:rgba(92,209,128,.6)}
+.drop.done .prev{display:grid;animation:rz-pop .35s cubic-bezier(.2,.9,.25,1.2)}
+@keyframes rz-pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+/* @preset */
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(420px,100%)}
+.style-btn{position:relative;border:1px solid var(--border);background:rgba(27,31,60,.5);border-radius:14px;
+  padding:14px 15px;text-align:left;cursor:pointer;color:var(--sub);font:600 13.5px 'Inter',sans-serif;
+  transition:border-color .15s,background .15s,transform .15s}
+.style-btn:hover{transform:translateY(-1px);border-color:var(--glass-bd)}
+.style-btn small{display:block;font:400 11.5px 'Inter',sans-serif;color:var(--muted);margin-top:3px}
+.style-btn .dot{position:absolute;right:11px;top:11px;width:19px;height:19px;border-radius:50%;
+  border:1px solid var(--glass-bd);display:grid;place-items:center;font-size:10px;color:transparent;transition:all .15s}
+.style-btn.active{background:linear-gradient(90deg,rgba(252,85,166,.15),rgba(133,100,251,.15));border-color:var(--purple);color:#fff}
+.style-btn.active .dot{background:var(--grad);border-color:transparent;color:#fff}
+/* @ba */
+.ba{position:relative;width:min(360px,100%);aspect-ratio:1/1;border-radius:18px;overflow:hidden;
+  border:1px solid var(--glass-bd);--pos:55%;touch-action:none;user-select:none}
+.ba .lay{position:absolute;inset:0}
+.ba .ba-before{clip-path:inset(0 calc(100% - var(--pos)) 0 0);z-index:2}
+.ba .rail{position:absolute;top:0;bottom:0;left:var(--pos);width:2.5px;background:linear-gradient(180deg,var(--pink),var(--purple));z-index:3;transform:translateX(-50%)}
+.ba-knob{position:absolute;top:50%;left:var(--pos);transform:translate(-50%,-50%);z-index:4;
+  width:40px;height:40px;border-radius:50%;background:rgba(19,22,47,.72);border:1px solid var(--glass-bd);
+  backdrop-filter:blur(8px);display:grid;place-items:center;color:#fff;font-size:13px;cursor:ew-resize;
+  box-shadow:0 8px 22px rgba(3,2,12,.55)}
+.ba .tag{position:absolute;top:12px;z-index:5;font:700 10.5px var(--mono);letter-spacing:.1em;border-radius:999px;padding:5px 11px}
+.ba .tag.l{left:12px;background:rgba(19,22,47,.72);border:1px solid var(--glass-bd);backdrop-filter:blur(8px)}
+.ba .tag.r{right:12px;background:var(--grad);color:#fff}
+/* @panel */
+.app-win{width:min(560px,100%);background:rgba(19,22,47,.72);border:1px solid var(--glass-bd);border-radius:24px;
+  backdrop-filter:blur(20px);box-shadow:0 30px 60px rgba(3,2,12,.55);overflow:hidden}
+.app-win .wbar{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid var(--border)}
+.app-win .wbar i{width:11px;height:11px;border-radius:50%}
+.app-win .wbar i:nth-child(1){background:#ff6b6b}
+.app-win .wbar i:nth-child(2){background:var(--warn)}
+.app-win .wbar i:nth-child(3){background:var(--ok)}
+.app-win .url{flex:1;text-align:center;font:500 11.5px var(--mono);color:var(--muted);
+  background:rgba(27,31,60,.8);border:1px solid var(--border);border-radius:999px;padding:6px 14px}
+.app-win .win-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px}
+@media(max-width:640px){.app-win .win-body{grid-template-columns:1fr}}
+/* @toast */
+.toast{display:flex;align-items:center;gap:12px;background:rgba(19,22,47,.85);border:1px solid var(--glass-bd);
+  border-radius:16px;padding:13px 16px;backdrop-filter:blur(16px);box-shadow:0 18px 40px rgba(3,2,12,.55);
+  width:min(340px,100%);position:relative;overflow:hidden}
+.toast .tic{width:36px;height:36px;flex:none;border-radius:12px;background:var(--grad-tr);display:grid;place-items:center;font-size:16px}
+.toast b{display:block;font:600 14px 'Outfit',sans-serif}
+.toast span{font-size:12.5px;color:var(--muted)}
+.toast .bar{position:absolute;left:0;bottom:0;height:2.5px;background:var(--grad);width:100%;transform-origin:left}
+.toast.show .bar{animation:rz-toastbar 3s linear forwards}
+@keyframes rz-toastbar{to{transform:scaleX(0)}}
+.toast{opacity:0;transform:translateY(-16px) scale(.97);transition:all .3s cubic-bezier(.2,.9,.25,1.2)}
+.toast.show{opacity:1;transform:none}
+/* @modal */
+.tmodal{width:min(520px,100%);background:rgba(19,22,47,.85);border:1px solid var(--glass-bd);border-radius:24px;
+  backdrop-filter:blur(20px);box-shadow:0 30px 60px rgba(3,2,12,.55);padding:20px;position:relative}
+.tmodal.shake{animation:rz-shake .38s}
+@keyframes rz-shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.tmodal .x{position:absolute;right:14px;top:14px;width:32px;height:32px;border-radius:10px;border:1px solid var(--border);
+  background:rgba(27,31,60,.6);color:var(--muted);cursor:pointer;font-size:13px;transition:color .15s,opacity .15s}
+.tmodal .x:hover{color:#fff}
+.tmodal.busy .x{opacity:.35;cursor:not-allowed}
+.tmodal h4{font:600 17px 'Outfit',sans-serif;margin:0 0 14px;padding-right:40px}
+.tmodal .pair{display:grid;grid-template-columns:1fr 34px 1fr;gap:8px;align-items:center}
+.tmodal .pair .arrow{text-align:center;font-size:17px;color:var(--orchid)}
+.tmodal .pair .drop{padding:0;border-radius:14px;aspect-ratio:1/1;display:grid;place-items:center}
+.tmodal .pair .ph{aspect-ratio:1/1}
+.tmodal .foot{margin-top:16px}
+.tmodal .foot .btn{width:100%;justify-content:center;padding:15px}
+.tmodal .lockhint{display:none;text-align:center;font-size:12px;color:var(--warn);margin-top:10px}
+.tmodal.busy .lockhint{display:block}
+/* @history */
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;width:min(520px,100%)}
+.hcard{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);aspect-ratio:1/1;cursor:pointer}
+.hcard .ph{position:absolute;inset:0;border-radius:0;transition:filter 1.1s ease,transform 1.1s ease}
+.hcard.gen .ph{filter:blur(16px);transform:scale(1.06)}
+.hcard .st{position:absolute;left:10px;bottom:10px;z-index:3;font:700 10px var(--mono);letter-spacing:.08em;
+  border-radius:999px;padding:5px 10px;background:rgba(19,22,47,.72);border:1px solid var(--glass-bd);backdrop-filter:blur(8px)}
+.hcard.gen .st{color:var(--warn)}
+.hcard.done .st{color:var(--ok)}
+.hcard.fail .ph{filter:blur(16px) saturate(.4)}
+.hcard.fail .st{color:var(--err)}
+.hcard .spn{position:absolute;right:10px;top:10px;z-index:3;width:20px;height:20px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .7s linear infinite;display:none}
+.hcard.gen .spn{display:block}
+/* @loader */
+.genload{position:relative;width:min(360px,100%);aspect-ratio:1/1;border-radius:18px;overflow:hidden;border:1px solid var(--glass-bd)}
+.genload .ph{position:absolute;inset:0;border-radius:0;filter:blur(18px);transform:scale(1.08)}
+.genload .glass{position:absolute;inset:0;display:grid;place-items:center;background:rgba(9,11,30,.35)}
+.genload .card{background:rgba(19,22,47,.78);border:1px solid var(--glass-bd);border-radius:18px;backdrop-filter:blur(14px);
+  padding:20px 24px;text-align:center;width:78%;box-shadow:0 18px 44px rgba(3,2,12,.5)}
+.genload .card b{display:block;font:600 15px 'Outfit',sans-serif;margin-top:12px}
+.genload .card span{font-size:12px;color:var(--muted)}
+.genload .track{height:6px;border-radius:999px;background:rgba(43,48,87,.8);margin-top:14px;overflow:hidden}
+.genload .fill{height:100%;width:0%;border-radius:999px;background:var(--grad);transition:width .4s ease}
+.genload .spinbig{width:34px;height:34px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;animation:spin .7s linear infinite}
+
+/* мобильная секция */
+.mobrow{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.phone{width:300px;flex:none;background:#05060f;border:1px solid var(--glass-bd);border-radius:36px;padding:12px;box-shadow:0 30px 60px rgba(3,2,12,.55)}
+.phone .notch{width:110px;height:22px;background:#05060f;border-radius:0 0 14px 14px;margin:0 auto 8px}
+.phone .scr{position:relative;background:var(--bg);border-radius:24px;overflow:hidden;height:540px;display:flex;flex-direction:column}
+.phone .scr .appbar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)}
+.phone .scr .appbar b{font:700 14px 'Outfit',sans-serif}
+.phone .scr .appbar .tok{font:600 11px var(--mono);color:var(--sub);border:1px solid var(--border);border-radius:999px;padding:4px 9px}
+.phone .scr .cont{flex:1;overflow:auto;padding:12px}
+.phone .scr .cont::-webkit-scrollbar{display:none}
+.phone .tabbar{display:flex;border-top:1px solid var(--border);background:rgba(19,22,47,.85);backdrop-filter:blur(10px)}
+.phone .tabbar b{flex:1;text-align:center;padding:10px 0 12px;font:600 10px 'Inter',sans-serif;color:var(--muted);cursor:pointer}
+.phone .tabbar b.on{color:transparent;background:var(--grad);-webkit-background-clip:text;background-clip:text}
+.phone .mtoast{position:absolute;left:10px;right:10px;top:10px;z-index:20}
+.phone .mtoast .toast{width:100%}
+.phone .sheet{position:absolute;left:0;right:0;bottom:0;z-index:15;background:rgba(19,22,47,.96);border-top:1px solid var(--glass-bd);
+  border-radius:22px 22px 0 0;padding:10px 16px 18px;transform:translateY(102%);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+.phone .sheet.open{transform:none}
+.phone .sheet .grip{width:44px;height:4.5px;border-radius:999px;background:var(--glass-bd);margin:2px auto 12px}
+.phone .sheet h5{margin:0 0 10px;font:600 15px 'Outfit',sans-serif}
+.mobnote{flex:1;min-width:260px}
+.mobnote .why{margin-top:18px}
+
+/* адаптив страницы */
+@media(max-width:900px){
+  .stage{padding:22px 16px}
+  .tmodal .pair{grid-template-columns:1fr 24px 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="top-in">
+  <b>Lovix · внутренняя документация</b>
+  <nav><a href="index.html">Токеномика</a><a href="metrics.html">Метрики</a><a href="events.html">События</a><a href="scenarios.html">Сценарии</a><a href="locale-detection.html">Локаль</a><a href="support.html">Саппорт</a><div class="dd"><button class="dd-btn cur" type="button">Продукты <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="razdevator.html">Раздеватор · флоу</a><a class="cur" href="razdevator-ui.html">Раздеватор · UI-кит</a></div></div></div><div class="dd"><button class="dd-btn" type="button">Админка <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="admin-content.html">Спека модуля</a><a href="admin-demo.html">Демо функционала</a></div></div></div><div class="dd"><button class="dd-btn" type="button">Рассылки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><a href="notifications-ui.html">UI нотификаций</a></div></div></div></nav>
+</div></div>
+
+<div class="wrap">
+
+<div class="hero">
+  <h1>Razdevator.hot <span class="grad-text">дизайн-система</span></h1>
+  <p>Токены, типографика и живые компоненты продукта. Тема: тёмный фон, стеклянные поверхности, розово-фиолетовый градиент. Каждый компонент можно потрогать, забрать код в табах ниже и прочитать, почему он сделан именно так. Флоу продукта описан в спеке: <a href="razdevator.html">Раздеватор · флоу</a>.</p>
+  <div class="meta">
+    <span>тёмная тема + glassmorphism</span>
+    <span>акцент #FC55A6 → #8564FB</span>
+    <span>Outfit + Inter</span>
+    <span>html / css / js, без фреймворков</span>
+  </div>
+</div>
+
+<!-- ══ палитра ══ -->
+<section id="palette">
+  <h2>Палитра</h2>
+  <p class="sub">Клик по карточке копирует значение. Все цвета объявлены в :root, компоненты используют только переменные.</p>
+  <div class="swatches" id="swatches"></div>
+  <div class="why"><b>Почему так</b><p>Фон почти чёрный с синим подтоном, а не чистый чёрный: на нём стекло и цветные тени читаются мягче. Акцент один, это градиент розовый→фиолетовый. Все остальные цвета приглушённые, чтобы акцент всегда был главным на экране и вёл пользователя к кнопке действия.</p></div>
+</section>
+
+<!-- ══ типографика ══ -->
+<section id="typo">
+  <h2>Типографика</h2>
+  <p class="sub">Outfit для заголовков и кнопок, Inter для текста. Заголовки плотные: line-height 1.1, letter-spacing -0.02em.</p>
+  <div class="typo">
+    <div class="row"><span class="tag">H1 · Outfit 800</span><span style="font:800 clamp(30px,4.4vw,56px)/1.1 'Outfit',sans-serif;letter-spacing:-.02em">Раздень фото <span class="grad-text">за минуту</span></span></div>
+    <div class="row"><span class="tag">H2 · Outfit 800</span><span style="font:800 clamp(26px,4vw,44px)/1.1 'Outfit',sans-serif;letter-spacing:-.02em">Как это работает</span></div>
+    <div class="row"><span class="tag">H3 · Outfit 600</span><span style="font:600 19px/1.2 'Outfit',sans-serif">Заголовок карточки</span></div>
+    <div class="row"><span class="tag">Текст · Inter 400</span><span style="color:var(--sub);max-width:52ch">Основной текст 16px с межстрочным 1.6. Спокойный, читается на тёмном без напряжения.</span></div>
+    <div class="row"><span class="tag">Подпись · Inter 500</span><span style="font:500 12.5px 'Inter',sans-serif;color:var(--muted)">Подписи и мелкие пояснения, 12-14px</span></div>
+  </div>
+  <div class="why"><b>Почему так</b><p>Два шрифта, не больше. Outfit круглый и жирный, он даёт характер заголовкам и кнопкам. Inter нейтральный, им набран весь текст. Размеры заголовков через clamp: на телефоне не разваливаются, на десктопе не мельчат.</p></div>
+</section>
+
+<!-- ══ сетка и эффекты ══ -->
+<section id="fx">
+  <h2>Сетка, радиусы, эффекты</h2>
+  <p class="sub">Три вещи, которые делают тему узнаваемой: стекло, блобы и цветные тени.</p>
+  <div class="fx">
+    <div class="fxcard"><h4>Отступы</h4><p>Поля страницы: 100px, на планшете 48px, на телефоне 16px. Вертикальный ритм секций: clamp(56px, 8vw, 104px).</p></div>
+    <div class="fxcard"><h4>Радиусы</h4><p>Кнопки 14, карточки 20-22, панели 24, пилюли 999.</p>
+      <div class="radii"><i style="border-radius:14px">14</i><i style="border-radius:20px">20</i><i style="border-radius:24px">24</i><i style="border-radius:999px">999</i></div></div>
+    <div class="fxcard"><h4>Стекло</h4><p>rgba-фон + blur(16-20px) + светлая граница. Рецепт на живом примере:</p>
+      <div class="glassdemo"><div class="g">rgba(19,22,47,.62) + blur(20px)</div></div></div>
+    <div class="fxcard"><h4>Тени и спиннер</h4><p>CTA светится фиолетовым: 0 12px 30px rgba(133,100,251,.45). Панели тонут в тёмной тени. Спиннер: поворот за 0.7s.</p><div class="spin-demo"></div></div>
+  </div>
+  <div class="why"><b>Почему так</b><p>Глубина собирается из прозрачности и размытия, а не из картинок. Это быстро грузится и одинаково выглядит на любом экране. Цветная тень под главной кнопкой работает как подсветка: взгляд сам падает на действие.</p></div>
+</section>
+
+<!-- ══ компоненты ══ -->
+<section id="components">
+  <h2>Компоненты</h2>
+  <p class="sub">Каждый стенд живой. Ниже стенда: почему так и код в табах HTML / CSS / JS. Компоненты привязаны к правилам из спеки флоу, ссылка на правило в шапке стенда.</p>
+
+  <!-- кнопки -->
+  <div class="comp" data-comp="btn">
+    <div class="head"><h3>Кнопки</h3><span class="ref">база</span></div>
+    <div class="stage">
+      <button class="btn btn-grad" id="btnLoad"><span class="sp"></span><span class="txt">Сгенерировать · 30 токенов</span></button>
+      <button class="btn btn-login">Войти</button>
+      <button class="btn btn-grad" disabled>Недоступно</button>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Главная кнопка всегда с градиентом и цветной тенью, на странице она такая одна. Вторичная стеклянная, чтобы не спорить с главной. Цена написана прямо на кнопке: пользователь видит стоимость в момент решения, а не ищет её по экрану. Клик по главной показывает состояние загрузки со спиннером, кнопка блокируется от повторных нажатий.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- дропзона -->
+  <div class="comp" data-comp="drop">
+    <div class="head"><h3>Дропзона загрузки</h3><span class="ref">Ф1 · К1</span></div>
+    <div class="stage">
+      <div class="drop" id="drop">
+        <div class="ic">📸</div>
+        <b>Перетащи фото сюда</b>
+        <span>или нажми, чтобы выбрать. JPG, PNG до 15 МБ</span>
+        <div class="prev ph b">ФОТО</div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Пунктирная рамка читается как «сюда можно бросить файл» без слов. При наведении рамка подсвечивается, при перетаскивании появляется внутренняя подсветка: пользователь всегда понимает, что зона активна. После загрузки рамка становится сплошной и зелёной, внутри появляется превью. Это главный вход в продукт, поэтому зона крупная и стоит первой.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- пресеты -->
+  <div class="comp" data-comp="preset">
+    <div class="head"><h3>Топ-4 темплейта</h3><span class="ref">С1 · С2</span></div>
+    <div class="stage">
+      <div class="presets" id="presets">
+        <button class="style-btn active">Классика<small>самый популярный</small><span class="dot">✓</span></button>
+        <button class="style-btn">Бикини<small>пляжный сет</small><span class="dot">✓</span></button>
+        <button class="style-btn">Кружево<small>вечерний сет</small><span class="dot">✓</span></button>
+        <button class="style-btn">Спорт<small>фитнес сет</small><span class="dot">✓</span></button>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>В форме загрузки стоят четыре самых сильных темплейта, по спеке это быстрый старт без похода в каталог. Активный вариант получает градиентную подложку и галочку: выбор виден с одного взгляда даже на телефоне. Сетка 2×2 помещается рядом с дропзоной и не превращается в длинный список.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- до/после -->
+  <div class="comp" data-comp="ba">
+    <div class="head"><h3>Слайдер до / после</h3><span class="ref">К1</span></div>
+    <div class="stage">
+      <div class="ba" id="ba">
+        <div class="lay ph a">РЕЗУЛЬТАТ</div>
+        <div class="lay ph b ba-before">ИСХОДНИК</div>
+        <div class="rail"></div>
+        <div class="ba-knob">⇄</div>
+        <span class="tag l">ДО</span><span class="tag r">ПОСЛЕ</span>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Сравнение «до и после» продаёт лучше любого текста. Ручка тянется мышью и пальцем, стартовая позиция сдвинута к «после», чтобы результат был виден сразу. Обрезка через clip-path, поэтому слои не съезжают и картинка не искажается при любой ширине.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- панель и окно -->
+  <div class="comp" data-comp="panel">
+    <div class="head"><h3>Стеклянная панель · окно-превью</h3><span class="ref">база</span></div>
+    <div class="stage">
+      <div class="app-win">
+        <div class="wbar"><i></i><i></i><i></i><span class="url">razdevator.hot</span></div>
+        <div class="win-body">
+          <div class="ph a" style="aspect-ratio:1/1">ФОТО</div>
+          <div class="ph b" style="aspect-ratio:1/1">РЕЗУЛЬТАТ</div>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Окно с «светофором» и адресной строкой мгновенно считывается как продукт в работе, это дешёвый способ показать интерфейс внутри лендинга. Стекло с blur(20px) и глубокой тенью отделяет окно от фона без рамок и линий.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- тост -->
+  <div class="comp" data-comp="toast">
+    <div class="head"><h3>Тост «Генерация началась»</h3><span class="ref">К4</span></div>
+    <div class="stage" style="flex-direction:column">
+      <button class="btn btn-login" id="toastBtn">Показать тост</button>
+      <div class="toast" id="toast">
+        <div class="tic">✨</div>
+        <div><b>Генерация началась</b><span>результат появится в истории</span></div>
+        <div class="bar"></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>По спеке после старта из каталога пользователь остаётся в каталоге и может запускать дальше. Тост подтверждает запуск и не выдёргивает его на другую страницу. Полоска внизу показывает, что тост закроется сам, и подсказывает куда смотреть: результат будет в истории.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- модалка -->
+  <div class="comp" data-comp="modal">
+    <div class="head"><h3>Модалка шаблона</h3><span class="ref">К1 · К2 · К3</span></div>
+    <div class="stage">
+      <div class="tmodal" id="tmodal">
+        <button class="x" id="tmx">✕</button>
+        <h4>Темплейт «Классика»</h4>
+        <div class="pair">
+          <div class="drop" style="min-height:0"><div class="ph b" style="aspect-ratio:1/1;border-radius:12px">ПРИМЕР</div></div>
+          <div class="arrow">→</div>
+          <div class="ph a">РЕЗУЛЬТАТ</div>
+        </div>
+        <div class="foot">
+          <button class="btn btn-grad" id="tmgo"><span class="sp"></span><span class="txt">Сгенерировать · 30 токенов</span></button>
+          <div class="lockhint">Запускаем. Модалка закроется сама после старта</div>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Слева пример исходника в такой же дропзоне, справа результат, стрелка объясняет процесс без единого слова. Своё фото кидается в тот же блок, где стоит пример. Пока идёт запуск, крестик и клик мимо не работают, попытка закрыть даёт лёгкую тряску: так пользователь не бросит запуск на полпути и не потеряет токены. Модалка закрывается сама после подтверждения старта, дальше работает тост.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- история -->
+  <div class="comp" data-comp="history">
+    <div class="head"><h3>Карточки истории</h3><span class="ref">Ф6 · Ф8</span></div>
+    <div class="stage" style="flex-direction:column">
+      <div class="hist">
+        <div class="hcard gen" id="hc1"><div class="ph a">ФОТО</div><div class="spn"></div><span class="st">ГЕНЕРИТСЯ</span></div>
+        <div class="hcard done"><div class="ph b">ФОТО</div><span class="st">ГОТОВО</span></div>
+        <div class="hcard fail"><div class="ph a">ФОТО</div><span class="st">НЕ ПОЛУЧИЛОСЬ · ТОКЕНЫ ВЕРНУЛИСЬ</span></div>
+      </div>
+      <button class="btn btn-login" id="histBtn">Завершить генерацию</button>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Пока генерация идёт, фото лежит под блюром со спиннером: видно, что работа идёт, но результат скрыт до готовности. Когда генерация завершается, блюр плавно уходит за секунду, это момент «вау» прямо в истории. Фейл показываем честно: плашка «не получилось, токены вернулись» и никакой кнопки повтора, по правилу Ф8.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+
+  <!-- лоадер -->
+  <div class="comp" data-comp="loader">
+    <div class="head"><h3>Лоадер генерации</h3><span class="ref">Ф5</span></div>
+    <div class="stage">
+      <div class="genload" id="genload">
+        <div class="ph b">ФОТО</div>
+        <div class="glass">
+          <div class="card">
+            <div class="spinbig"></div>
+            <b>Генерируем</b>
+            <span id="genpct">0%</span>
+            <div class="track"><div class="fill" id="genfill"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="why"><b>Почему так</b><p>Отдельная страница генерации по спеке: исходник лежит под сильным блюром, поверх стеклянная карточка с прогрессом. Блюр создаёт интригу и одновременно прячет фото от чужих глаз, если экран кто-то видит. Прогресс с процентами снижает тревогу ожидания: видно, что процесс движется.</p></div>
+      <div class="codebox"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ мобильная версия ══ -->
+<section id="mobile">
+  <h2>Мобильная версия</h2>
+  <p class="sub">Та же система на телефоне. Потрогай: тост сверху, модалка превращается в шторку снизу, история в две колонки.</p>
+  <div class="mobrow">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="scr">
+        <div class="mtoast"><div class="toast" id="mtoast"><div class="tic">✨</div><div><b>Генерация началась</b><span>смотри в истории</span></div><div class="bar"></div></div></div>
+        <div class="appbar"><b class="grad-text">razdevator</b><span class="tok">⚡ 120</span></div>
+        <div class="cont">
+          <div class="drop" id="mdrop" style="padding:22px 14px;width:100%">
+            <div class="ic" style="width:38px;height:38px;font-size:16px">📸</div>
+            <b style="font-size:13.5px">Перетащи фото</b>
+            <span style="font-size:11px">или нажми, чтобы выбрать</span>
+          </div>
+          <div style="height:12px"></div>
+          <div class="presets" style="width:100%">
+            <button class="style-btn" style="padding:10px 11px;font-size:12px">Классика<span class="dot">✓</span></button>
+            <button class="style-btn active" style="padding:10px 11px;font-size:12px">Бикини<span class="dot">✓</span></button>
+          </div>
+          <div style="height:12px"></div>
+          <div class="hist" style="grid-template-columns:1fr 1fr;width:100%">
+            <div class="hcard gen"><div class="ph a">ФОТО</div><div class="spn"></div><span class="st">ГЕНЕРИТСЯ</span></div>
+            <div class="hcard done"><div class="ph b">ФОТО</div><span class="st">ГОТОВО</span></div>
+          </div>
+          <div style="height:12px"></div>
+          <button class="btn btn-grad" id="msheetBtn" style="width:100%;justify-content:center;padding:13px;font-size:14px">Открыть шаблон</button>
+          <div style="height:8px"></div>
+        </div>
+        <div class="tabbar"><b class="on">Фото</b><b>Видео</b><b>Баланс</b><b>Профиль</b></div>
+        <div class="sheet" id="msheet">
+          <div class="grip"></div>
+          <h5>Темплейт «Бикини»</h5>
+          <div class="pair" style="display:grid;grid-template-columns:1fr 24px 1fr;gap:8px;align-items:center">
+            <div class="ph b" style="aspect-ratio:1/1">ПРИМЕР</div>
+            <div style="text-align:center;color:var(--orchid)">→</div>
+            <div class="ph a" style="aspect-ratio:1/1">РЕЗУЛЬТАТ</div>
+          </div>
+          <div style="height:12px"></div>
+          <button class="btn btn-grad" id="msheetGo" style="width:100%;justify-content:center;padding:13px;font-size:14px"><span class="sp"></span><span class="txt">Сгенерировать · 30 токенов</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="mobnote">
+      <div class="why"><b>Почему так</b><p>Нижний таб-бар повторяет четыре раздела сайдбара из спеки: Фото, Видео, Баланс, Профиль. До каждого раздела один тап большим пальцем.</p></div>
+      <div class="why"><b>Почему так</b><p>Модалка шаблона на телефоне живёт как шторка снизу: до кнопки запуска легко дотянуться, а свайп вниз для закрытия привычен по другим приложениям. Во время запуска шторка так же блокируется, правило К3 работает на всех экранах.</p></div>
+      <div class="why"><b>Почему так</b><p>Тост падает сверху под вырез и не перекрывает кнопку запуска. История в две колонки: тумбы остаются крупными, ленту не нужно листать долго.</p></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+<script>
+(function () {
+  /* ── палитра ── */
+  var TOKENS = [
+    ['--bg', '#090B1E', 'фон страницы'], ['--surface', '#13162F', 'карточки 1 уровня'],
+    ['--surface2', '#1B1F3C', 'кнопки, чипы'], ['--border', '#2B3057', 'базовые границы'],
+    ['--glass-bd', '#3A3F6B', 'границы стекла'], ['--text', '#ECEDFB', 'основной текст'],
+    ['--muted', '#9A9CC6', 'приглушённый текст'], ['--sub', '#C3C4E4', 'текст средней важности'],
+    ['--pink', '#FC55A6', 'акцент 1'], ['--purple', '#8564FB', 'акцент 2'],
+    ['--orchid', '#C77DFF', 'иконки, детали'], ['--ok', '#5cd180', 'успех, онлайн'],
+    ['--warn', '#ffc85c', 'предупреждение'], ['--err', '#ff8a9c', 'ошибка'],
+    ['--grad', 'linear-gradient(90deg,#FC55A6,#8564FB)', 'кнопки, текст'],
+    ['--grad-tr', 'linear-gradient(135deg,#FC55A6,#8564FB)', 'иконки-плитки'],
+    ['glass', 'rgba(19,22,47,.72) + blur', 'панель, окно'],
+    ['glass-btn', 'rgba(27,31,60,.75) + blur', 'кнопка, чип']
+  ];
+  var sw = document.getElementById('swatches');
+  TOKENS.forEach(function (t) {
+    var d = document.createElement('div');
+    d.className = 'sw';
+    var bg = t[1].indexOf('rgba') === 0 ? 'linear-gradient(135deg,' + t[1].split(' +')[0] + ',rgba(27,31,60,.9))' : t[1];
+    d.innerHTML = '<div class="c" style="background:' + bg + '"></div>' +
+      '<div class="i"><b>' + t[0] + '</b><span>' + t[1].replace('linear-gradient', 'grad') + '</span><em>' + t[2] + '</em></div>';
+    d.onclick = function () {
+      navigator.clipboard.writeText(t[1]);
+      var b = d.querySelector('b'), old = b.textContent;
+      b.textContent = 'скопировано ✓';
+      setTimeout(function () { b.textContent = old; }, 900);
+    };
+    sw.appendChild(d);
+  });
+
+  /* ── сниппеты ── */
+  var css = document.querySelector('style').textContent;
+  function cssSlice(mark) {
+    var i = css.indexOf('/* @' + mark + ' */');
+    if (i < 0) return '';
+    var j = css.indexOf('/* @', i + 4);
+    return css.slice(i, j < 0 ? undefined : j).trim();
+  }
+  var SNIPPETS = {
+    btn: {
+      html: '<button class="btn btn-grad">\n  <span class="sp"></span>\n  <span class="txt">Сгенерировать · 30 токенов</span>\n</button>\n<button class="btn btn-login">Войти</button>',
+      js: "btn.addEventListener('click', function () {\n  if (btn.classList.contains('loading')) return;\n  btn.classList.add('loading');   // спиннер + блок повторного клика\n  startGeneration().finally(function () {\n    btn.classList.remove('loading');\n  });\n});"
+    },
+    drop: {
+      html: '<div class="drop" id="drop">\n  <div class="ic">📸</div>\n  <b>Перетащи фото сюда</b>\n  <span>или нажми, чтобы выбрать. JPG, PNG до 15 МБ</span>\n  <div class="prev"><!-- превью после загрузки --></div>\n</div>',
+      js: "['dragenter','dragover'].forEach(function (e) {\n  drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add('drag'); });\n});\n['dragleave','drop'].forEach(function (e) {\n  drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove('drag'); });\n});\ndrop.addEventListener('drop', function (ev) {\n  var f = ev.dataTransfer.files[0];\n  if (f) { showPreview(f); drop.classList.add('done'); }\n});"
+    },
+    preset: {
+      html: '<div class="presets">\n  <button class="style-btn active">Классика<small>самый популярный</small><span class="dot">✓</span></button>\n  <button class="style-btn">Бикини<small>пляжный сет</small><span class="dot">✓</span></button>\n</div>',
+      js: "presets.addEventListener('click', function (e) {\n  var b = e.target.closest('.style-btn');\n  if (!b) return;\n  presets.querySelectorAll('.style-btn').forEach(function (x) { x.classList.remove('active'); });\n  b.classList.add('active');\n});"
+    },
+    ba: {
+      html: '<div class="ba" style="--pos:55%">\n  <div class="lay">…фото ПОСЛЕ…</div>\n  <div class="lay ba-before">…фото ДО…</div>\n  <div class="rail"></div>\n  <div class="ba-knob">⇄</div>\n  <span class="tag l">ДО</span><span class="tag r">ПОСЛЕ</span>\n</div>',
+      js: "function setPos(clientX) {\n  var r = ba.getBoundingClientRect();\n  var p = Math.min(96, Math.max(4, (clientX - r.left) / r.width * 100));\n  ba.style.setProperty('--pos', p + '%');\n}\nba.addEventListener('pointerdown', function (e) {\n  setPos(e.clientX);\n  ba.setPointerCapture(e.pointerId);\n  ba.onpointermove = function (ev) { setPos(ev.clientX); };\n});\nba.addEventListener('pointerup', function () { ba.onpointermove = null; });"
+    },
+    panel: {
+      html: '<div class="app-win">\n  <div class="wbar"><i></i><i></i><i></i><span class="url">razdevator.hot</span></div>\n  <div class="win-body">…контент…</div>\n</div>',
+      js: '// без JS: чистый CSS'
+    },
+    toast: {
+      html: '<div class="toast" id="toast">\n  <div class="tic">✨</div>\n  <div><b>Генерация началась</b><span>результат появится в истории</span></div>\n  <div class="bar"></div>\n</div>',
+      js: "function showToast() {\n  toast.classList.remove('show');\n  void toast.offsetWidth;        // перезапуск анимации\n  toast.classList.add('show');\n  clearTimeout(toast._t);\n  toast._t = setTimeout(function () { toast.classList.remove('show'); }, 3000);\n}"
+    },
+    modal: {
+      html: '<div class="tmodal">\n  <button class="x">✕</button>\n  <h4>Темплейт «Классика»</h4>\n  <div class="pair">\n    <div class="drop">…пример в дропзоне…</div>\n    <div class="arrow">→</div>\n    <div>…результат…</div>\n  </div>\n  <div class="foot">\n    <button class="btn btn-grad"><span class="sp"></span><span class="txt">Сгенерировать · 30 токенов</span></button>\n    <div class="lockhint">Запускаем. Модалка закроется сама после старта</div>\n  </div>\n</div>',
+      js: "go.addEventListener('click', function () {\n  modal.classList.add('busy');      // К3: закрытие заблокировано\n  go.classList.add('loading');\n  api.startGeneration().then(function () {\n    closeModal();                   // К4: закрылась сама\n    showToast();                    // тост «Генерация началась»\n  });\n});\ncloseBtn.addEventListener('click', function () {\n  if (modal.classList.contains('busy')) {\n    modal.classList.add('shake');   // нельзя закрыть: подсказываем тряской\n    setTimeout(function () { modal.classList.remove('shake'); }, 400);\n    return;\n  }\n  closeModal();\n});"
+    },
+    history: {
+      html: '<div class="hist">\n  <div class="hcard gen"><img …>\n    <div class="spn"></div><span class="st">ГЕНЕРИТСЯ</span></div>\n  <div class="hcard done"><img …><span class="st">ГОТОВО</span></div>\n  <div class="hcard fail"><img …>\n    <span class="st">НЕ ПОЛУЧИЛОСЬ · ТОКЕНЫ ВЕРНУЛИСЬ</span></div>\n</div>',
+      js: "// генерация завершилась: карточка проявляется\nfunction finish(card, ok) {\n  card.classList.remove('gen');\n  card.classList.add(ok ? 'done' : 'fail');\n  card.querySelector('.st').textContent = ok\n    ? 'ГОТОВО'\n    : 'НЕ ПОЛУЧИЛОСЬ · ТОКЕНЫ ВЕРНУЛИСЬ';\n  // blur снимает CSS-transition за 1.1s, JS только меняет класс\n}"
+    },
+    loader: {
+      html: '<div class="genload">\n  <img class="src" …>  <!-- исходник под блюром -->\n  <div class="glass">\n    <div class="card">\n      <div class="spinbig"></div>\n      <b>Генерируем</b><span id="pct">0%</span>\n      <div class="track"><div class="fill"></div></div>\n    </div>\n  </div>\n</div>',
+      js: "function tick(p) {\n  fill.style.width = p + '%';\n  pct.textContent = Math.round(p) + '%';\n}\n// прогресс с сервера или плавная имитация до 90%,\n// добивка до 100% по факту готовности"
+    }
+  };
+
+  document.querySelectorAll('.comp').forEach(function (comp) {
+    var key = comp.dataset.comp;
+    var box = comp.querySelector('.codebox');
+    var tabs = { HTML: SNIPPETS[key].html, CSS: cssSlice(key), JS: SNIPPETS[key].js };
+    var cur = 'HTML';
+    box.innerHTML = '<div class="bar"></div><pre><code></code></pre>';
+    var bar = box.querySelector('.bar'), code = box.querySelector('code');
+    Object.keys(tabs).forEach(function (name) {
+      var b = document.createElement('button');
+      b.className = 't' + (name === cur ? ' on' : '');
+      b.textContent = name;
+      b.onclick = function () {
+        cur = name;
+        bar.querySelectorAll('.t').forEach(function (x) { x.classList.toggle('on', x === b); });
+        render();
+      };
+      bar.appendChild(b);
+    });
+    var cp = document.createElement('button');
+    cp.className = 'cp';
+    cp.textContent = 'Копировать';
+    cp.onclick = function () {
+      navigator.clipboard.writeText(tabs[cur]).then(function () {
+        cp.textContent = 'Скопировано ✓'; cp.classList.add('ok');
+        setTimeout(function () { cp.textContent = 'Копировать'; cp.classList.remove('ok'); }, 1300);
+      });
+    };
+    bar.appendChild(cp);
+    function render() {
+      code.className = 'language-' + (cur === 'HTML' ? 'xml' : cur.toLowerCase());
+      code.textContent = tabs[cur];
+      if (window.hljs) { code.removeAttribute('data-highlighted'); hljs.highlightElement(code); }
+    }
+    render();
+  });
+
+  /* ── живые демо ── */
+  var btnLoad = document.getElementById('btnLoad');
+  btnLoad.addEventListener('click', function () {
+    if (btnLoad.classList.contains('loading')) return;
+    btnLoad.classList.add('loading');
+    setTimeout(function () { btnLoad.classList.remove('loading'); }, 1600);
+  });
+
+  var drop = document.getElementById('drop');
+  ['dragenter', 'dragover'].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add('drag'); });
+  });
+  ['dragleave', 'drop'].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove('drag'); });
+  });
+  function dropDone() { drop.classList.toggle('done'); }
+  drop.addEventListener('drop', function () { drop.classList.add('done'); });
+  drop.addEventListener('click', dropDone);
+
+  var presets = document.getElementById('presets');
+  presets.addEventListener('click', function (e) {
+    var b = e.target.closest('.style-btn');
+    if (!b) return;
+    presets.querySelectorAll('.style-btn').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+  });
+
+  var ba = document.getElementById('ba');
+  function baPos(x) {
+    var r = ba.getBoundingClientRect();
+    var p = Math.min(96, Math.max(4, (x - r.left) / r.width * 100));
+    ba.style.setProperty('--pos', p + '%');
+  }
+  ba.addEventListener('pointerdown', function (e) {
+    baPos(e.clientX);
+    try { ba.setPointerCapture(e.pointerId); } catch (_) {}
+    ba.onpointermove = function (ev) { baPos(ev.clientX); };
+  });
+  ['pointerup', 'pointercancel'].forEach(function (e) {
+    ba.addEventListener(e, function () { ba.onpointermove = null; });
+  });
+
+  function fireToast(el) {
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 3000);
+  }
+  document.getElementById('toastBtn').addEventListener('click', function () {
+    fireToast(document.getElementById('toast'));
+  });
+
+  var tmodal = document.getElementById('tmodal');
+  var tmgo = document.getElementById('tmgo');
+  var tmx = document.getElementById('tmx');
+  tmgo.addEventListener('click', function () {
+    if (tmodal.classList.contains('busy')) return;
+    tmodal.classList.add('busy');
+    tmgo.classList.add('loading');
+    setTimeout(function () {
+      tmodal.classList.remove('busy');
+      tmgo.classList.remove('loading');
+      tmodal.style.opacity = '0';
+      tmodal.style.transform = 'scale(.96)';
+      tmodal.style.transition = 'all .25s';
+      fireToast(document.getElementById('toast'));
+      setTimeout(function () {
+        tmodal.style.opacity = '';
+        tmodal.style.transform = '';
+      }, 1400);
+    }, 1800);
+  });
+  tmx.addEventListener('click', function () {
+    if (!tmodal.classList.contains('busy')) return;
+    tmodal.classList.remove('shake');
+    void tmodal.offsetWidth;
+    tmodal.classList.add('shake');
+  });
+
+  var hc1 = document.getElementById('hc1');
+  var histBtn = document.getElementById('histBtn');
+  var histDone = false;
+  histBtn.addEventListener('click', function () {
+    histDone = !histDone;
+    hc1.classList.toggle('gen', !histDone);
+    hc1.classList.toggle('done', histDone);
+    hc1.querySelector('.st').textContent = histDone ? 'ГОТОВО' : 'ГЕНЕРИТСЯ';
+    histBtn.textContent = histDone ? 'Вернуть в генерацию' : 'Завершить генерацию';
+  });
+
+  var fill = document.getElementById('genfill'), pct = document.getElementById('genpct');
+  var p = 0;
+  setInterval(function () {
+    p = p >= 96 ? 8 : p + Math.random() * 9;
+    fill.style.width = p + '%';
+    pct.textContent = Math.round(p) + '%';
+  }, 600);
+
+  /* мобильные демо */
+  var msheet = document.getElementById('msheet');
+  document.getElementById('msheetBtn').addEventListener('click', function () { msheet.classList.add('open'); });
+  var msheetGo = document.getElementById('msheetGo');
+  msheetGo.addEventListener('click', function () {
+    if (msheetGo.classList.contains('loading')) return;
+    msheetGo.classList.add('loading');
+    setTimeout(function () {
+      msheetGo.classList.remove('loading');
+      msheet.classList.remove('open');
+      fireToast(document.getElementById('mtoast'));
+    }, 1500);
+  });
+  msheet.addEventListener('click', function (e) {
+    if (e.target === msheet || e.target.classList.contains('grip')) {
+      if (!msheetGo.classList.contains('loading')) msheet.classList.remove('open');
+    }
+  });
+  var mdrop = document.getElementById('mdrop');
+  mdrop.addEventListener('click', function () { mdrop.classList.toggle('drag'); });
+})();
+</script>
+</body>
+</html>
