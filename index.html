@@ -8,61 +8,85 @@
   :root{
     --text:#1c2330; --muted:#5b6474; --dim:#8b93a5;
     --line:#e3e6ec; --line2:#c9cedb;
-    --bg-band:#f6f7fa; --card:#fff;
-    --accent:#2f54c9; --accent-bg:#eef2fd;
+    --bg-band:#f6f7fa; --accent:#2f54c9; --accent-bg:#eef2fd;
   }
   *{box-sizing:border-box}
   body{margin:0;background:#fff;color:var(--text);
     font:15.5px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Inter,sans-serif}
-  main{max-width:1040px;margin:0 auto;padding:56px 28px 90px}
-  .hero{text-align:center;margin-bottom:46px}
-  .hero img{height:44px;width:auto}
-  .hero h1{font-size:26px;letter-spacing:-.3px;margin:18px 0 6px}
-  .hero p{color:var(--muted);margin:0}
-  .groups{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-  @media(max-width:760px){.groups{grid-template-columns:1fr}}
-  .g{background:var(--bg-band);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
-  .g h2{font-size:15px;margin:0 0 12px;letter-spacing:.2px}
-  .g a{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-    background:#fff;border:1px solid var(--line2);border-radius:10px;padding:10px 14px;margin-bottom:8px;
-    text-decoration:none;color:var(--text);font-weight:600;font-size:14px;transition:.15s}
-  .g a:hover{border-color:var(--accent);transform:translateY(-1px)}
-  .g a small{color:var(--dim);font-weight:400;font-size:12px;text-align:right}
-  footer{margin-top:48px;text-align:center;color:var(--dim);font-size:12.5px}
+  .shell{display:grid;grid-template-columns:264px minmax(0,1fr);max-width:1780px;margin:0 auto;align-items:start}
+  .sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);
+    padding:22px 16px 30px;background:#fff}
+  .sn-logo{display:block;padding:2px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .sn-logo img{height:22px;width:auto;display:block}
+  .sidenav .sn-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    color:var(--dim);margin:20px 10px 6px}
+  .sidenav a:not(.sn-logo){display:block;padding:6px 10px;border-radius:7px;color:var(--muted);
+    font-size:13.5px;text-decoration:none;line-height:1.4;font-weight:500}
+  .sidenav a:not(.sn-logo):hover{color:#000;background:var(--bg-band)}
+  @media(max-width:1000px){
+    .shell{display:block}
+    .sidenav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 20px}
+  }
+  main{padding:34px 40px 90px;max-width:900px}
+  h1{font-size:28px;letter-spacing:-.4px;margin:0 0 6px}
+  .sub{color:var(--muted);margin:0 0 34px}
+  .chlog h2{font-size:15px;margin:30px 0 10px;color:var(--dim);font-weight:700}
+  .chlog ul{margin:0;padding-left:20px}
+  .chlog li{margin:0 0 9px;color:var(--text);font-size:14px;line-height:1.55}
+  .chlog p{color:var(--dim);font-size:13px}
+  .chlog-title{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);
+    padding-bottom:10px;margin-bottom:6px}
+  .chlog-title b{font-size:17px}
+  .chlog-title span{color:var(--dim);font-size:12.5px}
+  .loading{color:var(--dim)}
 </style>
 </head>
 <body>
-<main>
-  <div class="hero">
-    <img src="emails/img/logo-dark.png" alt="Lovix">
+<div class="shell">
+  <aside class="sidenav">
+    <a class="sn-logo" href="index.html"><img src="emails/img/logo-dark.png" alt="Lovix"></a>
+    <div class="sn-grp">Токеномика</div>
+    <a href="tokenomics/">Токеномика</a>
+    <a href="metrics.html">Метрики</a>
+    <div class="sn-grp">Взаимодействие с юзером</div>
+    <a href="scenarios.html">Сценарии</a>
+    <a href="events.html">События</a>
+    <div class="sn-grp">Рассылки</div>
+    <a href="trigger-system.html">Системная рассылка</a>
+    <a href="trigger-marketing.html">Маркетинговая рассылка</a>
+    <a href="email-template.html">Шаблон писем</a>
+    <a href="email-builder.html">Шаблонизатор</a>
+    <div class="sn-grp">Другие доки</div>
+    <a href="support.html">Саппорт</a>
+    <a href="admin-content.html">Админка — спека</a>
+    <a href="admin-demo.html">Админка — демо</a>
+    <a href="locale-detection.html">Локаль</a>
+  </aside>
+  <main>
     <h1>Внутренняя документация</h1>
-    <p>Единый источник правды: бизнес-логика, метрики, события и сценарии взаимодействия</p>
-  </div>
-
-  <div class="groups">
-    <div class="g"><h2>💰 Токеномика</h2>
-      <a href="tokenomics/">Токеномика <small>тарифы, токены, пакеты, правила</small></a>
-      <a href="metrics.html">Метрики <small>8 групп, паспорта, воронки</small></a>
-    </div>
-    <div class="g"><h2>💬 Взаимодействие с юзером</h2>
-      <a href="scenarios.html">Сценарии <small>карта, каналы, квоты, У1–У7</small></a>
-      <a href="events.html">События <small>канонический контракт Е1–Е8</small></a>
-    </div>
-    <div class="g"><h2>✉️ Рассылки</h2>
-      <a href="trigger-system.html">Системная рассылка <small>транзакционные письма</small></a>
-      <a href="trigger-marketing.html">Маркетинговая рассылка <small>продажа и возврат</small></a>
-      <a href="email-template.html">Шаблон писем <small>спека + пример</small></a>
-      <a href="email-builder.html">Шаблонизатор <small>редактор с превью</small></a>
-    </div>
-    <div class="g"><h2>📁 Другие доки</h2>
-      <a href="support.html">Саппорт <small>QA + шаблоны ответов</small></a>
-      <a href="admin-content.html">Админка — спека <small>модуль контента</small></a>
-      <a href="admin-demo.html">Админка — демо <small>живой прототип</small></a>
-      <a href="locale-detection.html">Локаль <small>автоопределение</small></a>
-    </div>
-  </div>
-
-  <footer>Lovix · документация обновляется коммитами в main, публикация автоматическая</footer>
-</main>
+    <p class="sub">Единый источник правды: бизнес-логика, метрики, события, сценарии взаимодействия и рассылки. Разделы — в меню слева.</p>
+    <div class="chlog-title"><b>Последние изменения</b><span>из CHANGELOG.md, обновляется коммитами</span></div>
+    <div class="chlog" id="chlog"><p class="loading">Загрузка…</p></div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script>
+(async () => {
+  const box = document.getElementById("chlog");
+  try {
+    const r = await fetch("CHANGELOG.md", {cache: "no-store"});
+    if (!r.ok) throw 0;
+    let md = await r.text();
+    // убрать заголовок файла и служебную преамбулу, оставить датированные секции
+    const i = md.indexOf("## ");
+    if (i > 0) md = md.slice(i);
+    // показать последние 5 датированных секций
+    const parts = md.split(/\n(?=## )/).slice(0, 5);
+    box.innerHTML = marked.parse(parts.join("\n"), {gfm: true});
+  } catch (e) {
+    box.innerHTML = '<p class="loading">Не удалось загрузить историю изменений — смотрите CHANGELOG.md в репозитории.</p>';
+  }
+})();
+</script>
 </body>
 </html>

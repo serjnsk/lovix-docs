@@ -171,14 +171,38 @@
     display:inline-flex;align-items:center;gap:5px}
   .dd-btn:hover{color:var(--txt,#111);background:var(--card2,#f2f3f7)}
   .dd-btn.cur{color:var(--txt,#111);background:var(--surf2,#e9ebf2)}
+
+  .shell{display:grid;grid-template-columns:264px minmax(0,1fr) 252px;max-width:1780px;margin:0 auto;align-items:start}
+  .sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid #e3e6ec;
+    padding:22px 16px 30px;background:#fff}
+  .sn-logo{display:block;padding:2px 10px 14px;border-bottom:1px solid #e3e6ec;margin-bottom:6px}
+  .sn-logo img{height:22px;width:auto;display:block}
+  .sidenav .sn-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    color:#8b93a5;margin:20px 10px 6px}
+  .sidenav a:not(.sn-logo){display:block;padding:6px 10px;border-radius:7px;color:#5b6474;
+    font-size:13.5px;text-decoration:none;line-height:1.4;font-weight:500}
+  .sidenav a:not(.sn-logo):hover{color:#000;background:#f6f7fa}
+  .sidenav a.cur{color:#2f54c9;background:#eef2fd;font-weight:600}
+  .pgmain{min-width:0;padding:0 10px}
+  aside.ptoc{position:sticky;top:0;max-height:100vh;overflow-y:auto;padding:26px 20px 26px 6px;
+    font-size:12.5px;border-left:1px solid #e3e6ec;min-height:60vh}
+  aside.ptoc .toc-t{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    color:#8b93a5;margin:0 0 10px 10px}
+  aside.ptoc a{display:block;color:#5b6474;text-decoration:none;padding:4px 10px;border-radius:7px;line-height:1.4}
+  aside.ptoc a:hover{color:#000;background:#f6f7fa}
+  aside.ptoc a.h3{padding-left:24px;font-size:12px;color:#8b93a5}
+  aside.ptoc a.active{color:#2f54c9;background:#eef2fd;font-weight:600}
+  @media(max-width:1160px){aside.ptoc{display:none}}
+  @media(max-width:1000px){
+    .shell{display:block}
+    .sidenav{position:static;height:auto;border-right:0;border-bottom:1px solid #e3e6ec;padding:14px 20px}
+  }
 </style>
 </head>
 <body>
+<div class="shell"><aside class="sidenav"><a class="sn-logo" href="index.html"><img src="emails/img/logo-dark.png" alt="Lovix"></a><div class="sn-grp">Токеномика</div><a href="tokenomics/">Токеномика</a><a href="metrics.html">Метрики</a><div class="sn-grp">Взаимодействие с юзером</div><a href="scenarios.html">Сценарии</a><a href="events.html">События</a><div class="sn-grp">Рассылки</div><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a class="cur" href="email-builder.html">Шаблонизатор</a><div class="sn-grp">Другие доки</div><a href="support.html">Саппорт</a><a href="admin-content.html">Админка — спека</a><a href="admin-demo.html">Админка — демо</a><a href="locale-detection.html">Локаль</a></aside><div class="pgmain">
 
-<div class="top"><div class="top-in">
-  <div class="brand">Lovix<span>·&nbsp;Шаблонизатор писем</span></div>
-  <nav><div class="dd"><button class="dd-btn" type="button">Токеномика <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="tokenomics/">Токеномика</a><a href="metrics.html">Метрики</a></div></div></div><div class="dd"><button class="dd-btn" type="button">Взаимодействие с юзером <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="scenarios.html">Сценарии</a><a href="events.html">События</a></div></div></div><div class="dd"><button class="dd-btn cur" type="button">Рассылки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a class="cur" href="email-builder.html">Шаблонизатор</a></div></div></div><div class="dd"><button class="dd-btn" type="button">Другие доки <span class="dd-car">▾</span></button><div class="dd-menu"><div class="dd-in"><a href="support.html">Саппорт</a><a href="admin-content.html">Админка — спека</a><a href="admin-demo.html">Админка — демо</a><a href="locale-detection.html">Локаль</a></div></div></div></nav>
-</div></div>
+
 
 <div class="work">
   <!-- ЛЕВАЯ КОЛОНКА -->
@@ -581,6 +605,37 @@ ${docToRows(doc).join('\n\n')}
 </td></tr>
 </table>
 </center>
+</div><aside class="ptoc" id="ptoc"></aside></div>
+
+<script>
+(function(){
+  const toc = document.getElementById("ptoc"); if (!toc) return;
+  const main = document.querySelector(".pgmain");
+  const heads = main.querySelectorAll("h2, h3");
+  if (heads.length < 2) { toc.style.display = "none"; return; }
+  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "На этой странице"; toc.appendChild(t);
+  const items = [];
+  let n = 0;
+  heads.forEach(h => {
+    if (!h.id) h.id = "psec-" + (n++);
+    h.style.scrollMarginTop = "20px";
+    const a = document.createElement("a");
+    a.href = "#" + h.id;
+    a.textContent = h.textContent.trim().slice(0, 60);
+    if (h.tagName === "H3") a.className = "h3";
+    toc.appendChild(a);
+    items.push({h, a});
+  });
+  function onScroll(){
+    let cur = items[0];
+    for (const it of items) {
+      if (it.h.getBoundingClientRect().top <= 90) cur = it; else break;
+    }
+    items.forEach(it => it.a.classList.toggle("active", it === cur));
+  }
+  addEventListener("scroll", onScroll, {passive:true}); onScroll();
+})();
+</script>
 </body>
 </html>
 `
