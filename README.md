@@ -1,6 +1,6 @@
 # Lovix — внутренняя документация
 
-Сайт: **https://serjnsk.github.io/lovix-tokenomics/** — публикуется автоматически при push в `main` (GitHub Pages, задержка ~1 мин).
+Сайт: **https://serjnsk.github.io/lovix-docs/** — публикуется автоматически при push в `main` (GitHub Pages, задержка ~1 мин).
 
 ## Как устроен репозиторий
 
@@ -10,7 +10,7 @@
 
 | Страница | Источник контента |
 |---|---|
-| `index.html` (Токеномика) | `MODULE_1_tokenomics.md` |
+| `tokenomics/index.html` (Токеномика) | `MODULE_1_tokenomics.md` |
 | `metrics.html` (Метрики) | `MODULE_2_metrics.md` |
 | `events.html` (События) | `MODULE_3_events.md` |
 | `scenarios.html` (Сценарии) | `MODULE_4_scenarios.md` |
@@ -37,7 +37,7 @@ bash build.sh
 
 `trigger-system.html`, `trigger-marketing.html`, `email-template.html`, `email-builder.html`, `notifications-ui.html`, `emails/…` — обычные HTML, сборка их не трогает. Правь как хочешь.
 
-**Добавил новую страницу** — добавь ссылку в навигацию во всех шаблонах шапок (`_p0_head.html` — там ссылки с inline-стилями, и `_m_head` / `_e_head` / `_n_head`) и запусти `bash build.sh`, иначе на четырёх генерируемых страницах ссылки не появится.
+**Добавил новую страницу** — добавь ссылку в нужную группу навигации (блок `.dd-in`) во всех шаблонах шапок (`_p0_head.html` — там пути с префиксом `../`, и `_m_head` / `_e_head` / `_n_head`), на самостоятельных страницах, и запусти `bash build.sh`. Корневая `index.html` — главная-хаб, правится напрямую: добавь карточку и туда.
 
 ## Рабочий цикл
 

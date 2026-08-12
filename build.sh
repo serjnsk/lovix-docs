@@ -3,6 +3,7 @@
 # Запуск: bash site/build.sh (из корня lovix_alerts)
 set -e
 cd "$(dirname "$0")"
+mkdir -p tokenomics
 MD="MODULE_1_tokenomics.md"
 
 awk '!f; /^## 1\. Тарифы/{f=1}' "$MD" | sed '$d'            > /tmp/lovix_md0.md
@@ -14,13 +15,13 @@ cat _p0_head.html /tmp/lovix_md0.md \
     _p1_sep.html  /tmp/lovix_md1.md \
     _p2_sep.html  /tmp/lovix_md2.md \
     _p3_sep.html  /tmp/lovix_md3.md \
-    _p4_tail.html > index.html
+    _p4_tail.html > tokenomics/index.html
 
 cat _m_head.html MODULE_2_metrics.md _m_foot.html > metrics.html
 cat _e_head.html MODULE_3_events.md _m_foot.html > events.html
 cat _n_head.html MODULE_4_scenarios.md _m_foot.html > scenarios.html
 
-echo "index.html собран: $(wc -c < index.html) байт"
+echo "tokenomics/index.html собран: $(wc -c < tokenomics/index.html) байт"
 echo "metrics.html собран: $(wc -c < metrics.html) байт"
 echo "events.html собран: $(wc -c < events.html) байт"
 echo "scenarios.html собран: $(wc -c < scenarios.html) байт"
