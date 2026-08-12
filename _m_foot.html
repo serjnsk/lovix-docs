@@ -40,7 +40,7 @@
   const toc = document.getElementById("toc");
   const heads = main.querySelectorAll(".md h2, .md h3, .proto-label b");
   let n = 0;
-  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "Оглавление"; toc.appendChild(t);
+  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "На этой странице"; toc.appendChild(t);
   const items = [];
   let curSub = null, curParent = null;
   heads.forEach(h => {
