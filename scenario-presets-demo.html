@@ -93,12 +93,20 @@ table.grid tr.off td{opacity:.5}
 .massact{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
 .masscancel{border:1px solid #bfdbfe;background:#fff;color:#2563eb;border-radius:8px;padding:9px 13px;font:700 12.5px/1 inherit;cursor:pointer}
 .masscancel:hover{background:#dbeafe}
-.pairwarn{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:5px 9px;display:none}
-.pairwarn.on{display:inline-block}
-.pairwarn button{border:none;background:none;color:#2563eb;font:700 12px/1 inherit;cursor:pointer;text-decoration:underline;padding:0 0 0 4px}
 tr.sel td{background:#eff6ff !important}
-.pairtag{font:700 10px/1 var(--mono);background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;border-radius:6px;padding:4px 6px;margin-left:5px;cursor:pointer}
-.pairtag:hover{background:#ede9fe}
+/* покрытие ботов */
+.onlygap{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#334155;cursor:pointer}
+.covleg{font-size:11.5px;color:#94a3b8;margin-left:auto}
+.lochead small{display:block;font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;font-size:10px;margin-top:2px}
+.cell{display:inline-flex;align-items:center;gap:6px;font:700 12.5px/1 var(--mono);border-radius:7px;padding:6px 9px;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}
+.cell.ok{background:#ecfdf5;border-color:#bbf7d0;color:#15803d}
+.cell.warn{background:#fffbeb;border-color:#fde68a;color:#b45309}
+.cell.bad{background:#fef2f2;border-color:#fecaca;color:#dc2626}
+.cell i{font-style:normal;opacity:.55;font-weight:400}
+.covtag{font:700 10px/1 var(--mono);border-radius:6px;padding:4px 7px;white-space:nowrap}
+.covtag.ok{background:#ecfdf5;color:#15803d;border:1px solid #bbf7d0}
+.covtag.bad{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+#covrows tr{cursor:pointer}
 
 /* проверка на боте */
 .probe{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px}
@@ -153,6 +161,7 @@ tr.sel td{background:#eff6ff !important}
     <button class="a-tab on" data-tab="list">Все сценарии<span class="cnt-badge" id="cntList">0</span></button>
     <button class="a-tab" data-tab="draft">Черновики<span class="cnt-badge" id="cntDraft">0</span></button>
     <button class="a-tab" data-tab="probe">Проверка на боте</button>
+    <button class="a-tab" data-tab="cover">Покрытие ботов<span class="cnt-badge" id="cntGap">0</span></button>
   </div>
   <div class="a-body">
 
@@ -173,7 +182,6 @@ tr.sel td{background:#eff6ff !important}
       <div class="bar" id="listBar"></div>
       <div class="massbar" id="massbar">
         <b id="massCnt">0</b> выделено
-        <span class="pairwarn" id="pairWarn"></span>
         <div class="massact">
           <button class="tbtn" data-clr="green" data-mass="on">Включить</button>
           <button class="tbtn" data-clr="blue" data-mass="off" style="background:#64748b">Выключить</button>
@@ -189,7 +197,7 @@ tr.sel td{background:#eff6ff !important}
         </tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
-      <div class="note"><b>Что здесь делает админ.</b> Включает и выключает сценарии, удаляет мёртвые. Тексты не редактируются: плохой сценарий проще удалить и сгенерировать новый. Ручной привязки к конкретному боту нет, подбор автоматический.<br><b>Массовые действия.</b> Отметь строки чекбоксами или нажми чекбокс в шапке, чтобы выделить всё в текущем фильтре. Панель сверху включит, выключит или удалит выбранное одной кнопкой. Метка «пара» показывает, что у сюжета есть вторая версия: клик по метке находит её.</div>
+      <div class="note"><b>Что здесь делает админ.</b> Включает и выключает сценарии, удаляет мёртвые. Тексты не редактируются: плохой сценарий проще удалить и сгенерировать новый. Ручной привязки к конкретному боту нет, подбор автоматический.<br><b>Массовые действия.</b> Отметь строки чекбоксами или нажми чекбокс в шапке, чтобы выделить всё в текущем фильтре. Панель сверху включит, выключит или удалит выбранное одной кнопкой.</div>
     </div>
 
     <!-- черновики -->
@@ -227,6 +235,26 @@ tr.sel td{background:#eff6ff !important}
       <div class="note"><b>Как читать.</b> В каждой шестёрке 2 категорийных, 2 локальных, 2 универсальных. Под каждым сценарием написано, по какому условию он сюда попал. Пунктирная рамка означает добор универсальным: подходящих сценариев своего типа не хватило.</div>
     </div>
 
+    <!-- покрытие ботов -->
+    <div id="tab-cover" style="display:none">
+      <div class="filters">
+        <span class="fl">Фильтр</span>
+        <label class="onlygap"><span class="chk" id="chkGap">✓</span> Показать только тех, кому не хватает сценариев</label>
+        <span class="covleg">в ячейках: <b>своих</b> / добор универсальными</span>
+      </div>
+      <div class="tblwrap"><table class="grid">
+        <thead><tr>
+          <th style="width:180px">Бот</th><th>Категории</th>
+          <th class="lochead">🇷🇺 ru<small>обычные · spicy</small></th>
+          <th class="lochead">🇺🇸 en<small>обычные · spicy</small></th>
+          <th class="lochead">🇩🇪 de<small>обычные · spicy</small></th>
+          <th>Итог</th>
+        </tr></thead>
+        <tbody id="covrows"></tbody>
+      </table></div>
+      <div class="note"><b>Зачем эта вкладка.</b> Здесь видно, кому из ботов не хватает своих сценариев и по какой локали. Цифра слева это сценарии, подобранные по своим условиям, справа сколько слотов пришлось добрать универсальными. Красная ячейка означает, что бот держится на универсальных: под него нужно сгенерировать сценарии. Клик по строке открывает разбор набора этого бота.</div>
+    </div>
+
   </div>
 </div>
 
@@ -249,44 +277,46 @@ tr.sel td{background:#eff6ff !important}
 
   /* conds: массив [поле, [значения]] — соединяются через И */
   var S = [
-    { id:1,  n:'Задержалась после работы', d:'Начальник ушёл, а мы вдвоём в офисе', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], on:true, imp:18400, clk:2100 , pair:7 },
+    { id:1,  n:'Задержалась после работы', d:'Начальник ушёл, а мы вдвоём в офисе', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], on:true, imp:18400, clk:2100 },
     { id:2,  n:'Разбор завалов на столе', d:'Помогаю разобрать бумаги, разговор уходит не туда', t:'cat', spicy:false, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:12200, clk:980 },
-    { id:3,  n:'Опыт против молодости', d:'Спор о том, кто интереснее в разговоре', t:'cat', spicy:false, conds:[['age','40+'],['sex',['ж']]], locs:['ru','en','de'], on:true, imp:22100, clk:3400 , pair:8 },
+    { id:3,  n:'Опыт против молодости', d:'Спор о том, кто интереснее в разговоре', t:'cat', spicy:false, conds:[['age','40+'],['sex',['ж']]], locs:['ru','en','de'], on:true, imp:22100, clk:3400 },
     { id:4,  n:'Вечер без детей', d:'Дом пустой, впервые за месяц свободный вечер', t:'cat', spicy:false, conds:[['job',['домохозяйка']],['age','30+']], locs:['ru','en','de'], on:true, imp:8700, clk:640 },
-    { id:5,  n:'Урок испанского', d:'Учит меня паре фраз и смеётся над произношением', t:'cat', spicy:false, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:15600, clk:2450 , pair:12 },
+    { id:5,  n:'Урок испанского', d:'Учит меня паре фраз и смеётся над произношением', t:'cat', spicy:false, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:15600, clk:2450 },
     { id:6,  n:'Уборка в номере', d:'Зашла убраться, а я ещё не ушёл', t:'cat', spicy:true, conds:[['job',['горничная']]], locs:['ru','en','de'], on:true, imp:9900, clk:1870 },
-    { id:7,  n:'Форма секретарши', d:'Новая блузка и вопрос, идёт ли она', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:11300, clk:2600 , pair:1 },
-    { id:8,  n:'После спортзала', d:'Только из душа, разговор о теле и усталости', t:'cat', spicy:true, conds:[['age','40+']], locs:['ru','en','de'], on:true, imp:14500, clk:2980 , pair:3 },
+    { id:7,  n:'Форма секретарши', d:'Новая блузка и вопрос, идёт ли она', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:11300, clk:2600 },
+    { id:8,  n:'После спортзала', d:'Только из душа, разговор о теле и усталости', t:'cat', spicy:true, conds:[['age','40+']], locs:['ru','en','de'], on:true, imp:14500, clk:2980 },
     { id:9,  n:'Косплей на выходные', d:'Выбираем костюм к фестивалю', t:'cat', spicy:false, conds:[['style',['аниме']]], locs:['ru','en','de'], on:true, imp:5400, clk:820 },
-    { id:10, n:'Сессия на носу', d:'Помоги подготовиться, а то ничего не успеваю', t:'cat', spicy:false, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:6100, clk:710 , pair:11 },
-    { id:11, n:'Ночь перед экзаменом', d:'Учебники в сторону, есть идея поинтереснее', t:'cat', spicy:true, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:7200, clk:1590 , pair:10 },
-    { id:12, n:'Латинская вечеринка', d:'Зовёт танцевать и обещает научить', t:'cat', spicy:true, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:8800, clk:1720 , pair:5 },
+    { id:10, n:'Сессия на носу', d:'Помоги подготовиться, а то ничего не успеваю', t:'cat', spicy:false, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:6100, clk:710 },
+    { id:11, n:'Ночь перед экзаменом', d:'Учебники в сторону, есть идея поинтереснее', t:'cat', spicy:true, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:7200, clk:1590 },
+    { id:12, n:'Латинская вечеринка', d:'Зовёт танцевать и обещает научить', t:'cat', spicy:true, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:8800, clk:1720 },
 
     { id:20, n:'Новогодний корпоратив', d:'Оливье съеден, все разошлись, остались мы', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-12-20', to:'2027-01-10', imp:4200, clk:900 },
-    { id:21, n:'Дача в мае', d:'Шашлыки, гамак и целые выходные', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-04-25', to:'2026-05-15', imp:3100, clk:410 , pair:31 },
-    { id:22, n:'Долгая зима', d:'За окном метель, дома плед и разговоры', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:9600, clk:1350 , pair:27 },
-    { id:23, n:'Октоберфест', d:'Палатка, кружка и слишком громкая музыка', t:'loc', spicy:false, conds:[], locs:['de'], on:true, from:'2026-09-15', to:'2026-10-10', imp:2600, clk:520 , pair:28 },
+    { id:21, n:'Дача в мае', d:'Шашлыки, гамак и целые выходные', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-04-25', to:'2026-05-15', imp:3100, clk:410 },
+    { id:34, n:'Вечер в Питере', d:'Дождь, набережная и никакого плана', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:7300, clk:980 },
+    { id:35, n:'Рождественский рынок', d:'Глинтвейн, огни и толпа вокруг', t:'loc', spicy:false, conds:[], locs:['de'], on:true, imp:5100, clk:720 },
+    { id:22, n:'Долгая зима', d:'За окном метель, дома плед и разговоры', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:9600, clk:1350 },
+    { id:23, n:'Октоберфест', d:'Палатка, кружка и слишком громкая музыка', t:'loc', spicy:false, conds:[], locs:['de'], on:true, from:'2026-09-15', to:'2026-10-10', imp:2600, clk:520 },
     { id:24, n:'Выходные на Балтике', d:'Ветер, дюны и никого вокруг', t:'loc', spicy:false, conds:[], locs:['de'], on:true, imp:4400, clk:600 },
-    { id:25, n:'Пятничный паб', d:'Смена закончилась, первый бокал за наш счёт', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:12800, clk:1900 , pair:29 },
-    { id:26, n:'Роуд-трип по побережью', d:'Машина, плейлист и никакого плана', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:7700, clk:1120 , pair:33 },
-    { id:27, n:'Баня по-русски', d:'Пар, веник и разговор по душам', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:6300, clk:1480 , pair:22 },
-    { id:28, n:'Сауна в отеле', d:'Полотенце и никого до утра', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3900, clk:940 , pair:23 },
-    { id:29, n:'Ночь после вечеринки', d:'Такси до дома одно на двоих', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:8100, clk:2050 , pair:25 },
+    { id:25, n:'Пятничный паб', d:'Смена закончилась, первый бокал за наш счёт', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:12800, clk:1900 },
+    { id:26, n:'Роуд-трип по побережью', d:'Машина, плейлист и никакого плана', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:7700, clk:1120 },
+    { id:27, n:'Баня по-русски', d:'Пар, веник и разговор по душам', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:6300, clk:1480 },
+    { id:28, n:'Сауна в отеле', d:'Полотенце и никого до утра', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3900, clk:940 },
+    { id:29, n:'Ночь после вечеринки', d:'Такси до дома одно на двоих', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:8100, clk:2050 },
     { id:30, n:'Выборы президента', d:'Обсуждаем итоги и спорим до ночи', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-03-01', to:'2026-03-20', imp:1800, clk:150 },
 
-    { id:31, n:'Домашний вечер', d:'Дети у бабушки, вино открыто', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:5200, clk:1230 , pair:21 },
+    { id:31, n:'Домашний вечер', d:'Дети у бабушки, вино открыто', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:5200, clk:1230 },
     { id:32, n:'Спа на выходных', d:'Два халата и никаких планов', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3400, clk:800 },
-    { id:33, n:'Отель у моря', d:'Балкон, вид и ни одного знакомого вокруг', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:6900, clk:1610 , pair:26 },
+    { id:33, n:'Отель у моря', d:'Балкон, вид и ни одного знакомого вокруг', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:6900, clk:1610 },
 
-    { id:40, n:'Игра в комплименты', d:'По очереди говорим приятное, кто первый смутится', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:31200, clk:5900 , pair:44 },
-    { id:41, n:'Правда или действие', d:'Классика, только для двоих', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:29800, clk:6400 , pair:45 },
-    { id:42, n:'Двадцать вопросов', d:'Угадываю, о чём ты думаешь, за двадцать вопросов', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:18700, clk:1600 , pair:48 },
-    { id:43, n:'Что было бы, если', d:'Придумываем альтернативные версии дня', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:14300, clk:990 , pair:49 },
-    { id:44, n:'Никогда я не', d:'Игра на признания', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:26400, clk:7100 , pair:40 },
-    { id:45, n:'Желание за желание', d:'Загадываем по очереди и не отказываемся', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:24100, clk:6800 , pair:41 },
+    { id:40, n:'Игра в комплименты', d:'По очереди говорим приятное, кто первый смутится', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:31200, clk:5900 },
+    { id:41, n:'Правда или действие', d:'Классика, только для двоих', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:29800, clk:6400 },
+    { id:42, n:'Двадцать вопросов', d:'Угадываю, о чём ты думаешь, за двадцать вопросов', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:18700, clk:1600 },
+    { id:43, n:'Что было бы, если', d:'Придумываем альтернативные версии дня', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:14300, clk:990 },
+    { id:44, n:'Никогда я не', d:'Игра на признания', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:26400, clk:7100 },
+    { id:45, n:'Желание за желание', d:'Загадываем по очереди и не отказываемся', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:24100, clk:6800 },
     { id:46, n:'Первое впечатление', d:'Рассказываем, что подумали друг о друге сразу', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:false, imp:9100, clk:310 },
     { id:47, n:'Тайный список', d:'У каждого есть то, о чём не говорят вслух', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:16900, clk:4200 },
-    { id:48, n:'Тридцать секунд', d:'Отвечаем не задумываясь, пока идёт время', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:12600, clk:3300 , pair:42 },
+    { id:48, n:'Тридцать секунд', d:'Отвечаем не задумываясь, пока идёт время', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:12600, clk:3300 },
     { id:49, n:'Две правды и ложь', d:'Угадай, где я соврала', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:15200, clk:3900 }
   ];
 
@@ -318,11 +348,18 @@ tr.sel td{background:#eff6ff !important}
   }
   function expired(s) { return !!(s.to && new Date(s.to) < TODAY); }
   /* стабильный псевдослучайный вес: один и тот же бот всегда получает тот же набор */
+  /* стабильный псевдослучай для развода при равных счётчиках привязок */
   function seed(botId, sid) {
     var h = 0, str = botId + ':' + sid;
     for (var i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) >>> 0; }
     return (h % 1000) / 1000;
   }
+  /* счётчик привязок: у скольких ботов сценарий уже стоит в наборе */
+  var uses = {};
+  function resetUses() { uses = {}; }
+  function bumpUse(id) { uses[id] = (uses[id] || 0) + 1; }
+  function useCount(id) { return uses[id] || 0; }
+
   function pick(bot, kind, spicy, loc, n) {
     var pool = S.filter(function (s) {
       if (!active(s) || s.spicy !== spicy || s.t !== kind) return false;
@@ -331,16 +368,18 @@ tr.sel td{background:#eff6ff !important}
       return true;
     });
     pool.sort(function (a, b) {
-      var d = b.conds.length - a.conds.length;          // точность: больше совпавших условий
+      var d = b.conds.length - a.conds.length;              /* 1. точность совпадения */
       if (d !== 0) return d;
-      return seed(bot.id, a.id) - seed(bot.id, b.id);   // разнообразие, стабильное на бота
+      var u = useCount(a.id) - useCount(b.id);              /* 2. реже используемый вперёд */
+      if (u !== 0) return u;
+      return seed(bot.id, a.id) - seed(bot.id, b.id);       /* 3. при равенстве стабильный случай */
     });
     return pool.slice(0, n);
   }
-  function buildSet(bot, spicy, loc) {
+  function buildSet(bot, spicy, loc, count) {
     var out = [], used = [];
     function free(list) { return list.filter(function (s) { return used.indexOf(s.id) === -1; }); }
-    /* сначала слоты своего типа, доборы после: иначе универсальный уйдёт в добор
+    /* сначала слоты своего вида, доборы после: иначе универсальный уйдёт в добор
        и тот же сценарий повторится в своём слоте */
     var plan = [['cat', 2], ['loc', 2], ['uni', 2]];
     var gaps = [];
@@ -355,7 +394,17 @@ tr.sel td{background:#eff6ff !important}
     });
     var rank = { cat: 0, loc: 1, uni: 2 };
     out.sort(function (a, b) { return rank[a.order] - rank[b.order]; });
+    if (count) out.forEach(function (it) { bumpUse(it.s.id); });
     return out;
+  }
+  /* пересборка всей базы: счётчики привязок копятся по мере обхода ботов */
+  function rebuildAll(loc) {
+    resetUses();
+    var map = {};
+    BOTS.forEach(function (b) {
+      map[b.id] = { basic: buildSet(b, false, loc, true), spicy: buildSet(b, true, loc, true) };
+    });
+    return map;
   }
   function why(bot, item, loc) {
     if (item.filler) return 'добор универсальным: подходящих сценариев типа «' + TYPE[item.kind][1].toLowerCase() + '» не хватило';
@@ -396,13 +445,6 @@ tr.sel td{background:#eff6ff !important}
   var mass = {};                                   /* id → true */
   function massIds() { return Object.keys(mass).filter(function (k) { return mass[k]; }).map(Number); }
   function byId(id) { return S.filter(function (x) { return x.id === id; })[0]; }
-  /* половинки пар: выделен один, а его парный сценарий нет */
-  function lonelyHalves() {
-    return massIds().filter(function (id) {
-      var s = byId(id);
-      return s && s.pair && byId(s.pair) && !mass[s.pair];
-    });
-  }
 
   function filtered() {
     var ft = document.getElementById('fType').value,
@@ -426,11 +468,9 @@ tr.sel td{background:#eff6ff !important}
   function renderList() {
     var rows = filtered();
     document.getElementById('rows').innerHTML = rows.map(function (s) {
-      var pairS = s.pair ? byId(s.pair) : null;
       return '<tr class="' + (s.on ? '' : 'off') + (mass[s.id] ? ' sel' : '') + '">' +
         '<td><span class="chk' + (mass[s.id] ? ' on' : '') + '" data-pick="' + s.id + '">✓</span></td>' +
         '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') +
-        (pairS ? '<span class="pairtag" data-pair="' + pairS.id + '" title="' + pairS.n + '">пара ' + (s.spicy ? '· обычный' : '· spicy') + '</span>' : '') +
         '<small>' + s.d + '</small></span></td>' +
         '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
         '<td>' + condHtml(s) + '</td>' +
@@ -470,18 +510,6 @@ tr.sel td{background:#eff6ff !important}
         renderList();
       };
     });
-    /* переход к парной версии: подсветить её поиском */
-    document.querySelectorAll('[data-pair]').forEach(function (t) {
-      t.onclick = function (e) {
-        e.stopPropagation();
-        var p = byId(+t.dataset.pair);
-        if (!p) return;
-        document.getElementById('fSpicy').value = '';
-        document.getElementById('fSearch').value = p.n;
-        renderList();
-      };
-    });
-
     /* шапка: выделено всё в текущем фильтре, часть или ничего */
     var visible = rows.map(function (s) { return s.id; });
     var picked = visible.filter(function (id) { return mass[id]; });
@@ -497,17 +525,6 @@ tr.sel td{background:#eff6ff !important}
     var bar = document.getElementById('massbar');
     bar.classList.toggle('on', ids.length > 0);
     document.getElementById('massCnt').textContent = ids.length;
-    var lonely = lonelyHalves();
-    var w = document.getElementById('pairWarn');
-    w.classList.toggle('on', lonely.length > 0);
-    if (lonely.length) {
-      w.innerHTML = 'у ' + lonely.length + ' из выбранных есть парная версия' +
-        '<button id="addPairs">добавить пары</button>';
-      document.getElementById('addPairs').onclick = function () {
-        lonelyHalves().forEach(function (id) { mass[byId(id).pair] = true; });
-        renderList();
-      };
-    }
   }
   document.getElementById('chkAllList').onclick = function () {
     var visible = filtered().map(function (s) { return s.id; });
@@ -610,18 +627,76 @@ tr.sel td{background:#eff6ff !important}
     };
   });
 
+  /* ── покрытие ботов ── */
+  var onlyGap = false;
+  function coverage() {
+    /* один прогон пересборки на локаль: счётчики привязок общие для всей базы */
+    var byLoc = {};
+    ['ru', 'en', 'de'].forEach(function (l) { byLoc[l] = rebuildAll(l); });
+    return BOTS.map(function (b) {
+      var row = { bot: b, locs: {}, gap: false };
+      ['ru', 'en', 'de'].forEach(function (l) {
+        var sets = byLoc[l][b.id];
+        ['basic', 'spicy'].forEach(function (k) {
+          var own = sets[k].filter(function (it) { return !it.filler; }).length;
+          var fill = sets[k].filter(function (it) { return it.filler; }).length;
+          row.locs[l] = row.locs[l] || {};
+          row.locs[l][k] = { own: own, fill: fill, total: sets[k].length };
+          if (fill > 0 || sets[k].length < 6) row.gap = true;
+        });
+      });
+      return row;
+    });
+  }
+  function cellHtml(c) {
+    var cls = c.fill === 0 ? 'ok' : (c.fill >= 3 ? 'bad' : 'warn');
+    return '<span class="cell ' + cls + '">' + c.own + (c.fill ? '<i>+' + c.fill + '</i>' : '') + '</span>';
+  }
+  function renderCover() {
+    var rows = coverage();
+    var gaps = rows.filter(function (r) { return r.gap; });
+    document.getElementById('cntGap').textContent = gaps.length;
+    var show = onlyGap ? gaps : rows;
+    document.getElementById('covrows').innerHTML = show.map(function (r) {
+      return '<tr data-cover="' + r.bot.id + '">' +
+        '<td><div style="display:flex;gap:9px;align-items:center"><span class="ava">' + r.bot.name[0] + '</span>' +
+        '<div><b style="color:#0f172a;font-size:13px">' + r.bot.name + '</b>' +
+        '<small style="display:block;color:#64748b;font-size:11px">' + r.bot.age + ' · ' + r.bot.job + ' · ' + r.bot.eth + '</small></div></div></td>' +
+        '<td>' + r.bot.cats.map(function (c) { return '<span class="fchip">' + c + '</span>'; }).join('') + '</td>' +
+        ['ru', 'en', 'de'].map(function (l) {
+          return '<td>' + cellHtml(r.locs[l].basic) + ' ' + cellHtml(r.locs[l].spicy) + '</td>';
+        }).join('') +
+        '<td>' + (r.gap ? '<span class="covtag bad">нужны сценарии</span>' : '<span class="covtag ok">хватает</span>') + '</td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="6" class="empty">Все боты закрыты своими сценариями</td></tr>';
+
+    document.querySelectorAll('[data-cover]').forEach(function (tr) {
+      tr.onclick = function () {
+        curBot = tr.dataset.cover;
+        tab('probe');
+        renderProbe();
+      };
+    });
+  }
+  document.getElementById('chkGap').onclick = function () {
+    onlyGap = !onlyGap;
+    this.classList.toggle('on', onlyGap);
+    renderCover();
+  };
+
   /* ── вкладки ── */
   function tab(name) {
     document.querySelectorAll('.a-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.tab === name); });
-    ['list', 'draft', 'probe'].forEach(function (n) {
+    ['list', 'draft', 'probe', 'cover'].forEach(function (n) {
       document.getElementById('tab-' + n).style.display = n === name ? '' : 'none';
     });
+    if (name === 'cover') renderCover();
   }
   document.querySelectorAll('.a-tab').forEach(function (t) { t.onclick = function () { tab(t.dataset.tab); }; });
   document.getElementById('goProbe').onclick = function () { tab('probe'); };
   document.getElementById('goWizard').onclick = function () { location.href = 'scenario-wizard-demo.html'; };
 
-  renderList(); renderDrafts(); renderProbe();
+  renderList(); renderDrafts(); renderProbe(); renderCover();
 })();
 </script>
 </body>

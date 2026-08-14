@@ -93,12 +93,6 @@ textarea{min-height:74px;resize:vertical}
 .sum div:last-child{border-bottom:none}
 .sum span:first-child{color:#64748b}
 .sum span:last-child{color:#0f172a;font-weight:600;text-align:right}
-.big{font:800 34px/1 var(--mono);color:#2563eb}
-.bigcap{font-size:12px;color:#64748b;margin-top:4px}
-.botrow{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:12.5px}
-.botrow:last-child{border-bottom:none}
-.ava{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;background:#2563eb;flex:none}
-.botrow small{color:#64748b;display:block;font-size:11px}
 .warn{background:#fffbeb;border:1px solid #fde68a;color:#b45309;border-radius:9px;padding:10px 12px;font-size:12.5px}
 
 .nav{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
@@ -118,8 +112,6 @@ textarea{min-height:74px;resize:vertical}
 .rep b{display:block;font:800 24px/1 var(--mono);color:#0f172a}
 .rep small{font-size:11.5px;color:#64748b}
 .rep.dup b{color:#b45309}
-.pairbadge{font:700 10px/1 var(--mono);background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;border-radius:6px;padding:4px 6px;margin-left:6px}
-.spicyline{margin-top:5px !important;padding-top:5px;border-top:1px dashed #e2e8f0}
 table.grid{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border-radius:10px;overflow:hidden}
 table.grid th{color:#64748b;font-weight:700;text-align:left;padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
 table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;vertical-align:middle}
@@ -162,7 +154,6 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
       <div class="pane" id="pane"></div>
       <div class="side">
         <div class="card"><h4>Черновик задачи</h4><div class="sum" id="sum"></div></div>
-        <div class="card" id="matchCard"></div>
       </div>
     </div>
   </div>
@@ -176,16 +167,6 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
 
 <script>
 (function () {
-  var BOTS = [
-    { id:'alena', name:'Алёна', sex:'ж', age:42, job:'секретарша', eth:'европейка', style:'реализм' },
-    { id:'maria', name:'Мария', sex:'ж', age:34, job:'горничная', eth:'латина', style:'реализм' },
-    { id:'eva',   name:'Ева',   sex:'ж', age:25, job:'студентка', eth:'европейка', style:'аниме' },
-    { id:'lana',  name:'Лана',  sex:'ж', age:45, job:'домохозяйка', eth:'европейка', style:'реализм' },
-    { id:'sofia', name:'София', sex:'ж', age:41, job:'секретарша', eth:'латина', style:'реализм' },
-    { id:'nina',  name:'Нина',  sex:'ж', age:38, job:'секретарша', eth:'европейка', style:'реализм' },
-    { id:'kira',  name:'Кира',  sex:'ж', age:31, job:'горничная', eth:'азиатка', style:'аниме' },
-    { id:'olga',  name:'Ольга', sex:'ж', age:47, job:'домохозяйка', eth:'европейка', style:'реализм' }
-  ];
   var CATS = {
     'Milf':      [['sex', ['ж']], ['age', '40+']],
     'Secretary': [['job', ['секретарша']], ['age', '30+']],
@@ -205,7 +186,7 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
   var LOCFLAG = { ru: '🇷🇺', en: '🇺🇸', de: '🇩🇪' };
 
   var st = {
-    step: 1, type: 'cat', cat: 'Secretary',
+    step: 1, type: 'cat', spicy: false, cat: 'Secretary',
     conds: JSON.parse(JSON.stringify(CATS['Secretary'])),
     locs: ['ru', 'en', 'de'],
     from: '', to: '', ctx: '', count: 50,
@@ -213,16 +194,6 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
   };
   var STEPS = ['Тип', 'Условия показа', 'Период', 'Генерация', 'Черновики'];
 
-  function matchOne(bot, c) {
-    if (c[1] === '30+') return c[0] === 'age' ? bot.age >= 30 : false;
-    if (c[1] === '40+') return c[0] === 'age' ? bot.age >= 40 : false;
-    if (c[1] === '18+') return c[0] === 'age' ? bot.age >= 18 : false;
-    return c[1].indexOf(String(bot[c[0]])) !== -1;
-  }
-  function matched() {
-    if (st.type !== 'cat') return BOTS;
-    return BOTS.filter(function (b) { return st.conds.every(function (c) { return matchOne(b, c); }); });
-  }
   function condText(c) {
     return FIELD[c[0]] + ': ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]);
   }
@@ -246,7 +217,13 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
           opt('loc', 'Локальный', 'подбор по локали пользователя') +
           opt('uni', 'Универсальный', 'подходит любому боту') +
         '</div></div>' +
-        '<div class="fld"><label>Формат</label><div class="warn">На каждый сюжет создаются <b>две версии сразу</b>: обычная и spicy. Выбирать не нужно. Spicy видят все, использовать могут только пользователи с подпиской.</div></div>';
+        '<div class="fld"><label>Формат</label><div class="opts">' +
+          fmt(false, 'Обычные', 'свой промпт генерации') +
+          fmt(true, 'Spicy', 'отдельный промпт, свои сюжеты') +
+        '</div><div class="locnote">Пачка целиком одного формата. Spicy видят все, использовать их может пользователь с подпиской.</div></div>';
+      p.querySelectorAll('[data-f2]').forEach(function (b) {
+        b.onclick = function () { st.spicy = b.dataset.f2 === '1'; render(); };
+      });
       p.querySelectorAll('[data-t]').forEach(function (b) {
         b.onclick = function () {
           st.type = b.dataset.t;
@@ -329,14 +306,13 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
 
     if (st.step === 5) {
       var selCnt = st.drafts.filter(function (d) { return st.sel[d.id]; }).length;
-      p.innerHTML = '<h3>Черновики</h3><p class="sub">Строка это сюжет с двумя версиями. Апрув публикует обе сразу, тексты не редактируются.</p>' +
+      p.innerHTML = '<h3>Черновики</h3><p class="sub">Просмотри и опубликуй то, что годится. Остальное удали, тексты не редактируются.</p>' +
         (st.drafts.length ? '<div class="genline" style="margin-bottom:10px">Выбрано: <b>' + selCnt + '</b> из ' + st.drafts.length +
         (st.kept > st.drafts.length ? ' · в демо показаны первые ' + st.drafts.length + ' из ' + st.kept : '') + '</div>' +
-        '<div class="tblwrap"><table class="grid"><thead><tr><th style="width:34px"></th><th style="width:46%">Сюжет · обычная и spicy версии</th><th>Условия</th><th>Локали</th><th>Проверка</th></tr></thead><tbody>' +
+        '<div class="tblwrap"><table class="grid"><thead><tr><th style="width:34px"></th><th style="width:44%">Сценарий</th><th>Условия</th><th>Локали</th><th>Проверка</th></tr></thead><tbody>' +
         st.drafts.map(function (d) {
           return '<tr><td><span class="chk' + (st.sel[d.id] ? ' on' : '') + '" data-s="' + d.id + '">✓</span></td>' +
-            '<td><span class="nm">' + d.n + '<span class="pairbadge">2 версии</span><small>' + d.d + '</small>' +
-            '<small class="spicyline"><span class="spicy">SPICY</span> ' + d.s + '</small></span></td>' +
+            '<td><span class="nm">' + d.n + (st.spicy ? '<span class="spicy">SPICY</span>' : '') + '<small>' + (st.spicy ? d.s : d.d) + '</small></span></td>' +
             '<td>' + (st.conds.length ? st.conds.map(function (c) { return '<span class="fchip">' + condText(c) + '</span>'; }).join('') : '<span class="fchip">' + (st.type === 'loc' ? 'по локали' : 'любой бот') + '</span>') + '</td>' +
             '<td>' + ['ru', 'en', 'de'].map(function (l) {
               return '<span class="locb-mini' + (st.locs.indexOf(l) === -1 ? ' off' : '') + '">' + l + '</span>';
@@ -351,6 +327,10 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
     }
 
     renderNav();
+  }
+
+  function fmt(v, t, sub) {
+    return '<button class="opt' + (st.spicy === v ? ' on' : '') + '" data-f2="' + (v ? '1' : '0') + '"><b>' + t + '</b><small>' + sub + '</small></button>';
   }
 
   function opt(v, t, s) {
@@ -405,43 +385,22 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
   function report() {
     var dup = st.drafts.filter(function (d) { return d.dup; }).length;
     return '<div class="report">' +
-      '<div class="rep"><b>' + st.count + '</b><small>сюжетов запрошено</small></div>' +
-      '<div class="rep"><b>' + st.kept + '</b><small>' + plural(st.kept, 'пара', 'пары', 'пар') + ' в черновиках · ' + (st.kept * 2) + ' сценариев</small></div>' +
-      '<div class="rep dup"><b>' + (st.count - st.kept) + '</b><small>' + plural(st.count - st.kept, 'пара', 'пары', 'пар') + ' отброшено дублями</small></div>' +
-      '</div><div class="note"><b>Дедупликация по сюжету.</b> На каждый сюжет генерятся обычная и spicy-версия, дубль отбрасывается парой целиком. В черновиках осталось ' +
-      st.kept + ' ' + plural(st.kept, 'пара', 'пары', 'пар') + ', это ' + (st.kept * 2) + ' ' +
-      plural(st.kept * 2, 'сценарий', 'сценария', 'сценариев') + '. Помечено как подозрительно похожие: ' + dup + '.</div>';
+      '<div class="rep"><b>' + st.count + '</b><small>запрошено</small></div>' +
+      '<div class="rep"><b>' + st.kept + '</b><small>в черновиках</small></div>' +
+      '<div class="rep dup"><b>' + (st.count - st.kept) + '</b><small>отброшено дублей</small></div>' +
+      '</div><div class="note"><b>Дедупликация.</b> Система сравнила сгенерированное с пулом и отбросила близкие по смыслу. В черновиках осталось ' +
+      st.kept + ' ' + plural(st.kept, 'сценарий', 'сценария', 'сценариев') + ', помечено как подозрительно похожие: ' + dup + '.</div>';
   }
 
   function renderSum() {
     var TYPES = { cat: 'Категорийный', loc: 'Локальный', uni: 'Универсальный' };
     document.getElementById('sum').innerHTML =
-      '<div><span>Тип</span><span>' + TYPES[st.type] + '</span></div>' +
+      '<div><span>Тип</span><span>' + TYPES[st.type] + (st.spicy ? ' · spicy' : '') + '</span></div>' +
       '<div><span>Условия</span><span>' + (st.conds.length ? st.conds.map(condText).join('<br>') : '—') + '</span></div>' +
       '<div><span>Локали</span><span>' + st.locs.map(function (l) { return LOCFLAG[l] + ' ' + l; }).join(' ') + '</span></div>' +
       '<div><span>Период</span><span>' + (st.from || st.to ? (st.from || '…') + ' → ' + (st.to || '…') : 'всегда') + '</span></div>' +
-      '<div><span>Сюжетов</span><span>' + st.count + '</span></div>' +
-      '<div><span>Будет создано</span><span>' + st.count + ' обычных + ' + st.count + ' spicy</span></div>' +
+      '<div><span>Количество</span><span>' + st.count + '</span></div>' +
       (st.ctx ? '<div><span>Контекст</span><span>' + st.ctx.slice(0, 60) + (st.ctx.length > 60 ? '…' : '') + '</span></div>' : '');
-  }
-
-  function renderMatch() {
-    var m = matched();
-    var c = document.getElementById('matchCard');
-    if (st.type !== 'cat') {
-      c.innerHTML = '<h4>Кому покажется</h4><div class="big">все</div>' +
-        '<div class="bigcap">' + (st.type === 'loc'
-          ? 'Локальные сценарии показываются всем ботам пользователям с локалями ' + st.locs.join(', ')
-          : 'Универсальные сценарии подходят любому боту') + '</div>';
-      return;
-    }
-    c.innerHTML = '<h4>Подпадает ботов</h4><div class="big">' + m.length + '</div>' +
-      '<div class="bigcap">из ' + BOTS.length + ' в демо-базе</div>' +
-      (m.length ? '<div style="margin-top:12px">' + m.slice(0, 5).map(function (b) {
-        return '<div class="botrow"><span class="ava">' + b.name[0] + '</span><div><b>' + b.name + '</b>' +
-          '<small>' + b.age + ' · ' + b.job + ' · ' + b.eth + '</small></div></div>';
-      }).join('') + (m.length > 5 ? '<div class="genline" style="padding-top:8px">и ещё ' + (m.length - 5) + '</div>' : '') + '</div>'
-      : '<div class="warn" style="margin-top:12px">Под эти условия не подходит ни один бот. Сгенерированные сценарии никому не покажутся.</div>');
   }
 
   function renderNav() {
@@ -452,7 +411,7 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
     nav.className = 'nav';
     var html = '';
     if (st.step > 1 && st.step < 5) html += '<button class="btn sec" id="back">Назад</button>';
-    if (st.step < 4) html += '<button class="btn pri" id="next"' + (st.type === 'cat' && !matched().length ? ' disabled' : '') + '>Дальше</button>';
+    if (st.step < 4) html += '<button class="btn pri" id="next">Дальше</button>';
     if (st.step === 4 && st.progress === 0) html += '<button class="btn pri" id="run">Запустить генерацию</button>';
     if (st.step === 4 && st.progress >= 100) html += '<button class="btn pri" id="toDrafts">К черновикам</button>';
     if (st.step === 5 && st.drafts.length) {
@@ -504,7 +463,7 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
       var bar = document.getElementById('bar'), line = document.getElementById('genline');
       if (bar) bar.style.width = st.progress + '%';
       if (line) line.textContent = st.progress < 100
-        ? 'Генерируем: ' + Math.round(st.count * st.progress / 100) + ' из ' + st.count + ' сюжетов'
+        ? 'Генерируем: ' + Math.round(st.count * st.progress / 100) + ' из ' + st.count
         : 'Готово';
       if (st.progress >= 100) {
         clearInterval(t);
@@ -519,7 +478,7 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
     }, 420);
   }
 
-  function render() { renderSteps(); renderPane(); renderSum(); renderMatch(); }
+  function render() { renderSteps(); renderPane(); renderSum(); }
   render();
 })();
 </script>
