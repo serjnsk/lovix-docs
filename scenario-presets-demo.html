@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ru">
+<!-- Рукописное демо раздела админки «Сценарии». Спека: scenario-presets.html -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Пресеты сценариев: демо админки</title>
+<style>
+:root{
+  --text:#1c2330; --muted:#5b6474; --dim:#8b93a5;
+  --line:#e3e6ec; --line2:#c9cedb; --bg-band:#f6f7fa; --card:#ffffff;
+  --accent:#2f54c9; --accent-bg:#eef2fd; --ok:#1a7f4e; --ok-bg:#e8f5ee;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+a{color:var(--accent)}
+.shell{display:grid;grid-template-columns:264px minmax(0,1fr);max-width:1780px;margin:0 auto;align-items:start}
+.sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);padding:22px 16px 30px;background:#fff}
+.sn-logo{display:block;padding:2px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.sn-logo img{height:22px;width:auto;display:block}
+.sidenav .sn-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);margin:20px 10px 6px}
+.sidenav a:not(.sn-logo){display:block;padding:6px 10px;border-radius:7px;color:var(--muted);font-size:13.5px;text-decoration:none;line-height:1.4}
+.sidenav a:not(.sn-logo):hover{color:#000;background:var(--bg-band)}
+.sidenav a.cur{color:var(--accent);background:var(--accent-bg);font-weight:600}
+@media(max-width:1000px){.shell{display:block}.sidenav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 20px}}
+main{padding:26px 34px 90px;min-width:0}
+h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin:0 0 8px}
+h2{font-size:20px;font-weight:800;margin:38px 0 6px}
+.lead{color:var(--muted);max-width:80ch;margin:0 0 18px}
+.hint{color:var(--dim);font-size:13.5px;margin:0 0 14px;max-width:80ch}
+
+/* ═══ окно админки: светлая тема реальной админки ═══ */
+.admin{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;color:#0f172a}
+.a-crumbs{display:flex;align-items:center;gap:6px;padding:13px 18px;border-bottom:1px solid #e2e8f0;font-weight:800;font-size:14px;color:#94a3b8}
+.a-crumbs a{color:#2563eb;text-decoration:none;cursor:pointer}
+.a-head{display:flex;align-items:center;border-bottom:1px solid #e2e8f0;padding:0 18px}
+.a-tab{background:none;border:none;color:#64748b;padding:13px 15px;border-bottom:2px solid transparent;font:700 13px/1 inherit;cursor:pointer}
+.a-tab.on{color:#2563eb;border-bottom-color:#2563eb}
+.a-tab .cnt-badge{margin-left:6px;font:700 11px/1 var(--mono);background:#eff6ff;color:#2563eb;border-radius:999px;padding:3px 6px}
+.a-body{background:#f8fafc;padding:16px 18px;min-height:420px}
+.tbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tbtn{border:none;border-radius:8px;padding:9px 15px;font:700 12.5px/1 inherit;color:#fff;cursor:pointer;transition:filter .15s}
+.tbtn:hover{filter:brightness(1.08)}
+.tbtn[data-clr="blue"]{background:#2563eb}
+.tbtn[data-clr="green"]{background:#16a34a}
+.tbtn[data-clr="violet"]{background:#7c3aed}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.filters select,.filters input{border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;font:inherit;font-size:12.5px;color:#334155;background:#fff}
+.filters .fl{font-size:11.5px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+table.grid{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border-radius:10px;overflow:hidden}
+table.grid th{color:#64748b;font-weight:700;text-align:left;padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#fff;white-space:nowrap}
+table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:middle;color:#334155}
+table.grid tr:hover td{background:#f8fafc}
+table.grid tr.off td{opacity:.5}
+.nm{font-weight:700;color:#0f172a}
+.nm small{display:block;font-weight:400;color:#64748b;font-size:11.5px;margin-top:2px;max-width:44ch}
+.tp{font:700 10.5px/1 var(--mono);border-radius:6px;padding:4px 7px;white-space:nowrap}
+.tp.cat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.tp.loc{background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe}
+.tp.uni{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.spicy{font:800 10px/1 var(--mono);background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;margin-left:5px}
+.fchip{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;padding:3px 8px;font:600 11px/1.3 var(--mono);color:#475569;margin:2px 3px 2px 0;white-space:nowrap}
+.loc-chips{display:inline-flex;gap:4px}
+.locb{font:800 10px/1 var(--mono);border:1px solid #e2e8f0;border-radius:5px;padding:4px 6px;color:#475569;background:#fff}
+.locb.off{opacity:.25}
+.dates{font:600 11px/1.4 var(--mono);color:#475569;white-space:nowrap}
+.dates.expired{color:#dc2626}
+.dates.soon{color:#ea580c}
+.metric{font:600 12px/1.3 var(--mono);color:#0f172a;white-space:nowrap}
+.metric small{color:#94a3b8;font-weight:400}
+.ctr{font:700 11px/1 var(--mono);border-radius:6px;padding:3px 6px;margin-left:6px}
+.ctr.hi{background:#ecfdf5;color:#16a34a;border:1px solid #bbf7d0}
+.ctr.lo{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.sw{width:38px;height:22px;border-radius:999px;background:#cbd5e1;border:none;position:relative;cursor:pointer;transition:background .15s;flex:none}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on{background:#2563eb}
+.sw.on::after{left:19px}
+.del{border:1px solid #e2e8f0;background:#fff;color:#94a3b8;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px}
+.del:hover{color:#dc2626;border-color:#fca5a5}
+.rowact{display:flex;align-items:center;gap:8px}
+.dup{font:700 10px/1 var(--mono);background:#fffbeb;color:#b45309;border:1px solid #fde68a;border-radius:6px;padding:4px 6px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:#64748b}
+.bar b{color:#0f172a}
+.chk{width:17px;height:17px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;cursor:pointer;display:inline-grid;place-items:center;color:#fff;font-size:10px}
+.chk.on{background:#2563eb;border-color:#2563eb}
+
+/* проверка на боте */
+.probe{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px}
+@media(max-width:900px){.probe{grid-template-columns:1fr}}
+.botlist{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;height:max-content}
+.botitem{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #e2e8f0;cursor:pointer}
+.botitem:last-child{border-bottom:none}
+.botitem:hover{background:#f8fafc}
+.botitem.on{background:#eff6ff}
+.ava{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:#2563eb;flex:none}
+.botitem b{display:block;font-size:13px;color:#0f172a}
+.botitem small{color:#64748b;font-size:11px}
+.slots{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px}
+.slotcols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.slotcols{grid-template-columns:1fr}}
+.slotcol h5{margin:0 0 8px;font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#64748b}
+.slot{border:1px solid #e2e8f0;border-radius:9px;padding:9px 11px;margin-bottom:7px;background:#f8fafc}
+.slot b{display:block;font-size:12.5px;color:#0f172a}
+.slot .why{display:block;font-size:11px;color:#64748b;margin-top:3px}
+.slot.filler{border-style:dashed}
+.slot .stag{float:right;font:700 9.5px/1 var(--mono);border-radius:5px;padding:3px 5px;margin-left:6px}
+.stag.cat{background:#eff6ff;color:#2563eb}
+.stag.loc{background:#f5f3ff;color:#7c3aed}
+.stag.uni{background:#f1f5f9;color:#475569}
+.locsel{display:flex;gap:6px;align-items:center;margin-bottom:12px;font-size:12.5px;color:#64748b}
+.locbtn{border:1px solid #e2e8f0;background:#fff;border-radius:7px;padding:6px 11px;font:700 12px/1 var(--mono);color:#475569;cursor:pointer}
+.locbtn.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.empty{color:#94a3b8;font-size:13px;padding:26px 0;text-align:center}
+.note{background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:0 10px 10px 0;padding:11px 14px;margin-top:14px;font-size:13px;color:#475569}
+.note b{color:#0f172a}
+
+@media(max-width:900px){
+  .a-head{overflow-x:auto;white-space:nowrap}
+  .a-tab{flex:none}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.grid{min-width:820px}
+  .probe{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidenav"><a class="sn-logo" href="index.html"><img src="emails/img/logo-dark.png" alt="Lovix"></a><div class="sn-grp">Токеномика</div><a href="tokenomics/">Токеномика</a><a href="metrics.html">Метрики</a><div class="sn-grp">Взаимодействие с юзером</div><a href="scenarios.html">Сценарии</a><a href="events.html">События</a><a href="scenario-presets.html">Пресеты сценариев</a><a class="cur" href="scenario-presets-demo.html">Пресеты — демо</a><a href="scenario-wizard-demo.html">Пресеты — визард</a><div class="sn-grp">Рассылки</div><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><div class="sn-grp">Другие доки</div><a href="support.html">Саппорт</a><a href="admin-content.html">Админка — спека</a><a href="admin-demo.html">Админка — демо</a><a href="locale-detection.html">Локаль</a></aside>
+
+<main>
+<h1>Пресеты сценариев: демо раздела админки</h1>
+<p class="lead">Как выглядит и работает раздел «Сценарии». Данные условные, но вся логика живая: фильтры, включение и выключение, апрув черновиков, сборка 12 слотов на выбранном боте. Правила описаны в спеке: <a href="scenario-presets.html">Пресеты сценариев</a>. Создание новых сценариев показано отдельно: <a href="scenario-wizard-demo.html">демо визарда</a>.</p>
+
+<div class="admin">
+  <div class="a-crumbs"><a>Админ панель</a> / <span>Сценарии</span></div>
+  <div class="a-head">
+    <button class="a-tab on" data-tab="list">Все сценарии<span class="cnt-badge" id="cntList">0</span></button>
+    <button class="a-tab" data-tab="draft">Черновики<span class="cnt-badge" id="cntDraft">0</span></button>
+    <button class="a-tab" data-tab="probe">Проверка на боте</button>
+  </div>
+  <div class="a-body">
+
+    <!-- список -->
+    <div id="tab-list">
+      <div class="tbar">
+        <button class="tbtn" data-clr="blue" id="goWizard">Создать новые сценарии</button>
+        <button class="tbtn" data-clr="violet" id="goProbe">Проверить на боте</button>
+      </div>
+      <div class="filters">
+        <span class="fl">Фильтры</span>
+        <select id="fType"><option value="">Тип: все</option><option value="cat">Категорийные</option><option value="loc">Локальные</option><option value="uni">Универсальные</option></select>
+        <select id="fSpicy"><option value="">Spicy: все</option><option value="1">Только spicy</option><option value="0">Без spicy</option></select>
+        <select id="fLoc"><option value="">Локаль: все</option><option value="ru">ru</option><option value="en">en</option><option value="de">de</option></select>
+        <select id="fState"><option value="">Статус: все</option><option value="on">Включённые</option><option value="off">Выключенные</option><option value="expired">Истёкшие</option></select>
+        <input id="fSearch" placeholder="Поиск по наименованию" style="min-width:190px">
+      </div>
+      <div class="bar" id="listBar"></div>
+      <div class="tblwrap"><table class="grid">
+        <thead><tr>
+          <th style="width:26%">Сценарий</th><th>Тип</th><th>Условия показа</th><th>Локали</th>
+          <th>Активен</th><th>Показы</th><th>Клики</th><th style="width:96px">Вкл</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="note"><b>Что здесь делает админ.</b> Включает и выключает сценарии, удаляет мёртвые. Тексты не редактируются: плохой сценарий проще удалить и сгенерировать новый. Ручной привязки к конкретному боту нет, подбор автоматический.</div>
+    </div>
+
+    <!-- черновики -->
+    <div id="tab-draft" style="display:none">
+      <div class="bar">
+        <span class="chk" id="chkAll"></span>
+        <span>Выбрано: <b id="selCnt">0</b> из <b id="draftTotal">0</b></span>
+        <button class="tbtn" data-clr="green" id="approveBtn" style="margin-left:auto">Опубликовать выбранные</button>
+        <button class="tbtn" data-clr="blue" id="dropBtn" style="background:#94a3b8">Удалить выбранные</button>
+      </div>
+      <div class="tblwrap"><table class="grid">
+        <thead><tr><th style="width:34px"></th><th style="width:30%">Сценарий</th><th>Тип</th><th>Условия показа</th><th>Локали</th><th>Проверка</th></tr></thead>
+        <tbody id="drows"></tbody>
+      </table></div>
+      <div class="note"><b>Почему через черновики.</b> Визард генерит пачками по 50 штук, качество надо просмотреть глазами до того, как это увидят пользователи. Похожие на существующие помечены: их можно снять одним движением.</div>
+    </div>
+
+    <!-- проверка на боте -->
+    <div id="tab-probe" style="display:none">
+      <div class="locsel">Локаль пользователя:
+        <button class="locbtn on" data-loc="ru">ru</button>
+        <button class="locbtn" data-loc="en">en</button>
+        <button class="locbtn" data-loc="de">de</button>
+      </div>
+      <div class="probe">
+        <div class="botlist" id="botlist"></div>
+        <div class="slots">
+          <div id="botHead" style="margin-bottom:12px"></div>
+          <div class="slotcols">
+            <div class="slotcol"><h5>Basic · 6 слотов</h5><div id="colBasic"></div></div>
+            <div class="slotcol"><h5>Spicy · 6 слотов</h5><div id="colSpicy"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="note"><b>Как читать.</b> В каждой шестёрке 2 категорийных, 2 локальных, 2 универсальных. Под каждым сценарием написано, по какому условию он сюда попал. Пунктирная рамка означает добор универсальным: подходящих сценариев своего типа не хватило.</div>
+    </div>
+
+  </div>
+</div>
+
+<h2>Что видно в демо</h2>
+<p class="hint">Переключи локаль в «Проверке на боте»: локальные слоты сменятся, а тексты остальных останутся теми же сценариями в другом переводе. Выключи сценарий в списке и вернись к проверке: он исчезнет из наборов, а слот доберётся другим. Выбери разных ботов одной категории: наборы будут отличаться, но у одного бота они постоянны.</p>
+
+</main>
+</div>
+
+<script>
+(function () {
+  /* ── данные демо ── */
+  var BOTS = [
+    { id:'alena', name:'Алёна', sex:'ж', age:42, job:'секретарша', eth:'европейка', style:'реализм', cats:['Milf','Secretary'] },
+    { id:'maria', name:'Мария', sex:'ж', age:34, job:'горничная', eth:'латина', style:'реализм', cats:['Latina','Горничные'] },
+    { id:'eva',   name:'Ева',   sex:'ж', age:25, job:'студентка', eth:'европейка', style:'аниме', cats:['Аниме'] },
+    { id:'lana',  name:'Лана',  sex:'ж', age:45, job:'домохозяйка', eth:'европейка', style:'реализм', cats:['Milf','Домохозяйки'] },
+    { id:'sofia', name:'София', sex:'ж', age:41, job:'секретарша', eth:'латина', style:'реализм', cats:['Milf','Secretary','Latina'] }
+  ];
+
+  /* conds: массив [поле, [значения]] — соединяются через И */
+  var S = [
+    { id:1,  n:'Задержалась после работы', d:'Начальник ушёл, а мы вдвоём в офисе', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], on:true, imp:18400, clk:2100 },
+    { id:2,  n:'Разбор завалов на столе', d:'Помогаю разобрать бумаги, разговор уходит не туда', t:'cat', spicy:false, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:12200, clk:980 },
+    { id:3,  n:'Опыт против молодости', d:'Спор о том, кто интереснее в разговоре', t:'cat', spicy:false, conds:[['age','40+'],['sex',['ж']]], locs:['ru','en','de'], on:true, imp:22100, clk:3400 },
+    { id:4,  n:'Вечер без детей', d:'Дом пустой, впервые за месяц свободный вечер', t:'cat', spicy:false, conds:[['job',['домохозяйка']],['age','30+']], locs:['ru','en','de'], on:true, imp:8700, clk:640 },
+    { id:5,  n:'Урок испанского', d:'Учит меня паре фраз и смеётся над произношением', t:'cat', spicy:false, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:15600, clk:2450 },
+    { id:6,  n:'Уборка в номере', d:'Зашла убраться, а я ещё не ушёл', t:'cat', spicy:true, conds:[['job',['горничная']]], locs:['ru','en','de'], on:true, imp:9900, clk:1870 },
+    { id:7,  n:'Форма секретарши', d:'Новая блузка и вопрос, идёт ли она', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:11300, clk:2600 },
+    { id:8,  n:'После спортзала', d:'Только из душа, разговор о теле и усталости', t:'cat', spicy:true, conds:[['age','40+']], locs:['ru','en','de'], on:true, imp:14500, clk:2980 },
+    { id:9,  n:'Косплей на выходные', d:'Выбираем костюм к фестивалю', t:'cat', spicy:false, conds:[['style',['аниме']]], locs:['ru','en','de'], on:true, imp:5400, clk:820 },
+    { id:10, n:'Сессия на носу', d:'Помоги подготовиться, а то ничего не успеваю', t:'cat', spicy:false, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:6100, clk:710 },
+    { id:11, n:'Ночь перед экзаменом', d:'Учебники в сторону, есть идея поинтереснее', t:'cat', spicy:true, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:7200, clk:1590 },
+    { id:12, n:'Латинская вечеринка', d:'Зовёт танцевать и обещает научить', t:'cat', spicy:true, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:8800, clk:1720 },
+
+    { id:20, n:'Новогодний корпоратив', d:'Оливье съеден, все разошлись, остались мы', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-12-20', to:'2027-01-10', imp:4200, clk:900 },
+    { id:21, n:'Дача в мае', d:'Шашлыки, гамак и целые выходные', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-04-25', to:'2026-05-15', imp:3100, clk:410 },
+    { id:22, n:'Долгая зима', d:'За окном метель, дома плед и разговоры', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:9600, clk:1350 },
+    { id:23, n:'Октоберфест', d:'Палатка, кружка и слишком громкая музыка', t:'loc', spicy:false, conds:[], locs:['de'], on:true, from:'2026-09-15', to:'2026-10-10', imp:2600, clk:520 },
+    { id:24, n:'Выходные на Балтике', d:'Ветер, дюны и никого вокруг', t:'loc', spicy:false, conds:[], locs:['de'], on:true, imp:4400, clk:600 },
+    { id:25, n:'Пятничный паб', d:'Смена закончилась, первый бокал за наш счёт', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:12800, clk:1900 },
+    { id:26, n:'Роуд-трип по побережью', d:'Машина, плейлист и никакого плана', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:7700, clk:1120 },
+    { id:27, n:'Баня по-русски', d:'Пар, веник и разговор по душам', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:6300, clk:1480 },
+    { id:28, n:'Сауна в отеле', d:'Полотенце и никого до утра', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3900, clk:940 },
+    { id:29, n:'Ночь после вечеринки', d:'Такси до дома одно на двоих', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:8100, clk:2050 },
+    { id:30, n:'Выборы президента', d:'Обсуждаем итоги и спорим до ночи', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-03-01', to:'2026-03-20', imp:1800, clk:150 },
+
+    { id:31, n:'Домашний вечер', d:'Дети у бабушки, вино открыто', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:5200, clk:1230 },
+    { id:32, n:'Спа на выходных', d:'Два халата и никаких планов', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3400, clk:800 },
+    { id:33, n:'Отель у моря', d:'Балкон, вид и ни одного знакомого вокруг', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:6900, clk:1610 },
+
+    { id:40, n:'Игра в комплименты', d:'По очереди говорим приятное, кто первый смутится', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:31200, clk:5900 },
+    { id:41, n:'Правда или действие', d:'Классика, только для двоих', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:29800, clk:6400 },
+    { id:42, n:'Двадцать вопросов', d:'Угадываю, о чём ты думаешь, за двадцать вопросов', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:18700, clk:1600 },
+    { id:43, n:'Что было бы, если', d:'Придумываем альтернативные версии дня', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:14300, clk:990 },
+    { id:44, n:'Никогда я не', d:'Игра на признания', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:26400, clk:7100 },
+    { id:45, n:'Желание за желание', d:'Загадываем по очереди и не отказываемся', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:24100, clk:6800 },
+    { id:46, n:'Первое впечатление', d:'Рассказываем, что подумали друг о друге сразу', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:false, imp:9100, clk:310 },
+    { id:47, n:'Тайный список', d:'У каждого есть то, о чём не говорят вслух', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:16900, clk:4200 },
+    { id:48, n:'Тридцать секунд', d:'Отвечаем не задумываясь, пока идёт время', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:12600, clk:3300 },
+    { id:49, n:'Две правды и ложь', d:'Угадай, где я соврала', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:15200, clk:3900 }
+  ];
+
+  var DRAFTS = [
+    { id:100, n:'Отчёт до понедельника', d:'Дедлайн горит, но есть идея отвлечься', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], dup:false },
+    { id:101, n:'Кофе для начальника', d:'Несу кофе и задерживаюсь в кабинете', t:'cat', spicy:false, conds:[['job',['секретарша']]], locs:['ru','en','de'], dup:false },
+    { id:102, n:'Задержалась в офисе', d:'Все ушли, а работа не закончена', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], dup:true },
+    { id:103, n:'Корпоратив отдела', d:'Вечеринка закончилась, а нам не хочется домой', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], dup:false },
+    { id:104, n:'Новая помощница', d:'Учу работать и заодно присматриваюсь', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], dup:false },
+    { id:105, n:'Разбор бумаг вдвоём', d:'Помогаю с архивом, разговор уходит в сторону', t:'cat', spicy:false, conds:[['job',['секретарша']]], locs:['ru','en','de'], dup:true }
+  ];
+
+  var FIELD = { sex:'пол', age:'возраст', job:'род занятий', eth:'этничность', style:'стиль' };
+  var TYPE = { cat:['cat','Категорийный'], loc:['loc','Локальный'], uni:['uni','Универсальный'] };
+  var TODAY = new Date('2026-08-14');
+
+  /* ── подбор: точность + разнообразие, стабильно на бота ── */
+  function matchOne(bot, c) {
+    if (c[1] === '30+') return c[0] === 'age' ? bot.age >= 30 : false;
+    if (c[1] === '40+') return c[0] === 'age' ? bot.age >= 40 : false;
+    return c[1].indexOf(String(bot[c[0]])) !== -1;
+  }
+  function fits(bot, s) { return s.conds.every(function (c) { return matchOne(bot, c); }); }
+  function active(s) {
+    if (!s.on) return false;
+    if (s.from && new Date(s.from) > TODAY) return false;
+    if (s.to && new Date(s.to) < TODAY) return false;
+    return true;
+  }
+  function expired(s) { return !!(s.to && new Date(s.to) < TODAY); }
+  /* стабильный псевдослучайный вес: один и тот же бот всегда получает тот же набор */
+  function seed(botId, sid) {
+    var h = 0, str = botId + ':' + sid;
+    for (var i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+    return (h % 1000) / 1000;
+  }
+  function pick(bot, kind, spicy, loc, n) {
+    var pool = S.filter(function (s) {
+      if (!active(s) || s.spicy !== spicy || s.t !== kind) return false;
+      if (kind === 'loc') return s.locs.indexOf(loc) !== -1;
+      if (kind === 'cat') return fits(bot, s);
+      return true;
+    });
+    pool.sort(function (a, b) {
+      var d = b.conds.length - a.conds.length;          // точность: больше совпавших условий
+      if (d !== 0) return d;
+      return seed(bot.id, a.id) - seed(bot.id, b.id);   // разнообразие, стабильное на бота
+    });
+    return pool.slice(0, n);
+  }
+  function buildSet(bot, spicy, loc) {
+    var out = [], used = [];
+    function free(list) { return list.filter(function (s) { return used.indexOf(s.id) === -1; }); }
+    /* сначала слоты своего типа, доборы после: иначе универсальный уйдёт в добор
+       и тот же сценарий повторится в своём слоте */
+    var plan = [['cat', 2], ['loc', 2], ['uni', 2]];
+    var gaps = [];
+    plan.forEach(function (p) {
+      var got = free(pick(bot, p[0], spicy, loc, 99)).slice(0, p[1]);
+      got.forEach(function (s) { used.push(s.id); out.push({ s: s, kind: p[0], filler: false, order: p[0] }); });
+      if (got.length < p[1]) gaps.push([p[0], p[1] - got.length]);
+    });
+    gaps.forEach(function (g) {
+      var extra = free(pick(bot, 'uni', spicy, loc, 99)).slice(0, g[1]);
+      extra.forEach(function (s) { used.push(s.id); out.push({ s: s, kind: g[0], filler: true, order: g[0] }); });
+    });
+    var rank = { cat: 0, loc: 1, uni: 2 };
+    out.sort(function (a, b) { return rank[a.order] - rank[b.order]; });
+    return out;
+  }
+  function why(bot, item, loc) {
+    if (item.filler) return 'добор универсальным: подходящих сценариев типа «' + TYPE[item.kind][1].toLowerCase() + '» не хватило';
+    if (item.kind === 'cat') {
+      return 'совпало ' + item.s.conds.length + ' из ' + item.s.conds.length + ': ' +
+        item.s.conds.map(function (c) { return FIELD[c[0]] + ' ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]); }).join(', ');
+    }
+    if (item.kind === 'loc') return 'локаль пользователя ' + loc;
+    return 'подходит любому боту';
+  }
+
+  /* ── рендер списка ── */
+  function condHtml(s) {
+    if (s.t === 'uni') return '<span class="fchip">любой бот</span>';
+    if (!s.conds.length) return '<span class="fchip">по локали</span>';
+    return s.conds.map(function (c) {
+      return '<span class="fchip">' + FIELD[c[0]] + ': ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]) + '</span>';
+    }).join('');
+  }
+  function locHtml(s) {
+    return '<span class="loc-chips">' + ['ru', 'en', 'de'].map(function (l) {
+      return '<span class="locb' + (s.locs.indexOf(l) === -1 ? ' off' : '') + '">' + l + '</span>';
+    }).join('') + '</span>';
+  }
+  function dateHtml(s) {
+    if (!s.from && !s.to) return '<span class="dates">всегда</span>';
+    var cls = expired(s) ? ' expired' : (s.from && new Date(s.from) > TODAY ? ' soon' : '');
+    var txt = (s.from || '…') + ' → ' + (s.to || '…');
+    return '<span class="dates' + cls + '">' + txt + (expired(s) ? ' · истёк' : '') + '</span>';
+  }
+  function ctrHtml(s) {
+    var c = s.imp ? s.clk / s.imp : 0;
+    return '<span class="ctr ' + (c >= 0.12 ? 'hi' : 'lo') + '">' + (c * 100).toFixed(1) + '%</span>';
+  }
+  function num(v) { return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+  function renderList() {
+    var ft = document.getElementById('fType').value,
+        fs = document.getElementById('fSpicy').value,
+        fl = document.getElementById('fLoc').value,
+        fst = document.getElementById('fState').value,
+        q = document.getElementById('fSearch').value.trim().toLowerCase();
+    var rows = S.filter(function (s) {
+      if (ft && s.t !== ft) return false;
+      if (fs === '1' && !s.spicy) return false;
+      if (fs === '0' && s.spicy) return false;
+      if (fl && s.locs.indexOf(fl) === -1) return false;
+      if (fst === 'on' && !s.on) return false;
+      if (fst === 'off' && s.on) return false;
+      if (fst === 'expired' && !expired(s)) return false;
+      if (q && (s.n + ' ' + s.d).toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    document.getElementById('rows').innerHTML = rows.map(function (s) {
+      return '<tr class="' + (s.on ? '' : 'off') + '">' +
+        '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') + '<small>' + s.d + '</small></span></td>' +
+        '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
+        '<td>' + condHtml(s) + '</td>' +
+        '<td>' + locHtml(s) + '</td>' +
+        '<td>' + dateHtml(s) + '</td>' +
+        '<td><span class="metric">' + num(s.imp) + '</span></td>' +
+        '<td><span class="metric">' + num(s.clk) + ctrHtml(s) + '</span></td>' +
+        '<td><div class="rowact"><button class="sw' + (s.on ? ' on' : '') + '" data-sw="' + s.id + '"></button>' +
+        '<button class="del" data-del="' + s.id + '" title="Удалить">✕</button></div></td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>';
+
+    var onCnt = S.filter(active).length;
+    document.getElementById('listBar').innerHTML =
+      'Всего: <b>' + S.length + '</b> · в выдаче сейчас: <b>' + onCnt + '</b> · показано: <b>' + rows.length + '</b>' +
+      (S.filter(expired).length ? ' · истёкших: <b>' + S.filter(expired).length + '</b>' : '');
+    document.getElementById('cntList').textContent = S.length;
+
+    document.querySelectorAll('[data-sw]').forEach(function (b) {
+      b.onclick = function () {
+        var s = S.filter(function (x) { return x.id == b.dataset.sw; })[0];
+        s.on = !s.on; renderList(); renderProbe();
+      };
+    });
+    document.querySelectorAll('[data-del]').forEach(function (b) {
+      b.onclick = function () {
+        S = S.filter(function (x) { return x.id != b.dataset.del; });
+        renderList(); renderProbe();
+      };
+    });
+  }
+  ['fType', 'fSpicy', 'fLoc', 'fState'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', renderList);
+  });
+  document.getElementById('fSearch').addEventListener('input', renderList);
+
+  /* ── черновики ── */
+  var sel = {};
+  function renderDrafts() {
+    document.getElementById('drows').innerHTML = DRAFTS.map(function (s) {
+      return '<tr>' +
+        '<td><span class="chk' + (sel[s.id] ? ' on' : '') + '" data-sel="' + s.id + '">✓</span></td>' +
+        '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') + '<small>' + s.d + '</small></span></td>' +
+        '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
+        '<td>' + condHtml(s) + '</td>' +
+        '<td>' + locHtml(s) + '</td>' +
+        '<td>' + (s.dup ? '<span class="dup">похож на существующий</span>' : '<span style="color:#16a34a;font-size:12px">чисто</span>') + '</td>' +
+        '</tr>';
+    }).join('') || '<tr><td colspan="6" class="empty">Черновиков нет</td></tr>';
+    document.getElementById('draftTotal').textContent = DRAFTS.length;
+    document.getElementById('cntDraft').textContent = DRAFTS.length;
+    document.getElementById('selCnt').textContent = Object.keys(sel).filter(function (k) { return sel[k]; }).length;
+    document.querySelectorAll('[data-sel]').forEach(function (c) {
+      c.onclick = function () { sel[c.dataset.sel] = !sel[c.dataset.sel]; renderDrafts(); };
+    });
+  }
+  document.getElementById('chkAll').onclick = function () {
+    var all = DRAFTS.every(function (s) { return sel[s.id]; });
+    DRAFTS.forEach(function (s) { sel[s.id] = !all; });
+    this.classList.toggle('on', !all);
+    renderDrafts();
+  };
+  function takeSelected(publish) {
+    var ids = DRAFTS.filter(function (s) { return sel[s.id]; }).map(function (s) { return s.id; });
+    if (!ids.length) return;
+    if (publish) {
+      DRAFTS.filter(function (s) { return sel[s.id]; }).forEach(function (s) {
+        S.push({ id: s.id, n: s.n, d: s.d, t: s.t, spicy: s.spicy, conds: s.conds, locs: s.locs, on: true, imp: 0, clk: 0 });
+      });
+    }
+    for (var i = DRAFTS.length - 1; i >= 0; i--) { if (sel[DRAFTS[i].id]) DRAFTS.splice(i, 1); }
+    sel = {};
+    document.getElementById('chkAll').classList.remove('on');
+    renderDrafts(); renderList(); renderProbe();
+  }
+  document.getElementById('approveBtn').onclick = function () { takeSelected(true); };
+  document.getElementById('dropBtn').onclick = function () { takeSelected(false); };
+
+  /* ── проверка на боте ── */
+  var curBot = BOTS[0].id, curLoc = 'ru';
+  function renderProbe() {
+    document.getElementById('botlist').innerHTML = BOTS.map(function (b) {
+      return '<div class="botitem' + (b.id === curBot ? ' on' : '') + '" data-bot="' + b.id + '">' +
+        '<span class="ava">' + b.name[0] + '</span><div><b>' + b.name + '</b>' +
+        '<small>' + b.age + ' · ' + b.job + ' · ' + b.eth + '</small></div></div>';
+    }).join('');
+    document.querySelectorAll('[data-bot]').forEach(function (el) {
+      el.onclick = function () { curBot = el.dataset.bot; renderProbe(); };
+    });
+
+    var bot = BOTS.filter(function (b) { return b.id === curBot; })[0];
+    document.getElementById('botHead').innerHTML =
+      '<b style="font-size:14px;color:#0f172a">' + bot.name + '</b> ' +
+      '<span style="color:#64748b;font-size:12.5px">' + bot.sex + ', ' + bot.age + ', ' + bot.job + ', ' + bot.eth + ', ' + bot.style +
+      ' · категории: ' + bot.cats.join(', ') + '</span>';
+
+    [['colBasic', false], ['colSpicy', true]].forEach(function (p) {
+      var set = buildSet(bot, p[1], curLoc);
+      document.getElementById(p[0]).innerHTML = set.map(function (it) {
+        return '<div class="slot' + (it.filler ? ' filler' : '') + '">' +
+          '<span class="stag ' + TYPE[it.kind][0] + '">' + TYPE[it.kind][1].slice(0, 3).toLowerCase() + '</span>' +
+          '<b>' + it.s.n + '</b><span class="why">' + why(bot, it, curLoc) + '</span></div>';
+      }).join('') || '<div class="empty">Нет подходящих сценариев</div>';
+    });
+  }
+  document.querySelectorAll('.locbtn').forEach(function (b) {
+    b.onclick = function () {
+      curLoc = b.dataset.loc;
+      document.querySelectorAll('.locbtn').forEach(function (x) { x.classList.toggle('on', x === b); });
+      renderProbe();
+    };
+  });
+
+  /* ── вкладки ── */
+  function tab(name) {
+    document.querySelectorAll('.a-tab').forEach(function (t) { t.classList.toggle('on', t.dataset.tab === name); });
+    ['list', 'draft', 'probe'].forEach(function (n) {
+      document.getElementById('tab-' + n).style.display = n === name ? '' : 'none';
+    });
+  }
+  document.querySelectorAll('.a-tab').forEach(function (t) { t.onclick = function () { tab(t.dataset.tab); }; });
+  document.getElementById('goProbe').onclick = function () { tab('probe'); };
+  document.getElementById('goWizard').onclick = function () { location.href = 'scenario-wizard-demo.html'; };
+
+  renderList(); renderDrafts(); renderProbe();
+})();
+</script>
+</body>
+</html>
