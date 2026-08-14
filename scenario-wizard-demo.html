@@ -188,7 +188,7 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
   var st = {
     step: 1, type: 'cat', spicy: false, cat: 'Secretary',
     conds: JSON.parse(JSON.stringify(CATS['Secretary'])),
-    locs: ['ru', 'en', 'de'],
+    locs: [],
     from: '', to: '', ctx: '', count: 50,
     progress: 0, kept: 0, drafts: [], sel: {}
   };
@@ -213,9 +213,9 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
       p.innerHTML =
         '<h3>Тип сценариев</h3><p class="sub">От типа зависит, в какой из шести слотов бота они попадут.</p>' +
         '<div class="fld"><label>Тип</label><div class="opts">' +
-          opt('cat', 'Категорийный', 'подбор по параметрам бота') +
-          opt('loc', 'Локальный', 'подбор по локали пользователя') +
-          opt('uni', 'Универсальный', 'подходит любому боту') +
+          opt('cat', 'Категорийный', 'по параметрам бота, во всех локалях') +
+          opt('loc', 'Локальный', 'по локали пользователя') +
+          opt('uni', 'Универсальный', 'любому боту, во всех локалях') +
         '</div></div>' +
         '<div class="fld"><label>Формат</label><div class="opts">' +
           fmt(false, 'Обычные', 'свой промпт генерации') +
@@ -227,33 +227,47 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
       p.querySelectorAll('[data-t]').forEach(function (b) {
         b.onclick = function () {
           st.type = b.dataset.t;
-          if (st.type !== 'cat') st.conds = [];
-          else if (!st.conds.length) st.conds = JSON.parse(JSON.stringify(CATS[st.cat]));
+          /* поля, неприменимые к виду, не должны утекать в сводку и в задачу */
+          if (st.type === 'cat') {
+            if (!st.conds.length) st.conds = JSON.parse(JSON.stringify(CATS[st.cat]));
+            st.locs = [];
+          } else if (st.type === 'loc') {
+            st.conds = [];
+            if (!st.locs.length) st.locs = ['ru', 'en', 'de'];
+          } else {
+            st.conds = []; st.locs = [];
+          }
           render();
         };
       });
     }
 
     if (st.step === 2) {
-      var catBlock = st.type === 'cat'
-        ? '<div class="fld"><label>Взять параметры из категории</label>' +
+      var body;
+      if (st.type === 'cat') {
+        body = '<div class="fld"><label>Взять параметры из категории</label>' +
           '<select id="catSel">' + Object.keys(CATS).map(function (c) {
             return '<option' + (c === st.cat ? ' selected' : '') + '>' + c + '</option>';
           }).join('') + '</select>' +
           '<div class="locnote">Выбор категории подставляет её параметры ниже. Дальше их можно править и дополнять руками.</div></div>' +
           '<div class="fld"><label>Параметры бота · все условия соединяются через И</label><div id="condBox"></div>' +
-          '<button class="addcond" id="addCond">+ Добавить условие</button></div>'
-        : '<div class="fld"><div class="warn">Тип «' + (st.type === 'loc' ? 'локальный' : 'универсальный') +
-          '»: условия по параметрам бота не задаются. ' +
-          (st.type === 'loc' ? 'Подбор идёт по локали пользователя.' : 'Сценарий подходит любому боту.') + '</div></div>';
+          '<button class="addcond" id="addCond">+ Добавить условие</button></div>' +
+          '<div class="locnote">Локали здесь не задаются: категорийные сценарии показываются во всех локалях, пользователь видит перевод своей.</div>';
+      } else if (st.type === 'loc') {
+        body = '<div class="fld"><label>Локали показа</label><div class="locrow">' +
+          ['ru', 'en', 'de'].map(function (l) {
+            var on = st.locs.indexOf(l) !== -1;
+            return '<button class="locb ' + (on ? 'on' : 'off') + '" data-l="' + l + '"><span class="fl">' + LOCFLAG[l] + '</span>' + l + '</button>';
+          }).join('') +
+          '</div><div class="locnote">Сценарии попадут в локальные слоты пользователей выбранных локалей. Текст всё равно хранится переводами на ru, en и de.</div></div>';
+      } else {
+        body = '<div class="fld"><div class="warn">Условия у универсальных сценариев не задаются: они подходят любому боту и показываются во всех локалях.</div></div>';
+      }
 
-      p.innerHTML = '<h3>Условия показа</h3><p class="sub">Кому и где показывать эти сценарии.</p>' + catBlock +
-        '<div class="fld"><label>Локали показа</label><div class="locrow">' +
-        ['ru', 'en', 'de'].map(function (l) {
-          var on = st.locs.indexOf(l) !== -1;
-          return '<button class="locb ' + (on ? 'on' : 'off') + '" data-l="' + l + '"><span class="fl">' + LOCFLAG[l] + '</span>' + l + '</button>';
-        }).join('') +
-        '</div><div class="locnote">Локали это условие показа, а не язык текста. Каждый сценарий всё равно хранит переводы на ru, en и de.</div></div>';
+      p.innerHTML = '<h3>Условия показа</h3><p class="sub">' +
+        (st.type === 'cat' ? 'Каким ботам показывать эти сценарии.'
+          : st.type === 'loc' ? 'В каких локалях показывать эти сценарии.'
+          : 'Для этого вида условия не нужны.') + '</p>' + body;
 
       if (st.type === 'cat') {
         document.getElementById('catSel').onchange = function () {
@@ -394,13 +408,20 @@ table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;ve
 
   function renderSum() {
     var TYPES = { cat: 'Категорийный', loc: 'Локальный', uni: 'Универсальный' };
-    document.getElementById('sum').innerHTML =
-      '<div><span>Тип</span><span>' + TYPES[st.type] + (st.spicy ? ' · spicy' : '') + '</span></div>' +
-      '<div><span>Условия</span><span>' + (st.conds.length ? st.conds.map(condText).join('<br>') : '—') + '</span></div>' +
-      '<div><span>Локали</span><span>' + st.locs.map(function (l) { return LOCFLAG[l] + ' ' + l; }).join(' ') + '</span></div>' +
-      '<div><span>Период</span><span>' + (st.from || st.to ? (st.from || '…') + ' → ' + (st.to || '…') : 'всегда') + '</span></div>' +
-      '<div><span>Количество</span><span>' + st.count + '</span></div>' +
-      (st.ctx ? '<div><span>Контекст</span><span>' + st.ctx.slice(0, 60) + (st.ctx.length > 60 ? '…' : '') + '</span></div>' : '');
+    var rows = [['Вид', TYPES[st.type]], ['Формат', st.spicy ? 'Spicy' : 'Обычные']];
+    if (st.step > 1) {
+      if (st.type === 'cat') rows.push(['Условия', st.conds.length ? st.conds.map(condText).join('<br>') : 'не заданы']);
+      if (st.type === 'loc') rows.push(['Локали', st.locs.map(function (l) { return LOCFLAG[l] + ' ' + l; }).join(' ')]);
+      if (st.type === 'uni') rows.push(['Условия', 'нет, подходит любому боту']);
+    }
+    if (st.step > 2) {
+      rows.push(['Период', (st.from || st.to) ? (st.from || '…') + ' → ' + (st.to || '…') : 'всегда']);
+      rows.push(['Количество', String(st.count)]);
+      if (st.ctx) rows.push(['Контекст', st.ctx.slice(0, 60) + (st.ctx.length > 60 ? '…' : '')]);
+    }
+    document.getElementById('sum').innerHTML = rows.map(function (r) {
+      return '<div><span>' + r[0] + '</span><span>' + r[1] + '</span></div>';
+    }).join('');
   }
 
   function renderNav() {

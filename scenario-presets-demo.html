@@ -70,6 +70,7 @@ table.grid tr.off td{opacity:.5}
 .loc-chips{display:inline-flex;gap:3px}
 .locb{font:800 10px/1 var(--mono);border:1px solid #e2e8f0;border-radius:5px;padding:4px 5px;color:#475569;background:#fff}
 .locb.off{opacity:.25}
+.locb.all{background:#f1f5f9;color:#64748b;cursor:help}
 .dates{font:600 10.5px/1.4 var(--mono);color:#475569;white-space:normal}
 .dates.expired{color:#dc2626}
 .dates.soon{color:#ea580c}
@@ -434,6 +435,8 @@ tr.sel td{background:#eff6ff !important}
     return head + (all.length > 2 ? '<span class="fchip more" title="' + all.join(' · ') + '">+' + (all.length - 2) + '</span>' : '');
   }
   function locHtml(s) {
+    /* локали настраиваются только у локальных сценариев */
+    if (s.t !== 'loc') return '<span class="locb all" title="показывается во всех локалях">все</span>';
     return '<span class="loc-chips">' + ['ru', 'en', 'de'].map(function (l) {
       return '<span class="locb' + (s.locs.indexOf(l) === -1 ? ' off' : '') + '">' + l + '</span>';
     }).join('') + '</span>';
@@ -465,7 +468,7 @@ tr.sel td{background:#eff6ff !important}
       if (ft && s.t !== ft) return false;
       if (fs === '1' && !s.spicy) return false;
       if (fs === '0' && s.spicy) return false;
-      if (fl && s.locs.indexOf(fl) === -1) return false;
+      if (fl && s.t === 'loc' && s.locs.indexOf(fl) === -1) return false;
       if (fst === 'on' && !s.on) return false;
       if (fst === 'off' && s.on) return false;
       if (fst === 'expired' && !expired(s)) return false;
