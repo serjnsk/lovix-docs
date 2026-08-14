@@ -84,6 +84,21 @@ table.grid tr.off td{opacity:.5}
 .bar b{color:#0f172a}
 .chk{width:17px;height:17px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;cursor:pointer;display:inline-grid;place-items:center;color:#fff;font-size:10px}
 .chk.on{background:#2563eb;border-color:#2563eb}
+.chk.part{background:#bfdbfe;border-color:#2563eb;color:#2563eb}
+/* панель массовых действий */
+.massbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:#eff6ff;border:1px solid #bfdbfe;
+  border-radius:10px;padding:9px 13px;margin-bottom:10px;font-size:13px;color:#1e40af}
+.massbar.on{display:flex}
+.massbar b{font:800 15px/1 var(--mono);color:#1d4ed8}
+.massact{display:flex;gap:7px;margin-left:auto;flex-wrap:wrap}
+.masscancel{border:1px solid #bfdbfe;background:#fff;color:#2563eb;border-radius:8px;padding:9px 13px;font:700 12.5px/1 inherit;cursor:pointer}
+.masscancel:hover{background:#dbeafe}
+.pairwarn{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:5px 9px;display:none}
+.pairwarn.on{display:inline-block}
+.pairwarn button{border:none;background:none;color:#2563eb;font:700 12px/1 inherit;cursor:pointer;text-decoration:underline;padding:0 0 0 4px}
+tr.sel td{background:#eff6ff !important}
+.pairtag{font:700 10px/1 var(--mono);background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;border-radius:6px;padding:4px 6px;margin-left:5px;cursor:pointer}
+.pairtag:hover{background:#ede9fe}
 
 /* проверка на боте */
 .probe{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px}
@@ -156,14 +171,25 @@ table.grid tr.off td{opacity:.5}
         <input id="fSearch" placeholder="Поиск по наименованию" style="min-width:190px">
       </div>
       <div class="bar" id="listBar"></div>
+      <div class="massbar" id="massbar">
+        <b id="massCnt">0</b> выделено
+        <span class="pairwarn" id="pairWarn"></span>
+        <div class="massact">
+          <button class="tbtn" data-clr="green" data-mass="on">Включить</button>
+          <button class="tbtn" data-clr="blue" data-mass="off" style="background:#64748b">Выключить</button>
+          <button class="tbtn" data-clr="blue" data-mass="del" style="background:#dc2626">Удалить</button>
+          <button class="masscancel" data-mass="none">Снять выделение</button>
+        </div>
+      </div>
       <div class="tblwrap"><table class="grid">
         <thead><tr>
-          <th style="width:26%">Сценарий</th><th>Тип</th><th>Условия показа</th><th>Локали</th>
+          <th style="width:34px"><span class="chk" id="chkAllList" title="Выделить всё в текущем фильтре"></span></th>
+          <th style="width:24%">Сценарий</th><th>Тип</th><th>Условия показа</th><th>Локали</th>
           <th>Активен</th><th>Показы</th><th>Клики</th><th style="width:96px">Вкл</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
-      <div class="note"><b>Что здесь делает админ.</b> Включает и выключает сценарии, удаляет мёртвые. Тексты не редактируются: плохой сценарий проще удалить и сгенерировать новый. Ручной привязки к конкретному боту нет, подбор автоматический.</div>
+      <div class="note"><b>Что здесь делает админ.</b> Включает и выключает сценарии, удаляет мёртвые. Тексты не редактируются: плохой сценарий проще удалить и сгенерировать новый. Ручной привязки к конкретному боту нет, подбор автоматический.<br><b>Массовые действия.</b> Отметь строки чекбоксами или нажми чекбокс в шапке, чтобы выделить всё в текущем фильтре. Панель сверху включит, выключит или удалит выбранное одной кнопкой. Метка «пара» показывает, что у сюжета есть вторая версия: клик по метке находит её.</div>
     </div>
 
     <!-- черновики -->
@@ -223,44 +249,44 @@ table.grid tr.off td{opacity:.5}
 
   /* conds: массив [поле, [значения]] — соединяются через И */
   var S = [
-    { id:1,  n:'Задержалась после работы', d:'Начальник ушёл, а мы вдвоём в офисе', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], on:true, imp:18400, clk:2100 },
+    { id:1,  n:'Задержалась после работы', d:'Начальник ушёл, а мы вдвоём в офисе', t:'cat', spicy:false, conds:[['job',['секретарша']],['age','30+']], locs:['ru','en','de'], on:true, imp:18400, clk:2100 , pair:7 },
     { id:2,  n:'Разбор завалов на столе', d:'Помогаю разобрать бумаги, разговор уходит не туда', t:'cat', spicy:false, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:12200, clk:980 },
-    { id:3,  n:'Опыт против молодости', d:'Спор о том, кто интереснее в разговоре', t:'cat', spicy:false, conds:[['age','40+'],['sex',['ж']]], locs:['ru','en','de'], on:true, imp:22100, clk:3400 },
+    { id:3,  n:'Опыт против молодости', d:'Спор о том, кто интереснее в разговоре', t:'cat', spicy:false, conds:[['age','40+'],['sex',['ж']]], locs:['ru','en','de'], on:true, imp:22100, clk:3400 , pair:8 },
     { id:4,  n:'Вечер без детей', d:'Дом пустой, впервые за месяц свободный вечер', t:'cat', spicy:false, conds:[['job',['домохозяйка']],['age','30+']], locs:['ru','en','de'], on:true, imp:8700, clk:640 },
-    { id:5,  n:'Урок испанского', d:'Учит меня паре фраз и смеётся над произношением', t:'cat', spicy:false, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:15600, clk:2450 },
+    { id:5,  n:'Урок испанского', d:'Учит меня паре фраз и смеётся над произношением', t:'cat', spicy:false, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:15600, clk:2450 , pair:12 },
     { id:6,  n:'Уборка в номере', d:'Зашла убраться, а я ещё не ушёл', t:'cat', spicy:true, conds:[['job',['горничная']]], locs:['ru','en','de'], on:true, imp:9900, clk:1870 },
-    { id:7,  n:'Форма секретарши', d:'Новая блузка и вопрос, идёт ли она', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:11300, clk:2600 },
-    { id:8,  n:'После спортзала', d:'Только из душа, разговор о теле и усталости', t:'cat', spicy:true, conds:[['age','40+']], locs:['ru','en','de'], on:true, imp:14500, clk:2980 },
+    { id:7,  n:'Форма секретарши', d:'Новая блузка и вопрос, идёт ли она', t:'cat', spicy:true, conds:[['job',['секретарша']]], locs:['ru','en','de'], on:true, imp:11300, clk:2600 , pair:1 },
+    { id:8,  n:'После спортзала', d:'Только из душа, разговор о теле и усталости', t:'cat', spicy:true, conds:[['age','40+']], locs:['ru','en','de'], on:true, imp:14500, clk:2980 , pair:3 },
     { id:9,  n:'Косплей на выходные', d:'Выбираем костюм к фестивалю', t:'cat', spicy:false, conds:[['style',['аниме']]], locs:['ru','en','de'], on:true, imp:5400, clk:820 },
-    { id:10, n:'Сессия на носу', d:'Помоги подготовиться, а то ничего не успеваю', t:'cat', spicy:false, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:6100, clk:710 },
-    { id:11, n:'Ночь перед экзаменом', d:'Учебники в сторону, есть идея поинтереснее', t:'cat', spicy:true, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:7200, clk:1590 },
-    { id:12, n:'Латинская вечеринка', d:'Зовёт танцевать и обещает научить', t:'cat', spicy:true, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:8800, clk:1720 },
+    { id:10, n:'Сессия на носу', d:'Помоги подготовиться, а то ничего не успеваю', t:'cat', spicy:false, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:6100, clk:710 , pair:11 },
+    { id:11, n:'Ночь перед экзаменом', d:'Учебники в сторону, есть идея поинтереснее', t:'cat', spicy:true, conds:[['job',['студентка']]], locs:['ru','en','de'], on:true, imp:7200, clk:1590 , pair:10 },
+    { id:12, n:'Латинская вечеринка', d:'Зовёт танцевать и обещает научить', t:'cat', spicy:true, conds:[['eth',['латина']]], locs:['ru','en','de'], on:true, imp:8800, clk:1720 , pair:5 },
 
     { id:20, n:'Новогодний корпоратив', d:'Оливье съеден, все разошлись, остались мы', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-12-20', to:'2027-01-10', imp:4200, clk:900 },
-    { id:21, n:'Дача в мае', d:'Шашлыки, гамак и целые выходные', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-04-25', to:'2026-05-15', imp:3100, clk:410 },
-    { id:22, n:'Долгая зима', d:'За окном метель, дома плед и разговоры', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:9600, clk:1350 },
-    { id:23, n:'Октоберфест', d:'Палатка, кружка и слишком громкая музыка', t:'loc', spicy:false, conds:[], locs:['de'], on:true, from:'2026-09-15', to:'2026-10-10', imp:2600, clk:520 },
+    { id:21, n:'Дача в мае', d:'Шашлыки, гамак и целые выходные', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-04-25', to:'2026-05-15', imp:3100, clk:410 , pair:31 },
+    { id:22, n:'Долгая зима', d:'За окном метель, дома плед и разговоры', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, imp:9600, clk:1350 , pair:27 },
+    { id:23, n:'Октоберфест', d:'Палатка, кружка и слишком громкая музыка', t:'loc', spicy:false, conds:[], locs:['de'], on:true, from:'2026-09-15', to:'2026-10-10', imp:2600, clk:520 , pair:28 },
     { id:24, n:'Выходные на Балтике', d:'Ветер, дюны и никого вокруг', t:'loc', spicy:false, conds:[], locs:['de'], on:true, imp:4400, clk:600 },
-    { id:25, n:'Пятничный паб', d:'Смена закончилась, первый бокал за наш счёт', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:12800, clk:1900 },
-    { id:26, n:'Роуд-трип по побережью', d:'Машина, плейлист и никакого плана', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:7700, clk:1120 },
-    { id:27, n:'Баня по-русски', d:'Пар, веник и разговор по душам', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:6300, clk:1480 },
-    { id:28, n:'Сауна в отеле', d:'Полотенце и никого до утра', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3900, clk:940 },
-    { id:29, n:'Ночь после вечеринки', d:'Такси до дома одно на двоих', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:8100, clk:2050 },
+    { id:25, n:'Пятничный паб', d:'Смена закончилась, первый бокал за наш счёт', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:12800, clk:1900 , pair:29 },
+    { id:26, n:'Роуд-трип по побережью', d:'Машина, плейлист и никакого плана', t:'loc', spicy:false, conds:[], locs:['en'], on:true, imp:7700, clk:1120 , pair:33 },
+    { id:27, n:'Баня по-русски', d:'Пар, веник и разговор по душам', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:6300, clk:1480 , pair:22 },
+    { id:28, n:'Сауна в отеле', d:'Полотенце и никого до утра', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3900, clk:940 , pair:23 },
+    { id:29, n:'Ночь после вечеринки', d:'Такси до дома одно на двоих', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:8100, clk:2050 , pair:25 },
     { id:30, n:'Выборы президента', d:'Обсуждаем итоги и спорим до ночи', t:'loc', spicy:false, conds:[], locs:['ru'], on:true, from:'2026-03-01', to:'2026-03-20', imp:1800, clk:150 },
 
-    { id:31, n:'Домашний вечер', d:'Дети у бабушки, вино открыто', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:5200, clk:1230 },
+    { id:31, n:'Домашний вечер', d:'Дети у бабушки, вино открыто', t:'loc', spicy:true, conds:[], locs:['ru'], on:true, imp:5200, clk:1230 , pair:21 },
     { id:32, n:'Спа на выходных', d:'Два халата и никаких планов', t:'loc', spicy:true, conds:[], locs:['de'], on:true, imp:3400, clk:800 },
-    { id:33, n:'Отель у моря', d:'Балкон, вид и ни одного знакомого вокруг', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:6900, clk:1610 },
+    { id:33, n:'Отель у моря', d:'Балкон, вид и ни одного знакомого вокруг', t:'loc', spicy:true, conds:[], locs:['en'], on:true, imp:6900, clk:1610 , pair:26 },
 
-    { id:40, n:'Игра в комплименты', d:'По очереди говорим приятное, кто первый смутится', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:31200, clk:5900 },
-    { id:41, n:'Правда или действие', d:'Классика, только для двоих', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:29800, clk:6400 },
-    { id:42, n:'Двадцать вопросов', d:'Угадываю, о чём ты думаешь, за двадцать вопросов', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:18700, clk:1600 },
-    { id:43, n:'Что было бы, если', d:'Придумываем альтернативные версии дня', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:14300, clk:990 },
-    { id:44, n:'Никогда я не', d:'Игра на признания', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:26400, clk:7100 },
-    { id:45, n:'Желание за желание', d:'Загадываем по очереди и не отказываемся', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:24100, clk:6800 },
+    { id:40, n:'Игра в комплименты', d:'По очереди говорим приятное, кто первый смутится', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:31200, clk:5900 , pair:44 },
+    { id:41, n:'Правда или действие', d:'Классика, только для двоих', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:29800, clk:6400 , pair:45 },
+    { id:42, n:'Двадцать вопросов', d:'Угадываю, о чём ты думаешь, за двадцать вопросов', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:18700, clk:1600 , pair:48 },
+    { id:43, n:'Что было бы, если', d:'Придумываем альтернативные версии дня', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:true, imp:14300, clk:990 , pair:49 },
+    { id:44, n:'Никогда я не', d:'Игра на признания', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:26400, clk:7100 , pair:40 },
+    { id:45, n:'Желание за желание', d:'Загадываем по очереди и не отказываемся', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:24100, clk:6800 , pair:41 },
     { id:46, n:'Первое впечатление', d:'Рассказываем, что подумали друг о друге сразу', t:'uni', spicy:false, conds:[], locs:['ru','en','de'], on:false, imp:9100, clk:310 },
     { id:47, n:'Тайный список', d:'У каждого есть то, о чём не говорят вслух', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:16900, clk:4200 },
-    { id:48, n:'Тридцать секунд', d:'Отвечаем не задумываясь, пока идёт время', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:12600, clk:3300 },
+    { id:48, n:'Тридцать секунд', d:'Отвечаем не задумываясь, пока идёт время', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:12600, clk:3300 , pair:42 },
     { id:49, n:'Две правды и ложь', d:'Угадай, где я соврала', t:'uni', spicy:true, conds:[], locs:['ru','en','de'], on:true, imp:15200, clk:3900 }
   ];
 
@@ -366,13 +392,25 @@ table.grid tr.off td{opacity:.5}
   }
   function num(v) { return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
 
-  function renderList() {
+  /* ── массовое выделение ── */
+  var mass = {};                                   /* id → true */
+  function massIds() { return Object.keys(mass).filter(function (k) { return mass[k]; }).map(Number); }
+  function byId(id) { return S.filter(function (x) { return x.id === id; })[0]; }
+  /* половинки пар: выделен один, а его парный сценарий нет */
+  function lonelyHalves() {
+    return massIds().filter(function (id) {
+      var s = byId(id);
+      return s && s.pair && byId(s.pair) && !mass[s.pair];
+    });
+  }
+
+  function filtered() {
     var ft = document.getElementById('fType').value,
         fs = document.getElementById('fSpicy').value,
         fl = document.getElementById('fLoc').value,
         fst = document.getElementById('fState').value,
         q = document.getElementById('fSearch').value.trim().toLowerCase();
-    var rows = S.filter(function (s) {
+    return S.filter(function (s) {
       if (ft && s.t !== ft) return false;
       if (fs === '1' && !s.spicy) return false;
       if (fs === '0' && s.spicy) return false;
@@ -383,9 +421,17 @@ table.grid tr.off td{opacity:.5}
       if (q && (s.n + ' ' + s.d).toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
+  }
+
+  function renderList() {
+    var rows = filtered();
     document.getElementById('rows').innerHTML = rows.map(function (s) {
-      return '<tr class="' + (s.on ? '' : 'off') + '">' +
-        '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') + '<small>' + s.d + '</small></span></td>' +
+      var pairS = s.pair ? byId(s.pair) : null;
+      return '<tr class="' + (s.on ? '' : 'off') + (mass[s.id] ? ' sel' : '') + '">' +
+        '<td><span class="chk' + (mass[s.id] ? ' on' : '') + '" data-pick="' + s.id + '">✓</span></td>' +
+        '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') +
+        (pairS ? '<span class="pairtag" data-pair="' + pairS.id + '" title="' + pairS.n + '">пара ' + (s.spicy ? '· обычный' : '· spicy') + '</span>' : '') +
+        '<small>' + s.d + '</small></span></td>' +
         '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
         '<td>' + condHtml(s) + '</td>' +
         '<td>' + locHtml(s) + '</td>' +
@@ -395,7 +441,7 @@ table.grid tr.off td{opacity:.5}
         '<td><div class="rowact"><button class="sw' + (s.on ? ' on' : '') + '" data-sw="' + s.id + '"></button>' +
         '<button class="del" data-del="' + s.id + '" title="Удалить">✕</button></div></td>' +
         '</tr>';
-    }).join('') || '<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>';
+    }).join('') || '<tr><td colspan="9" class="empty">Ничего не найдено</td></tr>';
 
     var onCnt = S.filter(active).length;
     document.getElementById('listBar').innerHTML =
@@ -405,17 +451,83 @@ table.grid tr.off td{opacity:.5}
 
     document.querySelectorAll('[data-sw]').forEach(function (b) {
       b.onclick = function () {
-        var s = S.filter(function (x) { return x.id == b.dataset.sw; })[0];
+        var s = byId(+b.dataset.sw);
         s.on = !s.on; renderList(); renderProbe();
       };
     });
     document.querySelectorAll('[data-del]').forEach(function (b) {
       b.onclick = function () {
-        S = S.filter(function (x) { return x.id != b.dataset.del; });
+        var id = +b.dataset.del;
+        S = S.filter(function (x) { return x.id !== id; });
+        delete mass[id];
         renderList(); renderProbe();
       };
     });
+    document.querySelectorAll('[data-pick]').forEach(function (c) {
+      c.onclick = function () {
+        var id = +c.dataset.pick;
+        mass[id] = !mass[id];
+        renderList();
+      };
+    });
+    /* переход к парной версии: подсветить её поиском */
+    document.querySelectorAll('[data-pair]').forEach(function (t) {
+      t.onclick = function (e) {
+        e.stopPropagation();
+        var p = byId(+t.dataset.pair);
+        if (!p) return;
+        document.getElementById('fSpicy').value = '';
+        document.getElementById('fSearch').value = p.n;
+        renderList();
+      };
+    });
+
+    /* шапка: выделено всё в текущем фильтре, часть или ничего */
+    var visible = rows.map(function (s) { return s.id; });
+    var picked = visible.filter(function (id) { return mass[id]; });
+    var head = document.getElementById('chkAllList');
+    head.classList.toggle('on', visible.length > 0 && picked.length === visible.length);
+    head.classList.toggle('part', picked.length > 0 && picked.length < visible.length);
+    renderMass();
   }
+
+  /* ── панель массовых действий ── */
+  function renderMass() {
+    var ids = massIds();
+    var bar = document.getElementById('massbar');
+    bar.classList.toggle('on', ids.length > 0);
+    document.getElementById('massCnt').textContent = ids.length;
+    var lonely = lonelyHalves();
+    var w = document.getElementById('pairWarn');
+    w.classList.toggle('on', lonely.length > 0);
+    if (lonely.length) {
+      w.innerHTML = 'у ' + lonely.length + ' из выбранных есть парная версия' +
+        '<button id="addPairs">добавить пары</button>';
+      document.getElementById('addPairs').onclick = function () {
+        lonelyHalves().forEach(function (id) { mass[byId(id).pair] = true; });
+        renderList();
+      };
+    }
+  }
+  document.getElementById('chkAllList').onclick = function () {
+    var visible = filtered().map(function (s) { return s.id; });
+    var allPicked = visible.length > 0 && visible.every(function (id) { return mass[id]; });
+    visible.forEach(function (id) { mass[id] = !allPicked; });
+    renderList();
+  };
+  document.querySelectorAll('[data-mass]').forEach(function (b) {
+    b.onclick = function () {
+      var act = b.dataset.mass, ids = massIds();
+      if (act === 'none') { mass = {}; renderList(); return; }
+      if (act === 'del') {
+        S = S.filter(function (s) { return ids.indexOf(s.id) === -1; });
+        mass = {};
+      } else {
+        ids.forEach(function (id) { var s = byId(id); if (s) s.on = act === 'on'; });
+      }
+      renderList(); renderProbe();
+    };
+  });
   ['fType', 'fSpicy', 'fLoc', 'fState'].forEach(function (id) {
     document.getElementById(id).addEventListener('change', renderList);
   });
