@@ -49,36 +49,43 @@ h2{font-size:20px;font-weight:800;margin:38px 0 6px}
 .filters select,.filters input{border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;font:inherit;font-size:12.5px;color:#334155;background:#fff}
 .filters .fl{font-size:11.5px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 table.grid{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border-radius:10px;overflow:hidden}
-table.grid th{color:#64748b;font-weight:700;text-align:left;padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#fff;white-space:nowrap}
-table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:middle;color:#334155}
+table.grid th{color:#64748b;font-weight:700;text-align:left;padding:9px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#fff;white-space:nowrap}
+table.grid{table-layout:fixed}
+table.grid td{padding:9px 10px;border-bottom:1px solid #e2e8f0;vertical-align:middle;color:#334155;overflow:hidden}
 table.grid tr:hover td{background:#f8fafc}
 table.grid tr.off td{opacity:.5}
 .nm{font-weight:700;color:#0f172a}
-.nm small{display:block;font-weight:400;color:#64748b;font-size:11.5px;margin-top:2px;max-width:44ch}
-.tp{font:700 10.5px/1 var(--mono);border-radius:6px;padding:4px 7px;white-space:nowrap}
+.nm small{display:block;font-weight:400;color:#64748b;font-size:11.5px;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nm{display:block;min-width:0}
+.tp{font:700 10.5px/1 var(--mono);border-radius:6px;padding:4px 7px;white-space:nowrap;cursor:help}
 .tp.cat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
 .tp.loc{background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe}
 .tp.uni{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
 .spicy{font:800 10px/1 var(--mono);background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;margin-left:5px}
-.fchip{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;padding:3px 8px;font:600 11px/1.3 var(--mono);color:#475569;margin:2px 3px 2px 0;white-space:nowrap}
-.loc-chips{display:inline-flex;gap:4px}
-.locb{font:800 10px/1 var(--mono);border:1px solid #e2e8f0;border-radius:5px;padding:4px 6px;color:#475569;background:#fff}
+.fchip{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;padding:3px 7px;
+  font:600 10.5px/1.3 var(--mono);color:#475569;margin:2px 3px 2px 0;white-space:nowrap;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.fchip.more{background:#eff6ff;border-color:#bfdbfe;color:#2563eb;cursor:help}
+.loc-chips{display:inline-flex;gap:3px}
+.locb{font:800 10px/1 var(--mono);border:1px solid #e2e8f0;border-radius:5px;padding:4px 5px;color:#475569;background:#fff}
 .locb.off{opacity:.25}
-.dates{font:600 11px/1.4 var(--mono);color:#475569;white-space:nowrap}
+.dates{font:600 10.5px/1.4 var(--mono);color:#475569;white-space:normal}
 .dates.expired{color:#dc2626}
 .dates.soon{color:#ea580c}
-.metric{font:600 12px/1.3 var(--mono);color:#0f172a;white-space:nowrap}
+.metric{font:600 11.5px/1.3 var(--mono);color:#0f172a;white-space:nowrap}
+.metric i{font-style:normal;color:#cbd5e1;margin:0 1px}
 .metric small{color:#94a3b8;font-weight:400}
-.ctr{font:700 11px/1 var(--mono);border-radius:6px;padding:3px 6px;margin-left:6px}
+.ctr{font:700 10.5px/1 var(--mono);border-radius:6px;padding:3px 5px;margin-left:5px}
 .ctr.hi{background:#ecfdf5;color:#16a34a;border:1px solid #bbf7d0}
 .ctr.lo{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
 .sw{width:38px;height:22px;border-radius:999px;background:#cbd5e1;border:none;position:relative;cursor:pointer;transition:background .15s;flex:none}
 .sw::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
 .sw.on{background:#2563eb}
 .sw.on::after{left:19px}
-.del{border:1px solid #e2e8f0;background:#fff;color:#94a3b8;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px}
+.del{border:1px solid #e2e8f0;background:#fff;color:#94a3b8;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:12px;flex:none}
 .del:hover{color:#dc2626;border-color:#fca5a5}
-.rowact{display:flex;align-items:center;gap:8px}
+.rowact{display:flex;align-items:center;gap:6px}
 .dup{font:700 10px/1 var(--mono);background:#fffbeb;color:#b45309;border:1px solid #fde68a;border-radius:6px;padding:4px 6px}
 .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:#64748b}
 .bar b{color:#0f172a}
@@ -142,7 +149,7 @@ tr.sel td{background:#eff6ff !important}
   .a-head{overflow-x:auto;white-space:nowrap}
   .a-tab{flex:none}
   .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table.grid{min-width:820px}
+  table.grid{min-width:900px}
   .probe{grid-template-columns:1fr}
 }
 </style>
@@ -191,9 +198,9 @@ tr.sel td{background:#eff6ff !important}
       </div>
       <div class="tblwrap"><table class="grid">
         <thead><tr>
-          <th style="width:34px"><span class="chk" id="chkAllList" title="Выделить всё в текущем фильтре"></span></th>
-          <th style="width:24%">Сценарий</th><th>Тип</th><th>Условия показа</th><th>Локали</th>
-          <th>Активен</th><th>Показы</th><th>Клики</th><th style="width:96px">Вкл</th>
+          <th style="width:32px"><span class="chk" id="chkAllList" title="Выделить всё в текущем фильтре"></span></th>
+          <th>Сценарий</th><th style="width:54px">Тип</th><th>Условия показа</th><th style="width:102px">Локали</th>
+          <th style="width:86px">Активен</th><th style="width:164px">Показы · клики</th><th style="width:78px">Вкл</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
@@ -330,7 +337,7 @@ tr.sel td{background:#eff6ff !important}
   ];
 
   var FIELD = { sex:'пол', age:'возраст', job:'род занятий', eth:'этничность', style:'стиль' };
-  var TYPE = { cat:['cat','Категорийный'], loc:['loc','Локальный'], uni:['uni','Универсальный'] };
+  var TYPE = { cat:['cat','Категорийный','кат'], loc:['loc','Локальный','лок'], uni:['uni','Универсальный','уни'] };
   var TODAY = new Date('2026-08-14');
 
   /* ── подбор: точность + разнообразие, стабильно на бота ── */
@@ -420,9 +427,11 @@ tr.sel td{background:#eff6ff !important}
   function condHtml(s) {
     if (s.t === 'uni') return '<span class="fchip">любой бот</span>';
     if (!s.conds.length) return '<span class="fchip">по локали</span>';
-    return s.conds.map(function (c) {
-      return '<span class="fchip">' + FIELD[c[0]] + ': ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]) + '</span>';
-    }).join('');
+    var all = s.conds.map(function (c) {
+      return FIELD[c[0]] + ': ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]);
+    });
+    var head = all.slice(0, 2).map(function (t) { return '<span class="fchip">' + t + '</span>'; }).join('');
+    return head + (all.length > 2 ? '<span class="fchip more" title="' + all.join(' · ') + '">+' + (all.length - 2) + '</span>' : '');
   }
   function locHtml(s) {
     return '<span class="loc-chips">' + ['ru', 'en', 'de'].map(function (l) {
@@ -472,16 +481,15 @@ tr.sel td{background:#eff6ff !important}
         '<td><span class="chk' + (mass[s.id] ? ' on' : '') + '" data-pick="' + s.id + '">✓</span></td>' +
         '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') +
         '<small>' + s.d + '</small></span></td>' +
-        '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
+        '<td><span class="tp ' + TYPE[s.t][0] + '" title="' + TYPE[s.t][1] + '">' + TYPE[s.t][2] + '</span></td>' +
         '<td>' + condHtml(s) + '</td>' +
         '<td>' + locHtml(s) + '</td>' +
         '<td>' + dateHtml(s) + '</td>' +
-        '<td><span class="metric">' + num(s.imp) + '</span></td>' +
-        '<td><span class="metric">' + num(s.clk) + ctrHtml(s) + '</span></td>' +
+        '<td><span class="metric">' + num(s.imp) + ' <i>·</i> ' + num(s.clk) + ctrHtml(s) + '</span></td>' +
         '<td><div class="rowact"><button class="sw' + (s.on ? ' on' : '') + '" data-sw="' + s.id + '"></button>' +
         '<button class="del" data-del="' + s.id + '" title="Удалить">✕</button></div></td>' +
         '</tr>';
-    }).join('') || '<tr><td colspan="9" class="empty">Ничего не найдено</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="empty">Ничего не найдено</td></tr>';
 
     var onCnt = S.filter(active).length;
     document.getElementById('listBar').innerHTML =
@@ -557,7 +565,7 @@ tr.sel td{background:#eff6ff !important}
       return '<tr>' +
         '<td><span class="chk' + (sel[s.id] ? ' on' : '') + '" data-sel="' + s.id + '">✓</span></td>' +
         '<td><span class="nm">' + s.n + (s.spicy ? '<span class="spicy">SPICY</span>' : '') + '<small>' + s.d + '</small></span></td>' +
-        '<td><span class="tp ' + TYPE[s.t][0] + '">' + TYPE[s.t][1] + '</span></td>' +
+        '<td><span class="tp ' + TYPE[s.t][0] + '" title="' + TYPE[s.t][1] + '">' + TYPE[s.t][2] + '</span></td>' +
         '<td>' + condHtml(s) + '</td>' +
         '<td>' + locHtml(s) + '</td>' +
         '<td>' + (s.dup ? '<span class="dup">похож на существующий</span>' : '<span style="color:#16a34a;font-size:12px">чисто</span>') + '</td>' +
