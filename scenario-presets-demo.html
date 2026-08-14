@@ -240,7 +240,7 @@ tr.sel td{background:#eff6ff !important}
           </div>
         </div>
       </div>
-      <div class="note"><b>Как читать.</b> В каждой шестёрке 2 категорийных, 2 локальных, 2 универсальных. Под каждым сценарием написано, по какому условию он сюда попал. Пунктирная рамка означает добор универсальным: подходящих сценариев своего типа не хватило.</div>
+      <div class="note"><b>Как читать.</b> В каждой шестёрке 2 категорийных, 2 локальных, 2 универсальных. Под каждым сценарием написано, по какому условию он сюда попал. Пунктирная рамка означает fallback: подходящих сценариев своего типа не хватило, слот добран случайным универсальным.</div>
     </div>
 
     <!-- покрытие ботов -->
@@ -397,7 +397,10 @@ tr.sel td{background:#eff6ff !important}
       if (got.length < p[1]) gaps.push([p[0], p[1] - got.length]);
     });
     gaps.forEach(function (g) {
-      var extra = free(pick(bot, 'uni', spicy, loc, 99)).slice(0, g[1]);
+      /* fallback по М6: случайный универсальный; порядок фиксируется пересборкой */
+      var extra = free(S.filter(function (s) { return active(s) && s.spicy === spicy && s.t === 'uni'; }))
+        .sort(function (a, b) { return seed(bot.id, a.id) - seed(bot.id, b.id); })
+        .slice(0, g[1]);
       extra.forEach(function (s) { used.push(s.id); out.push({ s: s, kind: g[0], filler: true, order: g[0] }); });
     });
     var rank = { cat: 0, loc: 1, uni: 2 };
@@ -415,7 +418,7 @@ tr.sel td{background:#eff6ff !important}
     return map;
   }
   function why(bot, item, loc) {
-    if (item.filler) return 'добор универсальным: подходящих сценариев типа «' + TYPE[item.kind][1].toLowerCase() + '» не хватило';
+    if (item.filler) return 'fallback: случайный универсальный, сценариев типа «' + TYPE[item.kind][1].toLowerCase() + '» не хватило';
     if (item.kind === 'cat') {
       return 'совпало ' + item.s.conds.length + ' из ' + item.s.conds.length + ': ' +
         item.s.conds.map(function (c) { return FIELD[c[0]] + ' ' + (Array.isArray(c[1]) ? c[1].join(' / ') : c[1]); }).join(', ');
