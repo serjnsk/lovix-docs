@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ru">
+<!-- Рукописное демо визарда создания бота -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Боты: визард создания</title>
+<style>
+:root{
+  --text:#1c2330; --muted:#5b6474; --dim:#8b93a5;
+  --line:#e3e6ec; --bg-band:#f6f7fa; --accent:#2f54c9; --accent-bg:#eef2fd;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+a{color:var(--accent)}
+.shell{display:grid;grid-template-columns:264px minmax(0,1fr);max-width:1780px;margin:0 auto;align-items:start}
+.sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);padding:22px 16px 30px;background:#fff}
+.sn-logo{display:block;padding:2px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.sn-logo img{height:22px;width:auto;display:block}
+.sidenav .sn-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);margin:20px 10px 6px}
+.sidenav a:not(.sn-logo){display:block;padding:6px 10px;border-radius:7px;color:var(--muted);font-size:13.5px;text-decoration:none;line-height:1.4}
+.sidenav a:not(.sn-logo):hover{color:#000;background:var(--bg-band)}
+.sidenav a.cur{color:var(--accent);background:var(--accent-bg);font-weight:600}
+@media(max-width:1000px){.shell{display:block}.sidenav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 20px}}
+main{padding:26px 34px 90px;min-width:0}
+h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin:0 0 8px}
+h2{font-size:20px;font-weight:800;margin:38px 0 6px}
+.lead{color:var(--muted);max-width:80ch;margin:0 0 18px}
+.hint{color:var(--dim);font-size:13.5px;margin:0 0 14px;max-width:80ch}
+
+/* окно админки */
+.admin{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;color:#0f172a}
+.a-crumbs{display:flex;align-items:center;gap:6px;padding:13px 18px;border-bottom:1px solid #e2e8f0;font-weight:800;font-size:14px;color:#94a3b8}
+.a-crumbs a{color:#2563eb;text-decoration:none;cursor:pointer}
+.a-body{background:#f8fafc;padding:18px;min-height:520px}
+
+/* шаги */
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.step{display:flex;align-items:center;gap:8px;padding:8px 13px;border-radius:9px;background:#fff;border:1px solid #e2e8f0;font-size:12.5px;color:#94a3b8;font-weight:700}
+.step i{width:20px;height:20px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:grid;place-items:center;font:800 11px/1 var(--mono);font-style:normal;flex:none}
+.step.on{border-color:#2563eb;color:#2563eb;background:#eff6ff}
+.step.on i{background:#2563eb;color:#fff}
+.step.done{color:#16a34a}
+.step.done i{background:#dcfce7;color:#16a34a}
+
+.wgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:1000px){.wgrid{grid-template-columns:1fr}}
+.pane{background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:18px}
+.pane h3{margin:0 0 4px;font-size:16px;font-weight:800}
+.pane .sub{color:#64748b;font-size:13px;margin:0 0 16px}
+.fld{margin-bottom:16px}
+.fld > label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:7px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{border:1px solid #e2e8f0;background:#fff;border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;font:inherit;min-width:150px;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#cbd5e1}
+.opt b{display:block;font-size:13.5px;color:#0f172a}
+.opt small{display:block;color:#64748b;font-size:11.5px;margin-top:2px}
+.opt.on{border-color:#2563eb;background:#eff6ff}
+.opt.on b{color:#2563eb}
+select,input[type=text],input[type=date],input[type=number],textarea{border:1px solid #e2e8f0;border-radius:8px;padding:9px 11px;font:inherit;font-size:13px;color:#334155;background:#fff;width:100%}
+textarea{min-height:74px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw{width:38px;height:22px;border-radius:999px;background:#cbd5e1;border:none;position:relative;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on{background:#dc2626}
+.sw.on::after{left:19px}
+.swrow{display:flex;align-items:center;gap:10px;font-size:13px;color:#334155}
+.swrow small{display:block;color:#64748b;font-size:11.5px;margin-top:2px}
+
+/* условия */
+.cond{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.cond select{width:auto;min-width:140px}
+.cond .vals{flex:1;min-width:180px}
+.cond .and{font:700 11px/1 var(--mono);color:#94a3b8;padding:0 2px}
+.cond .rm{border:1px solid #e2e8f0;background:#fff;color:#94a3b8;border-radius:7px;width:30px;height:34px;cursor:pointer}
+.cond .rm:hover{color:#dc2626;border-color:#fca5a5}
+.addcond{border:1px dashed #cbd5e1;background:#fff;color:#2563eb;border-radius:8px;padding:8px 13px;font:700 12.5px/1 inherit;cursor:pointer}
+.addcond:hover{border-color:#2563eb;background:#eff6ff}
+.locrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.locb{border:1px solid #e2e8f0;background:#fff;border-radius:9px;padding:9px 15px;cursor:pointer;font:700 13px/1 inherit;color:#475569;display:flex;align-items:center;gap:7px}
+.locb .fl{font-size:15px}
+.locb.on{border-color:#2563eb;background:#eff6ff;color:#2563eb}
+.locb.off{opacity:.45}
+.locnote{font-size:12px;color:#64748b;margin-top:8px}
+
+/* превью справа */
+.side{position:sticky;top:16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:16px;margin-bottom:12px}
+.card h4{margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b}
+.sum{font-size:13px;color:#334155}
+.sum div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.sum div:last-child{border-bottom:none}
+.sum span:first-child{color:#64748b}
+.sum span:last-child{color:#0f172a;font-weight:600;text-align:right}
+.warn{background:#fffbeb;border:1px solid #fde68a;color:#b45309;border-radius:9px;padding:10px 12px;font-size:12.5px}
+
+.nav{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.btn{border:none;border-radius:9px;padding:11px 20px;font:700 13px/1 inherit;cursor:pointer}
+.btn.pri{background:#2563eb;color:#fff}
+.btn.pri:disabled{background:#cbd5e1;cursor:default}
+.btn.sec{background:#fff;border:1px solid #e2e8f0;color:#475569}
+.btn.sec:hover{color:#0f172a}
+.btn.ok{background:#16a34a;color:#fff}
+
+/* генерация */
+.track{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:14px 0 8px}
+.track i{display:block;height:100%;width:0;background:#2563eb;border-radius:999px;transition:width .3s}
+.genline{font-size:12.5px;color:#64748b}
+.report{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.rep{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
+.rep b{display:block;font:800 24px/1 var(--mono);color:#0f172a}
+.rep small{font-size:11.5px;color:#64748b}
+.rep.dup b{color:#b45309}
+table.grid{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border-radius:10px;overflow:hidden}
+table.grid th{color:#64748b;font-weight:700;text-align:left;padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+table.grid td{padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#334155;vertical-align:middle}
+.nm{font-weight:700;color:#0f172a}
+.nm small{display:block;font-weight:400;color:#64748b;font-size:11.5px;margin-top:2px}
+.chk{width:17px;height:17px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;cursor:pointer;display:inline-grid;place-items:center;color:#fff;font-size:10px}
+.chk.on{background:#2563eb;border-color:#2563eb}
+.dup-tag{font:700 10px/1 var(--mono);background:#fffbeb;color:#b45309;border:1px solid #fde68a;border-radius:6px;padding:4px 6px}
+.fchip{display:inline-block;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:7px;padding:3px 8px;font:600 11px/1.3 var(--mono);color:#475569;margin:2px 3px 2px 0}
+.spicy{font:800 10px/1 var(--mono);background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;margin-left:5px}
+.locb-mini{font:800 10px/1 var(--mono);border:1px solid #e2e8f0;border-radius:5px;padding:4px 6px;color:#475569;margin-right:3px;display:inline-block}
+.locb-mini.off{opacity:.25}
+.note{background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:0 10px 10px 0;padding:11px 14px;margin-top:14px;font-size:13px;color:#475569}
+.note b{color:#0f172a}
+.done-msg{text-align:center;padding:26px 0}
+.done-msg .ic{font-size:40px}
+
+@media(max-width:900px){
+  .steps{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
+  .step{flex:none}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.grid{min-width:700px}
+  .side{position:static}
+}
+
+/* ═══ визард бота ═══ */
+.pgrid{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px 14px;align-items:center}
+.pgrid > .pn{font-size:12.5px;color:#64748b;font-weight:600}
+.pvals{display:flex;gap:6px;flex-wrap:wrap}
+.pv{border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:7px;padding:6px 11px;font:600 12px/1 inherit;cursor:pointer}
+.pv:hover{border-color:#93c5fd;color:#2563eb}
+.pv.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.prow{padding:9px 0;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center}
+.prow:last-child{border-bottom:none}
+@media(max-width:640px){.prow{grid-template-columns:1fr;gap:6px}}
+.agebox{display:flex;align-items:center;gap:12px}
+.agebox input[type=range]{width:180px;padding:0}
+.agebox b{font:700 14px/1 var(--mono);color:#0f172a;min-width:28px}
+.req{color:#dc2626;margin-left:3px}
+.shots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+@media(max-width:760px){.shots{grid-template-columns:1fr 1fr}}
+.shot{border-radius:11px;aspect-ratio:3/4;display:grid;place-items:end center;padding-bottom:9px;cursor:pointer;
+  border:2px solid transparent;position:relative;color:rgba(255,255,255,.85);font:700 10px/1 var(--mono);letter-spacing:.08em}
+.shot.on{border-color:#2563eb;box-shadow:0 0 0 3px #dbeafe}
+.shot .pick{position:absolute;right:7px;top:7px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.9);color:#2563eb;display:none;place-items:center;font-size:11px;font-weight:800}
+.shot.on .pick{display:grid}
+.matchbox{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-top:12px}
+.matchbox h5{margin:0 0 8px;font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#64748b}
+.upzone{border:1.5px dashed #cbd5e1;border-radius:12px;padding:26px;text-align:center;color:#64748b;cursor:pointer;background:#f8fafc}
+.upzone:hover{border-color:#2563eb;color:#2563eb}
+.upzone.has{border-style:solid;border-color:#16a34a;background:#f0fdf4}
+.uprev{width:120px;aspect-ratio:3/4;border-radius:10px;margin:0 auto 10px;display:grid;place-items:center;color:rgba(255,255,255,.85);font:700 10px/1 var(--mono)}
+.alert{background:#fffbeb;border:1px solid #fde68a;color:#b45309;border-radius:9px;padding:10px 12px;font-size:12.5px;margin-top:10px}
+.alert b{color:#92400e}
+.locsw{display:flex;gap:6px;margin-bottom:10px}
+.locsw button{border:1px solid #e2e8f0;background:#fff;border-radius:7px;padding:6px 12px;font:700 12px/1 var(--mono);color:#475569;cursor:pointer}
+.locsw button.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.catpreview{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.cattag{font:700 11.5px/1 var(--mono);background:#ecfdf5;color:#15803d;border:1px solid #bbf7d0;border-radius:7px;padding:6px 10px}
+.cattag.none{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.sumline{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.sumline:last-child{border-bottom:none}
+.sumline span:first-child{color:#64748b}
+.sumline span:last-child{color:#0f172a;font-weight:600;text-align:right}
+.sumph{width:100%;aspect-ratio:3/4;border-radius:10px;margin-bottom:10px;display:grid;place-items:center;color:rgba(255,255,255,.8);font:700 10px/1 var(--mono)}
+</style>
+</head>
+<body>
+<div class="shell"><aside class="sidenav"><a class="sn-logo" href="index.html"><img src="emails/img/logo-dark.png" alt="Lovix"></a><div class="sn-grp">Токеномика</div><a href="tokenomics/">Токеномика</a><a href="metrics.html">Метрики</a><div class="sn-grp">Взаимодействие с юзером</div><a href="scenarios.html">Сценарии</a><a href="events.html">События</a><a href="scenario-presets.html">Пресеты сценариев</a><a href="scenario-presets-demo.html">Пресеты — демо</a><a href="scenario-wizard-demo.html">Пресеты — визард</a><div class="sn-grp">Рассылки</div><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><div class="sn-grp">Другие доки</div><a href="support.html">Саппорт</a><a href="admin-content.html">Боты — спека</a><a href="bots-demo.html">Боты — демо</a><a class="cur" href="bot-wizard-demo.html">Боты — визард</a><a href="locale-detection.html">Локаль</a></aside>
+<main>
+<h1>Визард создания бота — демо</h1>
+<p class="lead">Единый визард для всех: и для редакции, и для сеошников. Два способа создания, параметры руками, фото на выбор из нескольких вариантов. Правила: <a href="admin-content.html">спека раздела</a>. Список ботов: <a href="bots-demo.html">демо раздела</a>.</p>
+<p class="hint">Пройди оба пути: «из параметров» с генерацией фото и «своё фото» с предупреждением о дубле. На последнем шаге видно, в какие категории бот попадёт.</p>
+
+<div class="admin">
+  <div class="a-crumbs"><a href="bots-demo.html">Админ панель</a> / <a href="bots-demo.html">Боты</a> / <span>Новый бот</span></div>
+  <div class="a-body">
+    <div class="steps" id="steps"></div>
+    <div class="wgrid">
+      <div class="pane" id="pane"></div>
+      <div class="side">
+        <div class="card"><h4>Черновик бота</h4><div class="sum" id="sum"></div></div>
+        <div class="card" id="catcard"><h4>Попадёт в категории</h4><div class="catpreview" id="catprev"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Что здесь показано</h2>
+<p class="hint">Способ создания на первом шаге, параметры вручную без автоопределения по фото, генерация нескольких вариантов снимка с перегенерацией и сверкой по параметрам, предупреждения о таком же фото и похожем имени, имя и био сразу на трёх локалях, предпросмотр будущих категорий и создание бота сразу в каталог.</p>
+</main>
+</div>
+<script>
+(function(){
+  var STEPS = ['Способ','Параметры','Фото','Имя и био','Готово'];
+  var FIELDS = [
+    ['sex','Пол',['ж','м'],true],
+    ['job','Род занятий',['секретарша','горничная','домохозяйка','студентка','учительница','медсестра'],true],
+    ['eth','Этничность',['латина','европейка','азиатка','африканка'],true],
+    ['hair','Волосы',['блонд','брюнетка','рыжие','чёрные'],true],
+    ['body','Телосложение',['стройная','пухлая','спортивная'],false],
+    ['style','Стиль',['реализм','аниме'],true],
+    ['character','Характер',['заботливая','дерзкая','застенчивая','доминантная'],false],
+    ['attitude','Отношение к тебе',['подруга','коллега','соседка','мачеха'],false],
+    ['hobby','Хобби',['йога','кино','готовка','музыка'],false]
+  ];
+  var FMAP = {}; FIELDS.forEach(function(f){ FMAP[f[0]] = f; });
+  var CATS = [
+    {id:'milf', name:'Milf', conds:[['sex','=','ж'],['age','>=',40]]},
+    {id:'secretary', name:'Secretary', conds:[['job','=','секретарша']]},
+    {id:'latina', name:'Latina', conds:[['eth','=','латина']]},
+    {id:'goth', name:'Готы', conds:[['hair','=','чёрные'],['style','=','реализм']]},
+    {id:'anime', name:'Аниме', conds:[['style','=','аниме']]},
+    {id:'teacher', name:'Учительницы', conds:[['job','=','учительница']]},
+    {id:'domme', name:'Доминантные', conds:[['character','=','доминантная']]},
+    {id:'housewife', name:'Домохозяйки', conds:[['job','=','домохозяйка'],['age','>=',30]]}
+  ];
+  var EXISTING = ['Алёна','Алина','Мария','Ева','Лана','Кира','Рита'];
+  var TINTS = ['#7c3aed','#2563eb','#db2777','#0d9488'];
+
+  var st = {step:1, way:'params', p:{sex:'ж', age:34}, photoDone:false, shots:[], pick:-1,
+            gen:0, upload:null, dupPhoto:false, name:'', loc:'ru',
+            bio:{ru:'', en:'', de:''}, nameLoc:{ru:'', en:'', de:''}, created:false};
+
+  var pane = document.getElementById('pane');
+  var sum = document.getElementById('sum');
+  var catprev = document.getElementById('catprev');
+
+  function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function condOk(p, c){
+    var v = p[c[0]];
+    if (v === undefined) return false;
+    if (c[1] === '=') return v === c[2];
+    if (c[1] === '>=') return Number(v) >= c[2];
+    return false;
+  }
+  function cats(){ return CATS.filter(function(c){ return c.conds.every(function(x){ return condOk(st.p, x); }); }); }
+  function filled(){ return FIELDS.filter(function(f){ return f[3] && !st.p[f[0]]; }).length === 0; }
+  function tint(i){ return TINTS[i % TINTS.length]; }
+  function shotBg(i){ return 'linear-gradient(160deg,' + tint(i) + ' 0%, #1e1b3a 55%, #0f172a 100%)'; }
+  function norm(s){ return s.toLowerCase().replace(/ё/g, 'е').trim(); }
+  function similar(n){
+    if (!n || n.length < 3) return null;
+    var q = norm(n);
+    return EXISTING.filter(function(e){
+      var x = norm(e);
+      return x.indexOf(q.slice(0, 3)) === 0 || q.indexOf(x.slice(0, 3)) === 0;
+    })[0] || null;
+  }
+
+  function renderSteps(){
+    document.getElementById('steps').innerHTML = STEPS.map(function(s, i){
+      var n = i + 1, cls = n === st.step ? ' on' : (n < st.step ? ' done' : '');
+      return '<div class="step' + cls + '"><i>' + (n < st.step ? '✓' : n) + '</i>' + s + '</div>';
+    }).join('');
+  }
+
+  function renderSum(){
+    var rows = [['Способ', st.way === 'params' ? 'из параметров' : 'параметры и своё фото']];
+    if (st.step > 1) {
+      FIELDS.forEach(function(f){ if (st.p[f[0]]) rows.push([f[1], st.p[f[0]]]); });
+      rows.splice(1, 0, ['Возраст', st.p.age]);
+    }
+    if (st.step > 2) rows.push(['Фото', st.way === 'params' ? (st.pick >= 0 ? 'вариант ' + (st.pick + 1) : 'не выбрано') : (st.upload ? 'загружено' : 'нет')]);
+    if (st.step > 3 && st.name) rows.push(['Имя', st.name]);
+    var ph = '';
+    if (st.step > 2 && (st.pick >= 0 || st.upload)) {
+      ph = '<div class="sumph" style="background:' + shotBg(st.pick >= 0 ? st.pick : 0) + '">ФОТО</div>';
+    }
+    sum.innerHTML = ph + rows.map(function(r){
+      return '<div class="sumline"><span>' + r[0] + '</span><span>' + esc(String(r[1])) + '</span></div>';
+    }).join('');
+
+    var cs = cats();
+    catprev.innerHTML = cs.length
+      ? cs.map(function(c){ return '<span class="cattag">' + c.name + '</span>'; }).join('')
+      : '<span class="cattag none">ни одной категории</span>';
+  }
+
+  function renderPane(){
+    var h = '';
+    if (st.step === 1) {
+      h = '<h3>Как создаём бота</h3><p class="sub">Оба пути дают одинакового бота. Разница только в том, откуда берётся фото.</p>' +
+        '<div class="opts">' +
+        '<button class="opt' + (st.way === 'params' ? ' on' : '') + '" data-way="params"><b>Из параметров</b><small>заполняешь параметры, фото генерим</small></button>' +
+        '<button class="opt' + (st.way === 'photo' ? ' on' : '') + '" data-way="photo"><b>Параметры и своё фото</b><small>загружаешь готовую картинку</small></button>' +
+        '</div>' +
+        '<div class="note"><b>Автоопределения параметров по фото нет.</b> Нейросеть ошибается и делает противоречивых персонажей вроде «толстая и анорексичка». Параметры всегда заполняются руками.</div>';
+    }
+    if (st.step === 2) {
+      h = '<h3>Параметры бота</h3><p class="sub">Обязательные помечены звёздочкой: по ним собирается промпт фото и определяются категории.</p>' +
+        '<div class="prow"><span class="pn">Возраст<span class="req">*</span></span>' +
+        '<div class="agebox"><input type="range" min="18" max="60" value="' + st.p.age + '" id="ageR"><b id="ageV">' + st.p.age + '</b></div></div>' +
+        FIELDS.map(function(f){
+          return '<div class="prow"><span class="pn">' + f[1] + (f[3] ? '<span class="req">*</span>' : '') + '</span><div class="pvals">' +
+            f[2].map(function(v){
+              return '<button class="pv' + (st.p[f[0]] === v ? ' on' : '') + '" data-p="' + f[0] + '" data-v="' + v + '">' + v + '</button>';
+            }).join('') + '</div></div>';
+        }).join('') +
+        (filled() ? '' : '<div class="alert">Заполни обязательные параметры, чтобы идти дальше.</div>');
+    }
+    if (st.step === 3) {
+      if (st.way === 'params') {
+        h = '<h3>Фото</h3><p class="sub">Промпт собирается из параметров. Генерация даёт несколько вариантов, выбери подходящий.</p>';
+        if (!st.shots.length && !st.gen) {
+          h += '<button class="btn pri" id="genBtn">Сгенерировать варианты</button>';
+        } else if (st.gen && st.gen < 100) {
+          h += '<div class="track"><i id="bar" style="width:' + st.gen + '%"></i></div><div class="genline">Генерация вариантов… ' + Math.round(st.gen) + '%</div>';
+        } else {
+          h += '<div class="shots">' + st.shots.map(function(s, i){
+            return '<div class="shot' + (st.pick === i ? ' on' : '') + '" data-shot="' + i + '" style="background:' + shotBg(i) + '"><span class="pick">✓</span>ВАРИАНТ ' + (i + 1) + '</div>';
+          }).join('') + '</div>' +
+          '<div class="regen" style="margin-top:12px"><button class="btn sec" id="regen">Перегенерировать</button></div>';
+        }
+        h += '<div class="matchbox"><h5>Сверь фото с параметрами</h5>' +
+          FIELDS.filter(function(f){ return st.p[f[0]]; }).map(function(f){
+            return '<span class="fchip">' + f[1].toLowerCase() + ': ' + st.p[f[0]] + '</span>';
+          }).join('') + '<span class="fchip">возраст: ' + st.p.age + '</span></div>';
+      } else {
+        h = '<h3>Своё фото</h3><p class="sub">Загрузи картинку. Параметры остаются теми, что ты задал: по фото они не определяются.</p>' +
+          '<div class="upzone' + (st.upload ? ' has' : '') + '" id="up">' +
+          (st.upload
+            ? '<div class="uprev" style="background:' + shotBg(0) + '">ФОТО</div>' + esc(st.upload) + ' · нажми, чтобы заменить'
+            : 'Перетащи файл сюда или нажми, чтобы выбрать<br><small>JPG, PNG до 15 МБ</small>') +
+          '</div>' +
+          (st.dupPhoto ? '<div class="alert"><b>Такое фото уже используется.</b> Оно стоит у бота «Мария». Если это тот же персонаж, лучше отредактировать существующего бота, а не заводить дубль.</div>' : '') +
+          '<div class="matchbox"><h5>Заданные параметры</h5>' +
+          FIELDS.filter(function(f){ return st.p[f[0]]; }).map(function(f){
+            return '<span class="fchip">' + f[1].toLowerCase() + ': ' + st.p[f[0]] + '</span>';
+          }).join('') + '<span class="fchip">возраст: ' + st.p.age + '</span></div>';
+      }
+    }
+    if (st.step === 4) {
+      var sim = similar(st.name);
+      h = '<h3>Имя и описание</h3><p class="sub">Имя и био хранятся сразу на трёх локалях. Промпт описания живёт в настройках и здесь не показывается.</p>' +
+        '<div class="fld"><label>Имя бота</label><input type="text" id="nm" value="' + esc(st.name) + '" placeholder="Например: Алиса"></div>' +
+        (sim ? '<div class="alert">В базе уже есть похожее имя: <b>' + sim + '</b>. Создать всё равно можно, но лучше выбрать другое.</div>' : '') +
+        '<div class="fld" style="margin-top:16px"><label>Описание</label>' +
+        '<div class="locsw">' + ['ru','en','de'].map(function(l){
+          return '<button class="' + (st.loc === l ? 'on' : '') + '" data-l="' + l + '">' + l + '</button>';
+        }).join('') + '</div>' +
+        '<textarea id="bio" placeholder="Сгенерируется автоматически по параметрам">' + esc(st.bio[st.loc]) + '</textarea></div>' +
+        '<button class="btn sec" id="genBio">Сгенерировать описание на трёх языках</button>';
+    }
+    if (st.step === 5) {
+      var cs = cats();
+      if (!st.created) {
+        h = '<h3>Проверь и создавай</h3><p class="sub">После создания бот сразу попадёт в каталог, отдельной публикации нет.</p>' +
+          '<div class="report"><div class="rep"><b>' + (st.name || '—') + '</b><small>имя</small></div>' +
+          '<div class="rep"><b>' + st.p.age + '</b><small>возраст</small></div>' +
+          '<div class="rep"><b>' + cs.length + '</b><small>категорий</small></div></div>' +
+          '<div class="matchbox"><h5>Попадёт в категории</h5><div class="catpreview">' +
+          (cs.length ? cs.map(function(c){
+            return '<span class="cattag">' + c.name + '</span>';
+          }).join('') : '<span class="cattag none">ни одной: бота никто не увидит</span>') + '</div></div>' +
+          (cs.length ? '' : '<div class="alert">С такими параметрами бот не попадёт ни в одну категорию. Вернись назад и поправь параметры.</div>');
+      } else {
+        h = '<div class="done-msg"><div class="ic">✅</div><h3>Бот создан и уже в каталоге</h3>' +
+          '<p class="sub">Он появился в ' + cs.length + ' категориях по своим параметрам.</p>' +
+          '<div class="nav" style="justify-content:center"><a class="btn pri" href="bots-demo.html">К списку ботов</a>' +
+          '<button class="btn sec" id="again">Создать ещё одного</button></div></div>';
+      }
+    }
+    pane.innerHTML = h;
+    renderNav();
+    bind();
+  }
+
+  function renderNav(){
+    if (st.step === 5 && st.created) return;
+    var h = '<div class="nav">';
+    if (st.step > 1) h += '<button class="btn sec" id="back">Назад</button>';
+    if (st.step < 5) {
+      var dis = (st.step === 2 && !filled()) ||
+                (st.step === 3 && st.way === 'params' && st.pick < 0) ||
+                (st.step === 3 && st.way === 'photo' && !st.upload) ||
+                (st.step === 4 && !st.name);
+      h += '<button class="btn pri" id="next"' + (dis ? ' disabled' : '') + '>Дальше</button>';
+    } else {
+      h += '<button class="btn ok" id="create"' + (cats().length ? '' : ' disabled') + '>Создать бота</button>';
+    }
+    h += '</div>';
+    pane.insertAdjacentHTML('beforeend', h);
+  }
+
+  function bind(){
+    pane.querySelectorAll('[data-way]').forEach(function(b){
+      b.onclick = function(){ st.way = b.dataset.way; render(); };
+    });
+    pane.querySelectorAll('[data-p]').forEach(function(b){
+      b.onclick = function(){ st.p[b.dataset.p] = b.dataset.v; render(); };
+    });
+    var r = document.getElementById('ageR');
+    if (r) r.oninput = function(){
+      st.p.age = Number(r.value);
+      document.getElementById('ageV').textContent = r.value;
+      renderSum();
+    };
+    var g = document.getElementById('genBtn');
+    if (g) g.onclick = function(){
+      st.gen = 1; render();
+      var iv = setInterval(function(){
+        st.gen += 9 + Math.random() * 14;
+        if (st.gen >= 100) {
+          clearInterval(iv);
+          st.gen = 100;
+          st.shots = [0, 1, 2, 3];
+          st.pick = -1;
+        }
+        render();
+      }, 260);
+    };
+    var rg = document.getElementById('regen');
+    if (rg) rg.onclick = function(){ st.shots = []; st.pick = -1; st.gen = 0; render(); };
+    pane.querySelectorAll('[data-shot]').forEach(function(s){
+      s.onclick = function(){ st.pick = Number(s.dataset.shot); render(); };
+    });
+    var up = document.getElementById('up');
+    if (up) up.onclick = function(){
+      st.upload = st.upload ? null : 'photo_2609.jpg';
+      st.dupPhoto = !!st.upload;
+      st.pick = st.upload ? 0 : -1;
+      render();
+    };
+    var nm = document.getElementById('nm');
+    if (nm) nm.oninput = function(){
+      st.name = nm.value;
+      var pos = nm.selectionStart;
+      render();
+      var el = document.getElementById('nm');
+      if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+    };
+    pane.querySelectorAll('[data-l]').forEach(function(b){
+      b.onclick = function(){ st.loc = b.dataset.l; render(); };
+    });
+    var bio = document.getElementById('bio');
+    if (bio) bio.oninput = function(){ st.bio[st.loc] = bio.value; };
+    var gb = document.getElementById('genBio');
+    if (gb) gb.onclick = function(){
+      var n = st.name || 'Она';
+      st.bio.ru = n + ' · ' + st.p.job + ', ' + st.p.age + ' лет. ' + (st.p.character || 'заботливая') + ', любит ' + (st.p.hobby || 'кино') + '.';
+      st.bio.en = n + ' · ' + st.p.job + ', ' + st.p.age + '. Generated from the parameters.';
+      st.bio.de = n + ' · ' + st.p.job + ', ' + st.p.age + '. Aus den Parametern generiert.';
+      render();
+    };
+    var b = document.getElementById('back');
+    if (b) b.onclick = function(){ st.step--; render(); };
+    var n2 = document.getElementById('next');
+    if (n2) n2.onclick = function(){ st.step++; render(); };
+    var cr = document.getElementById('create');
+    if (cr) cr.onclick = function(){ st.created = true; render(); };
+    var ag = document.getElementById('again');
+    if (ag) ag.onclick = function(){
+      st = {step:1, way:'params', p:{sex:'ж', age:34}, photoDone:false, shots:[], pick:-1,
+            gen:0, upload:null, dupPhoto:false, name:'', loc:'ru',
+            bio:{ru:'', en:'', de:''}, nameLoc:{ru:'', en:'', de:''}, created:false};
+      render();
+    };
+  }
+
+  function render(){ renderSteps(); renderPane(); renderSum(); }
+  render();
+})();
+</script>
+</body>
+</html>
