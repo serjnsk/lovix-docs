@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lovix — Статусы канбан</title>
+<style>
+  :root{
+    --text:#1c2330; --muted:#5b6474; --dim:#8b93a5;
+    --line:#e3e6ec; --line2:#c9cedb;
+    --bg-band:#f6f7fa; --card:#ffffff;
+    --accent:#2f54c9; --accent-bg:#eef2fd;
+    --ok:#1a7f4e; --ok-bg:#e8f5ee;
+    --red:#b91c1c; --red-bg:#fdecec; --red-line:#f5caca;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:#fff;color:var(--text);
+    font:15.5px/1.65 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Inter,sans-serif}
+
+  .shell{display:grid;grid-template-columns:264px minmax(0,1fr) 252px;max-width:1780px;margin:0 auto;align-items:start}
+  .sidenav{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);
+    padding:22px 16px 30px;background:#fff}
+  .sn-logo{display:block;padding:2px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .sn-logo img{height:22px;width:auto;display:block}
+  .sidenav .sn-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    color:var(--dim);margin:20px 10px 6px}
+  .sidenav a:not(.sn-logo){display:block;padding:6px 10px;border-radius:7px;color:var(--muted);
+    font-size:13.5px;text-decoration:none;line-height:1.4}
+  .sidenav a:not(.sn-logo):hover{color:#000;background:var(--bg-band)}
+  .sidenav a.cur{color:var(--accent);background:var(--accent-bg);font-weight:600}
+  main{padding:12px 34px 90px;min-width:0}
+  aside.toc{position:sticky;top:0;max-height:100vh;overflow-y:auto;padding:26px 20px 26px 6px;
+    font-size:12.5px;border-left:1px solid var(--line);min-height:60vh}
+  aside.toc .toc-t{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+    color:var(--dim);margin:0 0 10px 10px}
+  aside.toc a{display:block;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:7px;line-height:1.35}
+  aside.toc a:hover{color:#000;background:var(--bg-band)}
+  aside.toc a.sub{padding-left:26px;font-size:12px;color:var(--dim)}
+  @media(max-width:1160px){aside.toc{display:none}}
+  @media(max-width:1000px){
+    .shell{display:block}
+    .sidenav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 20px}
+  }
+
+  h1{font-size:32px;letter-spacing:-.4px;margin:34px 0 6px}
+  h2{font-size:22px;margin:46px 0 12px;padding-top:22px;border-top:1px solid var(--line);letter-spacing:-.2px;scroll-margin-top:70px}
+  .sub{color:var(--muted);margin:0 0 8px}
+  .note{margin:16px 0;padding:12px 18px;border-left:3px solid var(--accent);
+    background:var(--accent-bg);border-radius:0 8px 8px 0;color:#37415a;font-size:14px}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:var(--bg-band)}
+  tr:nth-child(even) td{background:#fafbfc}
+  .wrap{overflow-x:auto}
+  code{background:var(--bg-band);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:#8a3ffc}
+
+  .rc{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+    padding:3px 10px;border-radius:999px;white-space:nowrap;margin:1px 2px;line-height:1.4;border:1px solid}
+  .rc-product{background:#eef2fd;color:#2f54c9;border-color:#d6def8}
+  .rc-project{background:#f4ecfd;color:#7c3aed;border-color:#e5d5f8}
+  .rc-techlead{background:#fef3e2;color:#b45309;border-color:#f3ddba}
+  .rc-dev{background:#e8f5ee;color:#1a7f4e;border-color:#cdeeda}
+  .rc-qa{background:#fdeef5;color:#db2777;border-color:#f8d3e5}
+  .rc-author{background:#f6f7fa;color:#5b6474;border-color:#e3e6ec}
+
+  .roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:14px 0}
+  .role{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff}
+  .role p{margin:7px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+  .vbar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px;position:sticky;top:0;z-index:30;
+    background:#fff;padding:10px 0;border-bottom:1px solid var(--line)}
+  .vbtn{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;
+    padding:7px 16px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+  .vbtn:hover{color:#000;background:var(--bg-band)}
+  .vbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .variant{display:none;margin-top:18px}
+  .variant.on{display:block}
+  .vdesc{color:var(--dim);font-size:13px;margin:4px 0 14px}
+
+  /* А. Конвейер */
+  .pipe{display:flex;align-items:stretch;gap:0;padding:10px 2px 16px;min-width:max-content}
+  .pgrp{border:1px dashed var(--line2);border-radius:12px;padding:26px 10px 10px;position:relative;
+    display:flex;gap:0;margin-right:26px;align-items:stretch}
+  .pgrp::before{content:attr(data-t);position:absolute;top:8px;left:14px;font-size:10.5px;font-weight:700;
+    letter-spacing:.7px;text-transform:uppercase;color:var(--dim)}
+  .pcard{width:172px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 12px;
+    display:flex;flex-direction:column;gap:6px}
+  .pcard b{font-size:13.5px;line-height:1.3}
+  .pcard b i{font-style:normal;color:var(--dim);font-weight:400;font-size:11px;margin-right:4px}
+  .pcard small{color:var(--muted);font-size:11.5px;line-height:1.45;flex:1}
+  .pret{font-size:10.5px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-line);
+    border-radius:6px;padding:2px 7px;align-self:flex-start}
+  .parr{align-self:center;color:var(--line2);font-size:17px;padding:0 5px;flex:0 0 auto}
+
+  /* B. Свимлейны */
+  .lanes{position:relative;display:grid;grid-template-rows:34px repeat(6,72px);min-width:max-content;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .lrow{display:contents}
+  .lcell{border-right:1px solid #eef0f4;border-bottom:1px solid #eef0f4;padding:4px;position:relative}
+  .lhead{font-size:10px;font-weight:700;color:var(--dim);display:flex;align-items:flex-end;padding:4px 6px;
+    background:var(--bg-band);line-height:1.15}
+  .lrole{position:sticky;left:0;background:#fff;z-index:5;display:flex;align-items:center;padding:0 10px;
+    border-right:1px solid var(--line)}
+  .lcard{position:relative;z-index:2;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700;
+    line-height:1.25;border:1px solid;height:100%;display:flex;align-items:center}
+  svg.lsvg{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+
+  /* D. Матрица */
+  .mx td{text-align:center;font-size:15px}
+  .mx td.st{text-align:left;font-size:13px;font-weight:600;white-space:nowrap}
+  .mleg{color:var(--muted);font-size:12.5px;margin:6px 0 0}
+
+  /* E. Симулятор */
+  .sim{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff}
+  .strip{display:flex;gap:4px;overflow-x:auto;padding-bottom:10px}
+  .scol{flex:0 0 84px;border:1px solid var(--line);border-radius:8px;background:var(--bg-band);
+    padding:6px;font-size:9.5px;font-weight:700;color:var(--dim);text-align:center;line-height:1.25;min-height:74px}
+  .scol .dot{display:none;margin:8px auto 0;width:30px;height:22px;border-radius:5px;background:var(--accent);
+    box-shadow:0 3px 10px rgba(47,84,201,.35)}
+  .scol.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+  .scol.on .dot{display:block}
+  .spanel{border-top:1px solid var(--line);margin-top:8px;padding-top:14px}
+  .spanel h3{margin:0 0 4px;font-size:16px}
+  .spanel .who{margin:8px 0 12px}
+  .sbtns{display:flex;flex-wrap:wrap;gap:8px}
+  .sbtn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;
+    padding:8px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+  .sbtn.ret{background:#fff;border-color:var(--red-line);color:var(--red)}
+  .sbtn.ret:hover{background:var(--red-bg)}
+  .sbtn.ghost{background:#fff;border-color:var(--line);color:var(--muted)}
+  .slog{margin:14px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--muted)}
+  .slog li{padding:3px 0;border-top:1px dashed var(--line)}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidenav"><a class="sn-logo" href="index.html"><img src="emails/img/logo-dark.png" alt="Lovix"></a><div class="sn-grp">Токеномика</div><a href="tokenomics/">Токеномика</a><a href="metrics.html">Метрики</a><div class="sn-grp">Взаимодействие с юзером</div><a href="scenarios.html">Сценарии</a><a href="events.html">События</a><div class="sn-grp">Рассылки</div><a href="trigger-system.html">Системная рассылка</a><a href="trigger-marketing.html">Маркетинговая рассылка</a><a href="email-template.html">Шаблон писем</a><a href="email-builder.html">Шаблонизатор</a><div class="sn-grp">Процессы</div><a class="cur" href="kanban.html">Статусы канбан</a><div class="sn-grp">Другие доки</div><a href="support.html">Саппорт</a><a href="admin-content.html">Админка — спека</a><a href="admin-demo.html">Админка — демо</a><a href="locale-detection.html">Локаль</a></aside>
+<main>
+
+<h1>Статусы канбан</h1>
+<p class="sub">Путь задачи по доске в Worksection: 14 статусов от идеи до закрытия — что означает каждый, кто переводит дальше и куда возможен возврат. Приоритет присваивается один раз — на брейншторме при входе.</p>
+<div class="note">Страница-примерка: ниже пять вариантов подачи одного и того же процесса. Переключай и выбирай — лишние уберём, останется финальный документ.</div>
+
+<h2 id="roles">Участники</h2>
+<div class="roles" id="rolecards"></div>
+
+<h2 id="variants">Варианты представления</h2>
+<div class="vbar" id="vbar"></div>
+
+<div class="variant" id="vA">
+  <p class="vdesc">А. Конвейер: все статусы слева направо, сгруппированы по фазам. На карточке — смысл статуса и кто двигает задачу дальше. Красная плашка — из статуса возможен возврат в «В работе». Лента скроллится горизонтально.</p>
+  <div class="wrap"><div class="pipe" id="pipe"></div></div>
+  <p class="vdesc">↩ Все возвраты ведут в один статус — «В работе»: замечания ревью, баги теста, замечания продакта, проблемы пострелизной проверки.</p>
+</div>
+
+<div class="variant" id="vB">
+  <p class="vdesc">B. Свимлейны: пять дорожек-ролей плюс постановщик. Статус лежит в дорожке того, кто выводит из него задачу. Синяя линия — основной маршрут, красный пунктир — возвраты в «В работе». Скроллится горизонтально.</p>
+  <div class="wrap"><div class="lanes" id="lanes"></div></div>
+</div>
+
+<div class="variant" id="vC">
+  <p class="vdesc">C. Таблица-паспорт: строка на статус — смысл, как задача попадает в статус, кто и при каком условии двигает дальше, возможные возвраты.</p>
+  <div class="wrap" id="passport"></div>
+</div>
+
+<div class="variant" id="vD">
+  <p class="vdesc">D. Матрица статусы × роли: что делает каждая роль в каждом статусе. Шпаргалка для новичка в команде.</p>
+  <div class="wrap" id="matrix"></div>
+  <p class="mleg">● — выводит задачу из статуса (главное действие) · ↩ — может вернуть в «В работе» · ○ — участвует</p>
+</div>
+
+<div class="variant" id="vE">
+  <p class="vdesc">E. Симулятор: прогони задачу по доске кнопками — на каждом шаге видно, кто действует и какие есть развилки.</p>
+  <div class="sim">
+    <div class="strip" id="strip"></div>
+    <div class="spanel" id="spanel"></div>
+    <ul class="slog" id="slog"></ul>
+  </div>
+</div>
+
+<h2 id="rules">Правила процесса</h2>
+<table>
+<tr><th>№</th><th>Правило</th></tr>
+<tr><td>П1</td><td><b>Приоритет присваивается один раз</b> — на брейншторме при входе задачи. Дальше задача идёт по статусам с этим приоритетом, пересмотров по пути нет</td></tr>
+<tr><td>П2</td><td><b>Все доработки возвращаются в «В работе»</b> тому же исполнителю с указанием причины — отдельного статуса «Доработка» нет. Возвращают: тех лид (ревью), тестировщик (баги), продакт (приёмка), постановщик (пострелизная проверка)</td></tr>
+<tr><td>П3</td><td><b>Баги с прода — коротким путём</b>: сразу в «Текущий спринт», критичные — сразу в «В работе». Бэклог, Анализ и Очередь пропускаются</td></tr>
+<tr><td>П4</td><td><b>Нужно ли ревью — решает тех лид.</b> Задача без ревью после выкладки переходит из «В работе» сразу в «Готово к тестированию»</td></tr>
+<tr><td>П5</td><td>Доска живёт в <b>Worksection</b>; набор статусов в трекере совпадает с этим документом один в один</td></tr>
+</table>
+
+</main>
+<aside class="toc">
+  <div class="toc-t">На этой странице</div>
+  <a href="#roles">Участники</a>
+  <a href="#variants">Варианты представления</a>
+  <a href="#variants" class="sub" data-v="vA">А. Конвейер</a>
+  <a href="#variants" class="sub" data-v="vB">B. Свимлейны</a>
+  <a href="#variants" class="sub" data-v="vC">C. Таблица-паспорт</a>
+  <a href="#variants" class="sub" data-v="vD">D. Матрица</a>
+  <a href="#variants" class="sub" data-v="vE">E. Симулятор</a>
+  <a href="#rules">Правила процесса</a>
+</aside>
+</div>
+
+<script>
+const ROLES = {
+  product:  {n:"Продакт",      d:"Смысл и приоритеты: ведёт брейншторм, формулирует задачи, принимает результат после тестирования"},
+  project:  {n:"Проджект",     d:"Движение: собирает спринты из очереди, определяет состав релиза, следит за доской и закрывает готовое"},
+  techlead: {n:"Тех лид",      d:"Техэкспертиза: на анализе оценивает срок реализации, ревьюит код, решает — нужно ли задаче ревью"},
+  dev:      {n:"Разработчик",  d:"Реализация: берёт задачи из текущего спринта, пишет код, выкладывает после ревью"},
+  qa:       {n:"Тестировщик",  d:"Проверка: тестирует выложенные задачи, возвращает баги с описанием"},
+  author:   {n:"Постановщик",  d:"Не роль в команде, а автор задачи — овнер, SEO-специалист и любой другой сотрудник. Заводит задачу и проверяет результат после релиза"}
+};
+const PH = ["Подготовка","Планирование","Разработка","Тестирование","Приёмка и релиз"];
+// owner — кто выводит задачу из статуса (дорожка в свимлейнах)
+// acts — переходы: to (индекс), who, label; ret:true — возврат
+const S = [
+ {n:"Бэклог", ph:0, owner:"product", mean:"Накопитель: завели в проект, но ещё не обсуждали — идеи и несрочное",
+  inn:"Постановщик — задачу заводит любой сотрудник",
+  acts:[{to:1, who:"product", label:"Разобрали на брейншторме", cond:"обсуждение в экселе: продакт, проджект, тех лид, овнеры; приоритет присвоен"}]},
+ {n:"Анализ", ph:0, owner:"techlead", mean:"Задачи с брейншторма. Тех лид оценивает срок реализации",
+  acts:[{to:2, who:"techlead", label:"Оценка готова"}]},
+ {n:"Очередь", ph:0, owner:"project", mean:"Проанализированы — можно набирать в спринт",
+  acts:[{to:3, who:"project", label:"Набор спринта по приоритетам"}]},
+ {n:"Следующий спринт", ph:1, owner:"project", mean:"Состав будущего спринта",
+  acts:[{to:4, who:"project", label:"Старт спринта"}]},
+ {n:"Текущий спринт", ph:1, owner:"dev", mean:"Пул идущего спринта, ещё не взятые задачи. Сюда же коротким путём — баги с прода (П3)",
+  acts:[{to:5, who:"dev", label:"Разработчик берёт задачу на себя"}]},
+ {n:"В работе", ph:2, owner:"dev", mean:"Разработка. Сюда же возвращаются все доработки — с ревью, теста, приёмки, пострелизной проверки",
+  acts:[{to:6, who:"dev", label:"Код готов — на ревью"},
+        {to:7, who:"dev", label:"Ревью не требуется (пометка тех лида) — выложил", cond:"сразу в «Готово к тестированию»"}]},
+ {n:"Ревью", ph:2, owner:"techlead", mean:"Тех лид проверяет код",
+  acts:[{to:7, who:"dev", label:"Ревью ок — разработчик выложил"},
+        {to:5, who:"techlead", label:"Замечания по коду", ret:true}]},
+ {n:"Готово к тестированию", ph:3, owner:"qa", mean:"Выложена и проревьюена, ждёт тестировщика",
+  acts:[{to:8, who:"qa", label:"Тестировщик берёт задачу"}]},
+ {n:"Тестирование", ph:3, owner:"qa", mean:"Тестировщик проверяет",
+  acts:[{to:9, who:"qa", label:"Проверки пройдены"},
+        {to:5, who:"qa", label:"Баги — с описанием", ret:true}]},
+ {n:"Протестировано", ph:3, owner:"product", mean:"Приёмка продактом: соответствие задуманному",
+  acts:[{to:10, who:"product", label:"Принято"},
+        {to:5, who:"product", label:"Замечания по смыслу", ret:true}]},
+ {n:"Принято", ph:4, owner:"project", mean:"Принято продактом, ждёт релиза",
+  acts:[{to:11, who:"project", label:"Включена в состав релиза"}]},
+ {n:"В релиз", ph:4, owner:"project", mean:"Едет в ближайший релиз",
+  acts:[{to:12, who:"project", label:"Релиз выложен"}]},
+ {n:"Проверка после релиза", ph:4, owner:"author", mean:"Постановщик проверяет результат на проде",
+  acts:[{to:13, who:"author", label:"На проде всё ок"},
+        {to:5, who:"author", label:"Проблемы на проде", ret:true}]},
+ {n:"Готово к закрытию", ph:4, owner:"project", mean:"Финал: сделано и проверено на проде. Закрывается при чистке доски",
+  acts:[]}
+];
+// матрица: роль → символ по статусу (● выводит, ↩ возвращает, ○ участвует)
+const MX = [
+ {product:"●", project:"○", techlead:"○", dev:"", qa:"", author:"○"},
+ {product:"○", project:"○", techlead:"●", dev:"", qa:"", author:""},
+ {product:"", project:"●", techlead:"", dev:"", qa:"", author:""},
+ {product:"", project:"●", techlead:"", dev:"", qa:"", author:""},
+ {product:"", project:"○", techlead:"", dev:"●", qa:"", author:""},
+ {product:"", project:"", techlead:"", dev:"●", qa:"", author:""},
+ {product:"", project:"", techlead:"● ↩", dev:"○", qa:"", author:""},
+ {product:"", project:"", techlead:"", dev:"", qa:"●", author:""},
+ {product:"", project:"", techlead:"", dev:"", qa:"● ↩", author:""},
+ {product:"● ↩", project:"", techlead:"", dev:"", qa:"", author:""},
+ {product:"", project:"●", techlead:"", dev:"", qa:"", author:""},
+ {product:"", project:"●", techlead:"", dev:"", qa:"", author:""},
+ {product:"", project:"", techlead:"", dev:"", qa:"", author:"● ↩"},
+ {product:"", project:"○", techlead:"", dev:"", qa:"", author:""}
+];
+const chip = r => '<span class="rc rc-'+r+'">'+ROLES[r].n+'</span>';
+
+// Участники
+document.getElementById("rolecards").innerHTML = Object.keys(ROLES).map(r =>
+  '<div class="role">'+chip(r)+'<p>'+ROLES[r].d+'</p></div>').join("");
+
+// Переключатель вариантов
+const VS = [["vA","А. Конвейер"],["vB","B. Свимлейны"],["vC","C. Таблица-паспорт"],["vD","D. Матрица"],["vE","E. Симулятор"]];
+const vbar = document.getElementById("vbar");
+VS.forEach(([id,t],i) => {
+  const b = document.createElement("button"); b.className = "vbtn"+(i===0?" on":""); b.textContent = t;
+  b.addEventListener("click", () => showV(id)); b.dataset.v = id; vbar.appendChild(b);
+});
+function showV(id){
+  document.querySelectorAll(".variant").forEach(v => v.classList.toggle("on", v.id===id));
+  document.querySelectorAll(".vbtn").forEach(b => b.classList.toggle("on", b.dataset.v===id));
+  if (id==="vB") drawLanes();
+}
+document.querySelectorAll('aside.toc a[data-v]').forEach(a =>
+  a.addEventListener("click", () => showV(a.dataset.v)));
+
+// А. Конвейер
+const pipe = document.getElementById("pipe");
+PH.forEach((ph,pi) => {
+  const g = document.createElement("div"); g.className = "pgrp"; g.dataset.t = ph;
+  S.forEach((s,i) => {
+    if (s.ph!==pi) return;
+    const fw = s.acts.filter(a=>!a.ret), ret = s.acts.some(a=>a.ret);
+    const c = document.createElement("div"); c.className = "pcard";
+    c.innerHTML = '<b><i>'+(i+1)+'</i>'+s.n+'</b><small>'+s.mean+'</small>'
+      + (fw.length ? '<span>двигает: '+chip(fw[0].who)+'</span>' : '<span>'+chip("project")+' закрывает</span>')
+      + (ret ? '<span class="pret">↩ возврат в «В работе»</span>' : '');
+    g.appendChild(c);
+    const last = S.filter(x=>x.ph===pi).pop();
+    if (s!==last){ const a = document.createElement("div"); a.className="parr"; a.textContent="→"; g.appendChild(a); }
+  });
+  pipe.appendChild(g);
+});
+
+// B. Свимлейны
+const laneRoles = ["product","project","techlead","dev","qa","author"];
+const lanes = document.getElementById("lanes");
+lanes.style.gridTemplateColumns = "118px repeat("+S.length+", 128px)";
+let html = '<div class="lcell lrole lhead" style="background:#fff"></div>';
+S.forEach((s,i) => html += '<div class="lcell lhead">'+(i+1)+'. '+s.n+'</div>');
+laneRoles.forEach(r => {
+  html += '<div class="lcell lrole">'+chip(r)+'</div>';
+  S.forEach((s,i) => {
+    html += '<div class="lcell">'+(s.owner===r ?
+      '<div class="lcard rc-'+r+'" id="lc'+i+'">'+s.n+'</div>' : '')+'</div>';
+  });
+});
+lanes.innerHTML = html;
+const lsvg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+lsvg.setAttribute("class","lsvg"); lanes.appendChild(lsvg);
+function drawLanes(){
+  const lr = lanes.getBoundingClientRect();
+  lsvg.setAttribute("viewBox","0 0 "+lanes.scrollWidth+" "+lanes.scrollHeight);
+  lsvg.style.width = lanes.scrollWidth+"px"; lsvg.style.height = lanes.scrollHeight+"px";
+  const br = lanes.getBoundingClientRect();
+  const pt = i => { const cr = document.getElementById("lc"+i).getBoundingClientRect();
+    return {x:cr.left-br.left+cr.width/2, y:cr.top-br.top+cr.height/2,
+            r:cr.right-br.left, l:cr.left-br.left, t:cr.top-br.top, b:cr.bottom-br.top}; };
+  let d = "";
+  for (let i=0;i<S.length-1;i++){ const a = pt(i), b = pt(i+1);
+    d += "M"+a.r+" "+a.y+" C"+(a.r+18)+" "+a.y+" "+(b.l-18)+" "+b.y+" "+b.l+" "+b.y+" "; }
+  let rd = "";
+  S.forEach((s,i) => { if (s.acts.some(a=>a.ret)){ const a = pt(i), w = pt(5);
+    rd += "M"+a.x+" "+a.y+" L"+w.x+" "+w.y+" "; }});
+  lsvg.innerHTML = '<path d="'+d+'" fill="none" stroke="#2f54c9" stroke-width="2" opacity=".55"/>'
+    + '<path d="'+rd+'" fill="none" stroke="#b91c1c" stroke-width="1.5" stroke-dasharray="5 4" opacity=".6"/>';
+}
+addEventListener("resize", () => { if (document.getElementById("vB").classList.contains("on")) drawLanes(); });
+
+// C. Таблица-паспорт
+const inn = i => {
+  const src = [];
+  S.forEach((s,j) => s.acts.forEach(a => { if (a.to===i && !a.ret)
+    src.push(ROLES[a.who].n.toLowerCase()+" — из «"+s.n+"»"); }));
+  if (S[i].inn) src.unshift(S[i].inn);
+  if (i===5) src.push("возвраты: ревью, тест, приёмка, пострелизная проверка");
+  if (i===4) src.push("баги с прода — коротким путём (П3)");
+  return src.join("; ");
+};
+document.getElementById("passport").innerHTML =
+ '<table><tr><th>№</th><th>Статус</th><th>Что означает</th><th>Как попадает</th><th>Дальше</th><th>Возврат</th></tr>'
+ + S.map((s,i) => {
+   const fw = s.acts.filter(a=>!a.ret), ret = s.acts.find(a=>a.ret);
+   return '<tr><td>'+(i+1)+'</td><td><b>'+s.n+'</b></td><td>'+s.mean+'</td><td>'+inn(i)+'</td>'
+    + '<td>'+(fw.length ? fw.map(a => chip(a.who)+' → «'+S[a.to].n+'» — '+a.label+(a.cond?' ('+a.cond+')':'')).join('<br>')
+                        : chip("project")+' закрывает при чистке доски')+'</td>'
+    + '<td>'+(ret ? chip(ret.who)+' ↩ «В работе» — '+ret.label : '—')+'</td></tr>';
+ }).join("") + '</table>';
+
+// D. Матрица
+document.getElementById("matrix").innerHTML =
+ '<table class="mx"><tr><th>Статус</th>'+laneRoles.map(r => '<th>'+chip(r)+'</th>').join("")+'</tr>'
+ + S.map((s,i) => '<tr><td class="st">'+(i+1)+'. '+s.n+'</td>'
+    + laneRoles.map(r => '<td>'+(MX[i][r]||"")+'</td>').join("")+'</tr>').join("") + '</table>';
+
+// E. Симулятор
+const strip = document.getElementById("strip"), spanel = document.getElementById("spanel"), slog = document.getElementById("slog");
+S.forEach((s,i) => { const c = document.createElement("div"); c.className = "scol"; c.id = "sc"+i;
+  c.innerHTML = (i+1)+'. '+s.n+'<div class="dot"></div>'; strip.appendChild(c); });
+let cur = 0;
+function simRender(){
+  document.querySelectorAll(".scol").forEach((c,i) => c.classList.toggle("on", i===cur));
+  const el = document.getElementById("sc"+cur);
+  el.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+  const s = S[cur];
+  let h = '<h3>'+(cur+1)+' / '+S.length+' · '+s.n+'</h3><div class="sub">'+s.mean+'</div>'
+        + '<div class="who">Действует: '+chip(s.acts.length ? s.acts[0].who : "project")+'</div><div class="sbtns">';
+  if (s.acts.length){
+    s.acts.forEach((a,ai) => h += '<button class="sbtn'+(a.ret?' ret':'')+'" data-a="'+ai+'">'
+      + (a.ret?'↩ ':'')+a.label+' → «'+S[a.to].n+'»</button>');
+  } else {
+    h += '<span class="sub">Процесс завершён — задача закрывается при чистке доски.</span>';
+  }
+  h += '<button class="sbtn ghost" data-a="reset">Сначала</button></div>';
+  spanel.innerHTML = h;
+  spanel.querySelectorAll(".sbtn").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.a==="reset"){ cur = 0; slog.innerHTML = ""; simRender(); return; }
+    const a = S[cur].acts[+b.dataset.a];
+    const li = document.createElement("li");
+    li.innerHTML = chip(a.who)+' '+(a.ret?'↩ вернул':'перевёл')+' «'+S[cur].n+'» → «'+S[a.to].n+'» — '+a.label;
+    slog.prepend(li);
+    cur = a.to; simRender();
+  }));
+}
+simRender();
+</script>
+</body>
+</html>
