@@ -60,9 +60,6 @@
   .rc-qa{background:#fdeef5;color:#db2777;border-color:#f8d3e5}
   .rc-author{background:#f6f7fa;color:#5b6474;border-color:#e3e6ec}
 
-  .roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:14px 0}
-  .role{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff}
-  .role p{margin:7px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
 </style>
 </head>
 <body>
@@ -72,9 +69,6 @@
 
 <h1>Статусы канбан</h1>
 <p class="sub">Путь задачи по доске в Worksection: 14 статусов от идеи до закрытия — что означает каждый, кто отвечает, кто и по какому критерию двигает дальше, куда возможен возврат. Приоритет присваивается один раз — на брейншторме при входе.</p>
-
-<h2 id="roles">Участники</h2>
-<div class="roles" id="rolecards"></div>
 
 <h2 id="statuses">Статусы</h2>
 <p class="sub">Строка на статус: смысл, как задача попадает, ответственный, кто и по какому критерию двигает дальше, возможные возвраты.</p>
@@ -93,7 +87,6 @@
 </main>
 <aside class="toc">
   <div class="toc-t">На этой странице</div>
-  <a href="#roles">Участники</a>
   <a href="#statuses">Статусы</a>
   <a href="#rules">Правила процесса</a>
 </aside>
@@ -145,9 +138,6 @@ const S = [
   acts:[]}
 ];
 const chip = r => '<span class="rc rc-'+r+'">'+ROLES[r].n+'</span>';
-
-document.getElementById("rolecards").innerHTML = Object.keys(ROLES).map(r =>
-  '<div class="role">'+chip(r)+'<p>'+ROLES[r].d+'</p></div>').join("");
 
 const inn = i => {
   const src = [];
