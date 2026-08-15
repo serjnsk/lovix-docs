@@ -354,14 +354,14 @@ const inn = i => {
   return src.join("<br>");
 };
 document.getElementById("passport").innerHTML =
- '<table><tr><th>№</th><th>Статус</th><th>Что означает</th><th>Как попадает</th><th>Ответственный за статус</th><th>Кто двигает дальше</th><th>Дальше</th><th>Возврат</th></tr>'
+ '<table><tr><th>№</th><th>Статус</th><th>Что означает</th><th>Как попадает</th><th>Ответственный за статус</th><th>Кто двигает дальше</th><th>Критерий двигать дальше</th><th>Возврат</th></tr>'
  + S.map((s,i) => {
    const fw = s.acts.filter(a=>!a.ret), ret = s.acts.find(a=>a.ret);
    const movers = [...new Set(fw.map(a=>a.who))].map(chip).join(" ");
    return '<tr><td>'+(i+1)+'</td><td><b>'+s.n+'</b></td><td>'+s.mean+'</td><td>'+inn(i)+'</td>'
     + '<td>'+chip(s.owner)+'</td>'
     + '<td>'+(fw.length ? movers : chip("project"))+'</td>'
-    + '<td>'+(fw.length ? fw.map(a => '→ «'+S[a.to].n+'» — '+a.label+(a.cond?' ('+a.cond+')':'')).join('<br>')
+    + '<td>'+(fw.length ? fw.map(a => a.label+(a.cond?' ('+a.cond+')':'')+' → «'+S[a.to].n+'»').join('<br>')
                         : 'закрывается при чистке доски')+'</td>'
     + '<td>'+(ret ? chip(ret.who)+' ↩ «В работе» — '+ret.label : '—')+'</td></tr>';
  }).join("") + '</table>';
