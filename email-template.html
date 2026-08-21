@@ -380,7 +380,37 @@ function mailpvSet(btn, mob){
   pv.querySelectorAll('.dev').forEach(b => b.classList.toggle('on', b === btn));
 }
 </script>
-</div></div>
 
+</div><aside class="ptoc" id="ptoc"></aside></div>
+
+<script>
+(function(){
+  const toc = document.getElementById("ptoc"); if (!toc) return;
+  const main = document.querySelector(".pgmain");
+  const heads = main.querySelectorAll("h2, h3");
+  if (heads.length < 2) { toc.style.display = "none"; return; }
+  const t = document.createElement("div"); t.className = "toc-t"; t.textContent = "На этой странице"; toc.appendChild(t);
+  const items = [];
+  let n = 0;
+  heads.forEach(h => {
+    if (!h.id) h.id = "psec-" + (n++);
+    h.style.scrollMarginTop = "20px";
+    const a = document.createElement("a");
+    a.href = "#" + h.id;
+    a.textContent = h.textContent.trim().slice(0, 60);
+    if (h.tagName === "H3") a.className = "h3";
+    toc.appendChild(a);
+    items.push({h, a});
+  });
+  function onScroll(){
+    let cur = items[0];
+    for (const it of items) {
+      if (it.h.getBoundingClientRect().top <= 90) cur = it; else break;
+    }
+    items.forEach(it => it.a.classList.toggle("active", it === cur));
+  }
+  addEventListener("scroll", onScroll, {passive:true}); onScroll();
+})();
+</script>
 </body>
 </html>
