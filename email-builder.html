@@ -6,6 +6,7 @@
 <title>Lovix — Шаблонизатор писем</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css">
 <style>
   :root{
     --bg:#ffffff; --card:#f6f7fa; --card2:#f2f3f7; --surf:#eef0f5; --surf2:#e9ecf3;
@@ -119,6 +120,15 @@
   .pv-frame iframe{border:0;width:100%;height:calc(100vh - 235px);min-height:480px;background:var(--bg);
     transition:width .25s}
   .pv-frame.mob iframe{width:375px}
+  .pv-frame.code{background:var(--card);display:block}
+  .pv-frame.code iframe{display:none}
+  .pv-code{display:none;margin:0;height:calc(100vh - 235px);min-height:480px;overflow:auto;
+    padding:16px 18px;background:var(--card);
+    font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--txt);tab-size:2}
+  .pv-frame.code .pv-code{display:block}
+  .pv-code code{background:none;padding:0;white-space:pre;font:inherit}
+  .pv-code::-webkit-scrollbar{width:10px;height:10px}
+  .pv-code::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
   .actions{display:flex;gap:10px}
   .btn-copy{flex:1;border:0;background:var(--grad);color:#fff;font:inherit;font-size:15px;font-weight:800;
     padding:14px 0;border-radius:999px;cursor:pointer;box-shadow:0 6px 24px #2f54c944}
@@ -261,10 +271,11 @@
     <div class="pv-head">
       <button class="dev on" id="dev-d">🖥 600</button>
       <button class="dev" id="dev-m">📱 375</button>
+      <button class="dev" id="dev-c" title="Исходный HTML письма">&lt;/&gt; Код</button>
       <span class="pv-badges" id="badges"></span>
       <span class="kb" id="kb">0 КБ / 100</span>
     </div>
-    <div class="pv-frame" id="pvframe"><iframe id="pv" title="Превью письма"></iframe></div>
+    <div class="pv-frame" id="pvframe"><iframe id="pv" title="Превью письма"></iframe><pre class="pv-code" id="pvcode"><code class="language-xml"></code></pre></div>
     <div class="actions">
       <button class="btn-copy" id="copy">Копировать HTML письма</button>
       <button class="btn-ghost" id="clear" title="Пустое письмо с чистой метой">Очистить</button>
@@ -286,6 +297,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
 <script type="module">
 import { Editor, Node } from 'https://esm.sh/@tiptap/core@2.27.2'
 import StarterKit from 'https://esm.sh/@tiptap/starter-kit@2.27.2'
@@ -867,6 +879,7 @@ function update(){
   $('pv').srcdoc = currentHtml
   const kb = Math.round(new Blob([currentHtml]).size / 1024)
   $('kb').textContent = `${kb} КБ / 100`
+  if (view === 'c') paintCode()
   $('kb').classList.toggle('warn', kb > 90)
   const types = (doc.content||[]).map(n => n.type)
   const bad = []
@@ -876,13 +889,27 @@ function update(){
   try { localStorage.setItem(LS, JSON.stringify({meta, doc})) } catch {}
 }
 
-/* устройства */
-$('dev-d').addEventListener('click', () => setDev(false))
-$('dev-m').addEventListener('click', () => setDev(true))
-function setDev(mob){
-  $('pvframe').classList.toggle('mob', mob)
-  $('dev-d').classList.toggle('on', !mob)
-  $('dev-m').classList.toggle('on', mob)
+/* режимы просмотра: десктоп 600, мобила 375, исходный код */
+let view = 'd'
+$('dev-d').addEventListener('click', () => setView('d'))
+$('dev-m').addEventListener('click', () => setView('m'))
+$('dev-c').addEventListener('click', () => setView('c'))
+function setView(v){
+  view = v
+  const f = $('pvframe')
+  f.classList.toggle('mob', v === 'm')
+  f.classList.toggle('code', v === 'c')
+  $('dev-d').classList.toggle('on', v === 'd')
+  $('dev-m').classList.toggle('on', v === 'm')
+  $('dev-c').classList.toggle('on', v === 'c')
+  if (v === 'c') paintCode()
+}
+/* исходник письма с подсветкой: перерисовываем только когда вкладка кода открыта */
+function paintCode(){
+  const el = $('pvcode').firstElementChild
+  el.textContent = currentHtml
+  el.removeAttribute('data-highlighted')
+  if (window.hljs) hljs.highlightElement(el)
 }
 
 /* копирование и сброс */
